@@ -8,10 +8,8 @@ import time
 # ------------------------------
 # Baza danych
 # ------------------------------
-conn = sqlite3.connect("zakupy.db", check_same_thread=False)
+conn = sqlite3.connect("zakupy.db")
 c = conn.cursor()
-
-# Tworzymy tabelę z kolumną manual_price
 c.execute("""
 CREATE TABLE IF NOT EXISTS zakupy (
     id INTEGER PRIMARY KEY,
@@ -21,14 +19,6 @@ CREATE TABLE IF NOT EXISTS zakupy (
 )
 """)
 conn.commit()
-
-# Dodanie kolumny manual_price jeśli nie istnieje
-try:
-    c.execute("ALTER TABLE zakupy ADD COLUMN manual_price REAL")
-    conn.commit()
-except sqlite3.OperationalError:
-    # kolumna już istnieje, nic nie rób
-    pass
 
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
@@ -85,7 +75,7 @@ if st.button("🔄 Resetuj listę zakupów"):
     st.warning("Lista została wyczyszczona!")
 
 # Pobranie danych z bazy
-c.execute("SELECT id, nazwa, cena_zakupu, ilosc, manual_price FROM zakupy")
+c.execute("SELECT id, nazwa, cena_zakupu, ilosc FROM zakupy")
 rows = c.fetchall()
 
 # ------------------------------
@@ -97,56 +87,27 @@ if rows:
     total_spent = 0
     total_value = 0
 
-    for id_, nazwa, cena_zakupu, ilosc, manual_price in rows:
-    # jeśli cena ustawiona ręcznie, dodajemy czerwone kółko do nazwy w expanderze
-    manual_price_use = manual_price if manual_price else None
-    expander_label = f"✏️ {nazwa}"
-    if manual_price_use is not None:
-        expander_label += " 🔴"
-
-    with st.expander(expander_label):
-        # Edycja nazwy i ceny zakupu
-        new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
-        new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
-        new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
-
-        # Pole ręcznej ceny (manual_price)
-        manual_price_input = st.number_input(f"Ręczna cena rynkowa (opcjonalnie)", value=manual_price_use if manual_price_use else 0.0, step=0.01, key=f"manual_{id_}")
-        manual_price_use = manual_price_input if manual_price_input > 0 else None
-
-        # Pobieranie ceny z API tylko jeśli brak manual_price
-        if manual_price_use is not None:
-            cena_display = manual_price_use
-        else:
-            cena_aktualna = pobierz_cene(new_name)
-            if isinstance(cena_aktualna, float):
-                cena_display = round(cena_aktualna, 2)
-            else:
-                st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
-                cena_display = 0.0
-
+    for id_, nazwa, cena_zakupu, ilosc in rows:
+        with st.expander(f"✏️ {nazwa}"):
             # Edycja nazwy i ceny zakupu
             new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-            # Pole ręcznej ceny (manual_price) - jeśli ustawione, używamy jej zamiast API
-            manual_price_input = st.number_input(f"Ręczna cena rynkowa (opcjonalnie)", value=manual_price if manual_price else 0.0, step=0.01, key=f"manual_{id_}")
-            manual_price_use = manual_price_input if manual_price_input > 0 else None
+            # Pobieranie ceny z API
+            cena_aktualna = pobierz_cene(new_name)
 
-            # Pobieranie ceny z API tylko jeśli brak manual_price
-            if manual_price_use is not None:
-                cena_display = manual_price_use
+            if isinstance(cena_aktualna, float):
+                cena_display = round(cena_aktualna, 2)
+                manual_price = None
             else:
-                cena_aktualna = pobierz_cene(new_name)
-                if isinstance(cena_aktualna, float):
-                    cena_display = round(cena_aktualna, 2)
-                else:
-                    st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
-                    cena_display = 0.0  # domyślna wartość jeśli nie podasz ręcznej ceny
+                # Jeśli API zwróci błąd -> użytkownik może wpisać cenę ręcznie
+                st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
+                manual_price = st.number_input(f"Ręczna cena rynkowa", step=0.01, key=f"manual_{id_}")
+                cena_display = manual_price if manual_price else cena_aktualna
 
             # Obliczenia zysku
-            if cena_display:
+            if isinstance(cena_display, float):
                 zysk = (cena_display - new_cena_zakupu) * new_ilosc
                 procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
                 zysk_display = round(zysk, 2)
@@ -162,8 +123,7 @@ if rows:
 
             # Zapis zmian
             if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
-                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=?, manual_price=? WHERE id=?",
-                          (new_name, new_cena_zakupu, new_ilosc, manual_price_use, id_))
+                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?", (new_name, new_cena_zakupu, new_ilosc, id_))
                 conn.commit()
                 st.success(f"Zapisano zmiany dla {new_name}")
                 st.rerun()
@@ -184,7 +144,4 @@ if rows:
     if total_spent > 0:
         total_profit = total_value - total_spent
         total_percent = (total_profit / total_spent) * 100
-        if total_profit >= 0:
-            st.success(f"📈 Łączny zysk: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
-        else:
-            st.error(f"📉 Łączna strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
+        st.write(f"📈 Łączny zysk/strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
