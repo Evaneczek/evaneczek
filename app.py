@@ -10,16 +10,25 @@ import time
 # ------------------------------
 conn = sqlite3.connect("zakupy.db", check_same_thread=False)
 c = conn.cursor()
+
+# Tworzymy tabelę z kolumną manual_price
 c.execute("""
 CREATE TABLE IF NOT EXISTS zakupy (
     id INTEGER PRIMARY KEY,
     nazwa TEXT,
     cena_zakupu REAL,
-    ilosc INTEGER,
-    manual_price REAL
+    ilosc INTEGER
 )
 """)
 conn.commit()
+
+# Dodanie kolumny manual_price jeśli nie istnieje
+try:
+    c.execute("ALTER TABLE zakupy ADD COLUMN manual_price REAL")
+    conn.commit()
+except sqlite3.OperationalError:
+    # kolumna już istnieje, nic nie rób
+    pass
 
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
