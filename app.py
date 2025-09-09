@@ -142,7 +142,7 @@ if rows:
                     st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
                     cena_display = 0.0
 
-            # Obliczenia zysku/straty z kolorami i pogrubioną ceną
+            # Obliczenia zysku/straty z kolorami i pogrubioną, większą, białą ceną
             if cena_display:
                 zysk = (cena_display - new_cena_zakupu) * new_ilosc
                 procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
@@ -152,11 +152,23 @@ if rows:
                 total_value += cena_display * new_ilosc
 
                 if zysk > 0:
-                    st.markdown(f"<span style='color:green'><b>{cena_display} zł</b> 📈 Zysk: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<span style='font-size:22px; color:white; font-weight:bold'>{cena_display} zł</span> "
+                        f"<span style='color:green'>📈 Zysk: {zysk_display} zł ({procent_display}%)</span>",
+                        unsafe_allow_html=True
+                    )
                 elif zysk < 0:
-                    st.markdown(f"<span style='color:red'><b>{cena_display} zł</b> 📉 Strata: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                    st.markdown(
+                        f"<span style='font-size:22px; color:white; font-weight:bold'>{cena_display} zł</span> "
+                        f"<span style='color:red'>📉 Strata: {zysk_display} zł ({procent_display}%)</span>",
+                        unsafe_allow_html=True
+                    )
                 else:
-                    st.write(f"📈 Zysk/strata: 0 zł")
+                    st.markdown(
+                        f"<span style='font-size:22px; color:white; font-weight:bold'>{cena_display} zł</span> "
+                        "📈 Zysk/strata: 0 zł",
+                        unsafe_allow_html=True
+                    )
             else:
                 st.write("⚠️ Brak ceny – możesz wpisać ręcznie")
 
