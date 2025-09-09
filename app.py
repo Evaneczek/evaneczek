@@ -134,15 +134,24 @@ if rows:
                 total_value += cena_display * new_ilosc
             else:
                 procent = 0
+                zysk = 0
 
-            # Kolor procentów
+            # Kolory
             kolor_proc = "limegreen" if procent >= 0 else "red"
+            kolor_zysk = "#32CD32" if zysk >= 0 else "#FF6347"
             znak = "+" if zysk >= 0 else ""
 
-            # Wyświetlenie zysku: wartość biała i pogrubiona, procent kolorowy
+            # Wyświetlenie w jednej linii: Cena po lewej, zysk + procent po prawej
             st.markdown(
-                f"<span style='font-size:24px; color:white; font-weight:bold'>💰 Zysk: {znak}{round(zysk,2)} zł</span> "
-                f"<span style='font-size:20px; color:{kolor_proc}; font-weight:bold'>({round(procent,2)}%)</span>",
+                f"""
+                <div style='display:flex; justify-content: space-between; align-items: center; margin-top:5px'>
+                    <span style='font-size:24px; color:white; font-weight:bold'>💰 {cena_display} zł</span>
+                    <span style='font-size:24px; font-weight:bold;'>
+                        <span style='color:{kolor_zysk}'>{znak}{round(zysk,2)} zł</span>
+                        <span style='color:{kolor_proc}'> ({round(procent,2)}%)</span>
+                    </span>
+                </div>
+                """,
                 unsafe_allow_html=True
             )
 
