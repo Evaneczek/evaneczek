@@ -98,7 +98,33 @@ if rows:
     total_value = 0
 
     for id_, nazwa, cena_zakupu, ilosc, manual_price in rows:
-        with st.expander(f"✏️ {nazwa}"):
+    # jeśli cena ustawiona ręcznie, dodajemy czerwone kółko do nazwy w expanderze
+    manual_price_use = manual_price if manual_price else None
+    expander_label = f"✏️ {nazwa}"
+    if manual_price_use is not None:
+        expander_label += " 🔴"
+
+    with st.expander(expander_label):
+        # Edycja nazwy i ceny zakupu
+        new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
+        new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
+        new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
+
+        # Pole ręcznej ceny (manual_price)
+        manual_price_input = st.number_input(f"Ręczna cena rynkowa (opcjonalnie)", value=manual_price_use if manual_price_use else 0.0, step=0.01, key=f"manual_{id_}")
+        manual_price_use = manual_price_input if manual_price_input > 0 else None
+
+        # Pobieranie ceny z API tylko jeśli brak manual_price
+        if manual_price_use is not None:
+            cena_display = manual_price_use
+        else:
+            cena_aktualna = pobierz_cene(new_name)
+            if isinstance(cena_aktualna, float):
+                cena_display = round(cena_aktualna, 2)
+            else:
+                st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
+                cena_display = 0.0
+
             # Edycja nazwy i ceny zakupu
             new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
