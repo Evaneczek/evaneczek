@@ -151,4 +151,54 @@ if rows:
             else:
                 cena_aktualna = pobierz_cene(new_name)
                 if isinstance(cena_aktualna, float):
-                    cena_display = rou_
+                    cena_display = round(cena_aktualna, 2)
+                else:
+                    st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
+                    cena_display = 0.0
+
+            # Obliczenia zysku/straty z kolorami
+            if cena_display:
+                zysk = (cena_display - new_cena_zakupu) * new_ilosc
+                procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
+                zysk_display = round(zysk, 2)
+                procent_display = round(procent, 2)
+                total_spent += new_cena_zakupu * new_ilosc
+                total_value += cena_display * new_ilosc
+
+                if zysk > 0:
+                    st.markdown(f"<span style='color:green'>📈 Zysk: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                elif zysk < 0:
+                    st.markdown(f"<span style='color:red'>📉 Strata: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                else:
+                    st.write(f"📈 Zysk/strata: 0 zł")
+            else:
+                st.write("⚠️ Brak ceny – możesz wpisać ręcznie")
+
+            # Zapis zmian
+            if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
+                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=?, manual_price=? WHERE id=?",
+                          (new_name, new_cena_zakupu, new_ilosc, manual_price_use, id_))
+                conn.commit()
+                st.success(f"Zapisano zmiany dla {new_name}")
+                st.rerun()
+
+            # Usuwanie
+            if st.button(f"🗑️ Usuń", key=f"del_{id_}"):
+                c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
+                conn.commit()
+                st.warning(f"Usunięto: {nazwa}")
+                st.rerun()
+
+    # ------------------------------
+    # Podsumowanie portfela
+    # ------------------------------
+    st.subheader("📊 Podsumowanie portfela")
+    st.write(f"💸 Łączne wydatki: **{round(total_spent, 2)} zł**")
+    st.write(f"💰 Obecna wartość: **{round(total_value, 2)} zł**")
+    if total_spent > 0:
+        total_profit = total_value - total_spent
+        total_percent = (total_profit / total_spent) * 100
+        if total_profit >= 0:
+            st.success(f"📈 Łączny zysk: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
+        else:
+            st.error(f"📉 Łączna strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
