@@ -2,6 +2,7 @@ import streamlit as st
 import sqlite3
 import requests
 from requests.utils import quote
+import pandas as pd
 
 # ------------------------------
 # Baza danych
@@ -28,14 +29,16 @@ def pobierz_cene(nazwa):
 
     try:
         r = requests.get(url, headers=headers, timeout=5).json()
-        if r.get('success') and r.get('lowest_price'):
-            cena_str = r['lowest_price'].replace('zł', '').replace(',', '.').strip()
-            return float(cena_str)
+        if not r.get("success"):
+            return "Błąd nazwy"
+        elif not r.get("lowest_price"):
+            return "Brak ofert"
         else:
-            return None
+            cena_str = r["lowest_price"].replace("zł", "").replace(",", ".").strip()
+            return float(cena_str)
     except Exception as e:
         print("Błąd przy pobieraniu ceny:", e)
-        return None
+        return "Błąd połączenia"
 
 # ------------------------------
 # Interfejs Streamlit
@@ -55,32 +58,50 @@ with st.form("dodaj_form"):
         else:
             st.error("Uzupełnij wszystkie pola poprawnie!")
 
-# Pobranie danych z bazy
-c.execute("SELECT nazwa, cena_zakupu, ilosc FROM zakupy")
+# Resetowanie całej listy
+if st.button("🔄 Resetuj listę zakupów"):
+    c.execute("DELETE FROM zakupy")
+    conn.commit()
+    st.warning("Lista została wyczyszczona!")
+
+# Pobranie danych z bazy (z ID!)
+c.execute("SELECT id, nazwa, cena_zakupu, ilosc FROM zakupy")
 rows = c.fetchall()
 
 # Wyświetlanie tabeli
 if rows:
     data = []
-    for nazwa, cena_zakupu, ilosc in rows:
+    for id_, nazwa, cena_zakupu, ilosc in rows:
         cena_aktualna = pobierz_cene(nazwa)
 
-        if cena_aktualna is None:
-            zysk = None
-            procent = None
-            cena_aktualna_display = "Sprawdź nazwę przedmiotu"
-        else:
+        if isinstance(cena_aktualna, float):
             zysk = (cena_aktualna - cena_zakupu) * ilosc
             procent = (cena_aktualna - cena_zakupu) / cena_zakupu * 100
-            cena_aktualna_display = round(cena_aktualna, 2)
+            cena_display = round(cena_aktualna, 2)
+            zysk_display = round(zysk, 2)
+            procent_display = f"{round(procent, 2)}%"
+        else:
+            cena_display = cena_aktualna  # komunikat z funkcji
+            zysk_display = "-"
+            procent_display = "-"
+
+        # Dodajemy przycisk usuwania (unikalny klucz key=id_)
+        delete_button = st.button(f"Usuń {nazwa}", key=f"del_{id_}")
+        if delete_button:
+            c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
+            conn.commit()
+            st.warning(f"Usunięto: {nazwa}")
+            st.experimental_rerun()  # odświeżenie strony
 
         data.append([
             nazwa,
             round(cena_zakupu, 2),
-            cena_aktualna_display,
+            cena_display,
             ilosc,
-            round(zysk, 2) if zysk is not None else "-",
-            f"{round(procent, 2)}%" if procent is not None else "-"
+            zysk_display,
+            procent_display
         ])
 
-    st.table(data)
+    # Tworzymy dataframe i wyświetlamy
+    df = pd.DataFrame(data, columns=["Nazwa", "Cena zakupu", "Cena aktualna", "Ilość", "Zysk", "Procent"])
+    st.dataframe(df, use_container_width=True)
