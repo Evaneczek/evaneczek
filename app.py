@@ -135,16 +135,14 @@ if rows:
             else:
                 procent = 0
 
-            # Wyświetlenie zysku dużą, białą i pogrubioną czcionką
-            if zysk >= 0:
-                color = "limegreen"
-                znak = "+"
-            else:
-                color = "red"
-                znak = ""
+            # Kolor procentów
+            kolor_proc = "limegreen" if procent >= 0 else "red"
+            znak = "+" if zysk >= 0 else ""
 
+            # Wyświetlenie zysku: wartość biała i pogrubiona, procent kolorowy
             st.markdown(
-                f"<span style='font-size:24px; color:white; font-weight:bold'>💰 Zysk: {znak}{round(zysk,2)} zł ({round(procent,2)}%)</span>",
+                f"<span style='font-size:24px; color:white; font-weight:bold'>💰 Zysk: {znak}{round(zysk,2)} zł</span> "
+                f"<span style='font-size:20px; color:{kolor_proc}; font-weight:bold'>({round(procent,2)}%)</span>",
                 unsafe_allow_html=True
             )
 
