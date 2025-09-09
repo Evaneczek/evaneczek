@@ -22,23 +22,34 @@ conn.commit()
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
 # ------------------------------
-def pobierz_cene(nazwa):
+import time
+
+def pobierz_cene(nazwa, retries=3):
     nazwa_encoded = quote(nazwa)
     url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa_encoded}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
-    try:
-        r = requests.get(url, headers=headers, timeout=5).json()
-        if not r.get("success"):
-            return "Błąd nazwy"
-        elif not r.get("lowest_price"):
-            return "Brak ofert"
-        else:
-            cena_str = r["lowest_price"].replace("zł", "").replace(",", ".").strip()
-            return float(cena_str)
-    except Exception as e:
-        print("Błąd przy pobieraniu ceny:", e)
-        return "Błąd połączenia"
+    for attempt in range(retries):
+        try:
+            r = requests.get(url, headers=headers, timeout=5)
+            if r.status_code != 200:
+                time.sleep(1)
+                continue
+
+            data = r.json()
+            if not data.get("success"):
+                return "Błąd nazwy"
+            elif not data.get("lowest_price"):
+                return "Brak ofert"
+            else:
+                cena_str = data["lowest_price"].replace("zł", "").replace(",", ".").strip()
+                return float(cena_str)
+
+        except Exception as e:
+            print(f"Próba {attempt+1}: błąd przy pobieraniu ceny {nazwa} -> {e}")
+            time.sleep(1)
+
+    return "Błąd połączenia"
 
 # ------------------------------
 # Interfejs Streamlit
