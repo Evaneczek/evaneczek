@@ -126,20 +126,6 @@ if rows:
             expander_label = f"✏️ {expander_label}"
 
         with st.expander(expander_label):
-            # Ręczna cena mniej widoczna
-            manual_price_input = st.number_input(
-                "Ręczna cena rynkowa (opcjonalnie)", 
-                value=manual_price_use if manual_price_use else 0.0, 
-                step=0.01, 
-                key=f"manual_{id_}"
-            )
-            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana, używana tylko w wyjątkowych przypadkach</small>", unsafe_allow_html=True)
-
-            # Sprawdzenie ręcznej zmiany
-            if manual_price_input != (manual_price_use if manual_price_use else 0.0):
-                st.session_state[f"manual_edited_{id_}"] = True
-            manual_price_use = manual_price_input if manual_price_input > 0 else None
-
             # Edycja nazwy i ilości
             new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
@@ -156,7 +142,7 @@ if rows:
                     st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
                     cena_display = 0.0
 
-            # Obliczenia zysku/straty z kolorami
+            # Obliczenia zysku/straty z kolorami i pogrubioną ceną
             if cena_display:
                 zysk = (cena_display - new_cena_zakupu) * new_ilosc
                 procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
@@ -166,13 +152,29 @@ if rows:
                 total_value += cena_display * new_ilosc
 
                 if zysk > 0:
-                    st.markdown(f"<span style='color:green'>📈 Zysk: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:green'><b>{cena_display} zł</b> 📈 Zysk: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
                 elif zysk < 0:
-                    st.markdown(f"<span style='color:red'>📉 Strata: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
+                    st.markdown(f"<span style='color:red'><b>{cena_display} zł</b> 📉 Strata: {zysk_display} zł ({procent_display}%)</span>", unsafe_allow_html=True)
                 else:
                     st.write(f"📈 Zysk/strata: 0 zł")
             else:
                 st.write("⚠️ Brak ceny – możesz wpisać ręcznie")
+
+            # -------------------------
+            # Ręczna cena na sam dół
+            # -------------------------
+            manual_price_input = st.number_input(
+                "Ręczna cena rynkowa (opcjonalnie)", 
+                value=manual_price_use if manual_price_use else 0.0, 
+                step=0.01, 
+                key=f"manual_{id_}"
+            )
+            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana, używana tylko w wyjątkowych przypadkach</small>", unsafe_allow_html=True)
+
+            # Sprawdzenie ręcznej zmiany
+            if manual_price_input != (manual_price_use if manual_price_use else 0.0):
+                st.session_state[f"manual_edited_{id_}"] = True
+            manual_price_use = manual_price_input if manual_price_input > 0 else None
 
             # Zapis zmian
             if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
