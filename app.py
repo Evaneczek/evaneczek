@@ -122,13 +122,17 @@ if rows:
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
             # Pole ręcznej ceny na samym dole
-            manual_price_input = st.number_input(f"Ręczna cena rynkowa (opcjonalnie)", value=manual_price if manual_price else 0.0, step=0.01, key=f"manual_{id_}")
+            manual_price_input = st.number_input(
+                f"Ręczna cena rynkowa (opcjonalnie)",
+                value=manual_price if manual_price else 0.0,
+                step=0.01,
+                key=f"manual_{id_}"
+            )
             manual_price_use = manual_price_input if manual_price_input > 0 else None
 
-            # Aktualizacja ceny wyświetlanej
+            # Aktualizacja ceny wyświetlanej i zapis w bazie
             if manual_price_use is not None:
                 cena_display = manual_price_use
-                # Zaznaczamy w bazie, że cena była ręcznie edytowana
                 c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?", (manual_price_use, id_))
                 conn.commit()
 
@@ -144,20 +148,20 @@ if rows:
             st.markdown(f"**Aktualna cena:** {cena_display} zł")
             st.markdown(f"**Zysk:** {zysk:.2f} zł ({procent:.2f}%)")
 
-            # Zapis zmian
+            # Zapis zmian przycisk
             if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
-                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?",
-                          (new_name, new_cena_zakupu, new_ilosc, id_))
+                c.execute(
+                    "UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?",
+                    (new_name, new_cena_zakupu, new_ilosc, id_)
+                )
                 conn.commit()
                 st.success(f"Zapisano zmiany dla {new_name}")
-                st.experimental_rerun()
 
-            # Usuwanie
+            # Usuwanie przedmiotu
             if st.button(f"🗑️ Usuń", key=f"del_{id_}"):
                 c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
                 conn.commit()
                 st.warning(f"Usunięto: {nazwa}")
-                st.experimental_rerun()
 
     # Podsumowanie portfela
     st.subheader("📊 Podsumowanie portfela")
