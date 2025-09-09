@@ -11,18 +11,30 @@ import random
 conn = sqlite3.connect("zakupy.db", check_same_thread=False)
 c = conn.cursor()
 
-# Tworzymy tabelę z kolumnami manual_price i manual_edited
+# Tworzymy tabelę podstawową
 c.execute("""
 CREATE TABLE IF NOT EXISTS zakupy (
     id INTEGER PRIMARY KEY,
     nazwa TEXT,
     cena_zakupu REAL,
-    ilosc INTEGER,
-    manual_price REAL,
-    manual_edited INTEGER DEFAULT 0
+    ilosc INTEGER
 )
 """)
 conn.commit()
+
+# Dodajemy kolumnę manual_price jeśli nie istnieje
+try:
+    c.execute("ALTER TABLE zakupy ADD COLUMN manual_price REAL")
+    conn.commit()
+except sqlite3.OperationalError:
+    pass
+
+# Dodajemy kolumnę manual_edited jeśli nie istnieje
+try:
+    c.execute("ALTER TABLE zakupy ADD COLUMN manual_edited INTEGER DEFAULT 0")
+    conn.commit()
+except sqlite3.OperationalError:
+    pass
 
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
@@ -52,10 +64,9 @@ def pobierz_cene(nazwa, retries=2):
     return "Błąd połączenia"
 
 # ------------------------------
-# Funkcja pobierająca średnią cenę z historii (symulacja)
+# Funkcja symulująca średnią cenę z historii
 # ------------------------------
 def pobierz_srednia_cene(nazwa):
-    """Zwraca przykładowe wartości dla 7 i 30 dni w zł i procenty w stosunku do obecnej ceny"""
     srednia_7 = round(random.uniform(0.9, 1.1), 2)
     srednia_30 = round(random.uniform(0.85, 1.15), 2)
     return srednia_7, srednia_30
@@ -84,10 +95,27 @@ if st.button("🔄 Resetuj listę zakupów"):
     conn.commit()
     st.warning("Lista została wyczyszczona!")
 
-# Pobranie danych z bazy
-c.execute("SELECT id, nazwa, cena_zakupu, ilosc, manual_price, manual_edited FROM zakupy")
+# Pobranie danych z bazy (teraz bezpiecznie)
+c.execute("PRAGMA table_info(zakupy)")
+columns = [info[1] for info in c.fetchall()]
+
+# Dopasowanie SELECT w zależności od kolumn
+select_cols = "id, nazwa, cena_zakupu, ilosc"
+if "manual_price" in columns:
+    select_cols += ", manual_price"
+else:
+    select_cols += ", NULL as manual_price"
+if "manual_edited" in columns:
+    select_cols += ", manual_edited"
+else:
+    select_cols += ", 0 as manual_edited"
+
+c.execute(f"SELECT {select_cols} FROM zakupy")
 rows = c.fetchall()
 
+# ------------------------------
+# Wyświetlanie tabeli
+# ------------------------------
 if rows:
     st.subheader("📋 Twoje przedmioty")
     total_spent = 0
@@ -121,12 +149,11 @@ if rows:
             expander_label = f"✏️ {expander_label}"
 
         with st.expander(expander_label):
-            # Edycja nazwy i ilości
             new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-            # Pobranie ceny automatycznie jeśli brak manual_price
+            # Cena automatyczna jeśli brak manual_price
             if manual_price_use is not None:
                 cena_display = manual_price_use
             else:
@@ -137,7 +164,7 @@ if rows:
                     st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
                     cena_display = 0.0
 
-            # Pobranie przykładowych średnich cen 7 i 30 dni
+            # Średnia cena 7 i 30 dni
             if isinstance(cena_display, float) and cena_display > 0:
                 srednia_7, srednia_30 = pobierz_srednia_cene(new_name)
                 proc_7 = round((srednia_7 - cena_display)/cena_display*100,2)
@@ -147,7 +174,7 @@ if rows:
                     f"Średnia 30 dni: {srednia_30} zł ({proc_30}%)</span>", unsafe_allow_html=True
                 )
 
-            # Obliczenia zysku/straty z dużą białą ceną
+            # Wyświetlenie dużej białej ceny i kolorowego zysku/straty
             if cena_display:
                 zysk = (cena_display - new_cena_zakupu) * new_ilosc
                 procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
@@ -186,9 +213,9 @@ if rows:
                 step=0.01, 
                 key=f"manual_{id_}"
             )
-            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana, używana tylko w wyjątkowych przypadkach</small>", unsafe_allow_html=True)
+            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana</small>", unsafe_allow_html=True)
 
-            # Sprawdzenie ręcznej zmiany
+            # Zmiana ręcznej ceny
             if manual_price_input != (manual_price_use if manual_price_use else 0.0):
                 manual_price_use = manual_price_input if manual_price_input > 0 else None
                 c.execute("UPDATE zakupy SET manual_edited=1 WHERE id=?", (id_,))
@@ -209,9 +236,7 @@ if rows:
                 st.warning(f"Usunięto: {nazwa}")
                 st.rerun()
 
-    # ------------------------------
     # Podsumowanie portfela
-    # ------------------------------
     st.subheader("📊 Podsumowanie portfela")
     st.write(f"💸 Łączne wydatki: **{round(total_spent, 2)} zł**")
     st.write(f"💰 Obecna wartość: **{round(total_value, 2)} zł**")
