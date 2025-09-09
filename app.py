@@ -26,7 +26,7 @@ try:
     c.execute("ALTER TABLE zakupy ADD COLUMN manual_price REAL")
     conn.commit()
 except sqlite3.OperationalError:
-    pass  # kolumna już istnieje
+    pass
 
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
@@ -126,15 +126,16 @@ if rows:
             expander_label = f"✏️ {expander_label}"
 
         with st.expander(expander_label):
-            # Edycja ręcznej ceny
+            # Ręczna cena mniej widoczna
             manual_price_input = st.number_input(
-                f"Ręczna cena rynkowa (opcjonalnie)",
-                value=manual_price_use if manual_price_use else 0.0,
-                step=0.01,
+                "Ręczna cena rynkowa (opcjonalnie)", 
+                value=manual_price_use if manual_price_use else 0.0, 
+                step=0.01, 
                 key=f"manual_{id_}"
             )
+            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana, używana tylko w wyjątkowych przypadkach</small>", unsafe_allow_html=True)
 
-            # Jeśli zmieniono ręcznie cenę → ustawiamy flagę w session_state
+            # Sprawdzenie ręcznej zmiany
             if manual_price_input != (manual_price_use if manual_price_use else 0.0):
                 st.session_state[f"manual_edited_{id_}"] = True
             manual_price_use = manual_price_input if manual_price_input > 0 else None
@@ -144,57 +145,10 @@ if rows:
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-            # Pobieranie ceny z API tylko jeśli brak manual_price
+            # Pobranie ceny automatycznie jeśli brak manual_price
             if manual_price_use is not None:
                 cena_display = manual_price_use
             else:
                 cena_aktualna = pobierz_cene(new_name)
                 if isinstance(cena_aktualna, float):
-                    cena_display = round(cena_aktualna, 2)
-                else:
-                    st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
-                    cena_display = 0.0
-
-            # Obliczenia zysku i procentu
-            if cena_display:
-                zysk = (cena_display - new_cena_zakupu) * new_ilosc
-                procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
-                zysk_display = round(zysk, 2)
-                procent_display = f"{round(procent, 2)}%"
-                total_spent += new_cena_zakupu * new_ilosc
-                total_value += cena_display * new_ilosc
-            else:
-                zysk_display = "-"
-                procent_display = "-"
-
-            st.write(f"💰 Aktualna cena: {cena_display}")
-            st.write(f"📈 Zysk: {zysk_display} ({procent_display})")
-
-            # Zapis zmian
-            if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
-                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=?, manual_price=? WHERE id=?",
-                          (new_name, new_cena_zakupu, new_ilosc, manual_price_use, id_))
-                conn.commit()
-                st.success(f"Zapisano zmiany dla {new_name}")
-                st.rerun()
-
-            # Usuwanie
-            if st.button(f"🗑️ Usuń", key=f"del_{id_}"):
-                c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
-                conn.commit()
-                st.warning(f"Usunięto: {nazwa}")
-                st.rerun()
-
-    # ------------------------------
-    # Podsumowanie portfela
-    # ------------------------------
-    st.subheader("📊 Podsumowanie portfela")
-    st.write(f"💸 Łączne wydatki: **{round(total_spent, 2)} zł**")
-    st.write(f"💰 Obecna wartość: **{round(total_value, 2)} zł**")
-    if total_spent > 0:
-        total_profit = total_value - total_spent
-        total_percent = (total_profit / total_spent) * 100
-        if total_profit >= 0:
-            st.success(f"📈 Łączny zysk: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
-        else:
-            st.error(f"📉 Łączna strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
+                    cena_display = rou_
