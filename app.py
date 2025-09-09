@@ -49,8 +49,22 @@ if rows:
     data = []
     for nazwa, cena_zakupu, ilosc in rows:
         cena_aktualna = pobierz_cene(nazwa)
-        zysk = (cena_aktualna - cena_zakupu) * ilosc
-        procent = (cena_aktualna - cena_zakupu) / cena_zakupu * 100
-        data.append([nazwa, cena_zakupu, cena_aktualna, ilosc, round(zysk, 2), f"{round(procent, 2)}%"])
+
+        if cena_aktualna is None:
+            zysk = None
+            procent = None
+        else:
+            zysk = (cena_aktualna - cena_zakupu) * ilosc
+            procent = (cena_aktualna - cena_zakupu) / cena_zakupu * 100
+
+        data.append([
+            nazwa, 
+            cena_zakupu, 
+            cena_aktualna if cena_aktualna is not None else "Brak ceny", 
+            ilosc, 
+            round(zysk, 2) if zysk is not None else "-", 
+            f"{round(procent, 2)}%" if procent is not None else "-"
+        ])
 
     st.table(data)
+
