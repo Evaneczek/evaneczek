@@ -112,7 +112,7 @@ if rows:
         elif zysk < 0:
             expander_label += " 🔴"
 
-        # Dodajemy ✏️ jeśli ręcznie zmieniono cenę (manual_edited=1)
+        # Dodajemy ✏️ jeśli ręcznie zmieniono cenę
         if manual_edited == 1:
             expander_label = f"✏️ {expander_label}"
 
@@ -121,20 +121,10 @@ if rows:
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-            # Pole ręcznej ceny na samym dole
-            manual_price_input = st.number_input(
-                f"Ręczna cena rynkowa (opcjonalnie)",
-                value=manual_price if manual_price else 0.0,
-                step=0.01,
-                key=f"manual_{id_}"
-            )
-            manual_price_use = manual_price_input if manual_price_input > 0 else None
-
-            # Aktualizacja ceny wyświetlanej i zapis w bazie
-            if manual_price_use is not None:
-                cena_display = manual_price_use
-                c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?", (manual_price_use, id_))
-                conn.commit()
+            # Aktualizacja ceny wyświetlanej jeśli brak manual_price
+            if manual_price_use is None:
+                cena_aktualna = pobierz_cene(new_name)
+                cena_display = round(cena_aktualna, 2) if isinstance(cena_aktualna, float) else 0.0
 
             # Obliczenia zysku
             if cena_display:
@@ -145,8 +135,33 @@ if rows:
             else:
                 procent = 0
 
-            st.markdown(f"**Aktualna cena:** {cena_display} zł")
-            st.markdown(f"**Zysk:** {zysk:.2f} zł ({procent:.2f}%)")
+            # Wyświetlenie zysku dużą, białą i pogrubioną czcionką
+            if zysk >= 0:
+                color = "limegreen"
+                znak = "+"
+            else:
+                color = "red"
+                znak = ""
+
+            st.markdown(
+                f"<span style='font-size:24px; color:white; font-weight:bold'>💰 Zysk: {znak}{round(zysk,2)} zł ({round(procent,2)}%)</span>",
+                unsafe_allow_html=True
+            )
+
+            # Pole ręcznej ceny na samym dole
+            manual_price_input = st.number_input(
+                f"Ręczna cena rynkowa (opcjonalnie)",
+                value=manual_price if manual_price else 0.0,
+                step=0.01,
+                key=f"manual_{id_}"
+            )
+            manual_price_use = manual_price_input if manual_price_input > 0 else None
+
+            # Zapis ręcznej ceny
+            if manual_price_use is not None:
+                cena_display = manual_price_use
+                c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?", (manual_price_use, id_))
+                conn.commit()
 
             # Zapis zmian przycisk
             if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
