@@ -78,17 +78,21 @@ if st.button("🔄 Resetuj listę zakupów"):
 c.execute("SELECT id, nazwa, cena_zakupu, ilosc FROM zakupy")
 rows = c.fetchall()
 
+# ------------------------------
 # Wyświetlanie tabeli z edycją
+# ------------------------------
 if rows:
     st.subheader("📋 Twoje przedmioty")
 
-    updated_rows = []
+    total_spent = 0
+    total_value = 0
+
     for id_, nazwa, cena_zakupu, ilosc in rows:
-        with st.expander(f"✏️ {nazwa} (ID: {id_})"):
+        with st.expander(f"✏️ {nazwa}"):
             # Edycja nazwy i ceny zakupu
-            new_name = st.text_input(f"Nazwa przedmiotu (ID {id_})", nazwa, key=f"name_{id_}")
-            new_cena_zakupu = st.number_input(f"Cena zakupu (zł) (ID {id_})", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
-            new_ilosc = st.number_input(f"Ilość (ID {id_})", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
+            new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
+            new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
+            new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
             # Pobieranie ceny z API
             cena_aktualna = pobierz_cene(new_name)
@@ -99,7 +103,7 @@ if rows:
             else:
                 # Jeśli API zwróci błąd -> użytkownik może wpisać cenę ręcznie
                 st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
-                manual_price = st.number_input(f"Ręczna cena rynkowa (ID {id_})", step=0.01, key=f"manual_{id_}")
+                manual_price = st.number_input(f"Ręczna cena rynkowa", step=0.01, key=f"manual_{id_}")
                 cena_display = manual_price if manual_price else cena_aktualna
 
             # Obliczenia zysku
@@ -108,6 +112,8 @@ if rows:
                 procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
                 zysk_display = round(zysk, 2)
                 procent_display = f"{round(procent, 2)}%"
+                total_spent += new_cena_zakupu * new_ilosc
+                total_value += cena_display * new_ilosc
             else:
                 zysk_display = "-"
                 procent_display = "-"
@@ -116,15 +122,26 @@ if rows:
             st.write(f"📈 Zysk: {zysk_display} ({procent_display})")
 
             # Zapis zmian
-            if st.button(f"💾 Zapisz zmiany (ID {id_})", key=f"save_{id_}"):
+            if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
                 c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?", (new_name, new_cena_zakupu, new_ilosc, id_))
                 conn.commit()
                 st.success(f"Zapisano zmiany dla {new_name}")
-                st.experimental_rerun()
+                st.rerun()
 
             # Usuwanie
-            if st.button(f"🗑️ Usuń (ID {id_})", key=f"del_{id_}"):
+            if st.button(f"🗑️ Usuń", key=f"del_{id_}"):
                 c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
                 conn.commit()
                 st.warning(f"Usunięto: {nazwa}")
-                st.experimental_rerun()
+                st.rerun()
+
+    # ------------------------------
+    # Podsumowanie portfela
+    # ------------------------------
+    st.subheader("📊 Podsumowanie portfela")
+    st.write(f"💸 Łączne wydatki: **{round(total_spent, 2)} zł**")
+    st.write(f"💰 Obecna wartość: **{round(total_value, 2)} zł**")
+    if total_spent > 0:
+        total_profit = total_value - total_spent
+        total_percent = (total_profit / total_spent) * 100
+        st.write(f"📈 Łączny zysk/strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
