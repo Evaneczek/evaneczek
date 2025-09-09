@@ -16,8 +16,17 @@ conn.commit()
 # Funkcja do pobierania cen
 def pobierz_cene(nazwa):
     url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa.replace(' ', '%20')}"
-    r = requests.get(url).json()
-    return float(r['lowest_price'].replace(',', '.').replace('zł', '').strip())
+    try:
+        r = requests.get(url, timeout=5).json()
+        if r.get('success') and r.get('lowest_price'):
+            # Usuwamy wszystko oprócz cyfr i kropki
+            cena_str = r['lowest_price'].replace('zł', '').replace(',', '.').strip()
+            return float(cena_str)
+        else:
+            return None
+    except Exception as e:
+        print("Błąd przy pobieraniu ceny:", e)
+        return None
 
 # UI
 st.title("📊 Steam Skins Tracker")
