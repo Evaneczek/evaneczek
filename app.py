@@ -96,17 +96,17 @@ if rows:
     total_value = 0
 
     for id_, nazwa, cena_zakupu, ilosc, manual_price in rows:
+        if f"manual_edited_{id_}" not in st.session_state:
+            st.session_state[f"manual_edited_{id_}"] = False
+
         manual_price_use = manual_price if manual_price else None
 
-        # Pobranie ceny wyświetlanej
+        # Początkowa cena do wyświetlenia
         if manual_price_use is not None:
             cena_display = manual_price_use
         else:
             cena_aktualna = pobierz_cene(nazwa)
-            if isinstance(cena_aktualna, float):
-                cena_display = round(cena_aktualna, 2)
-            else:
-                cena_display = 0.0
+            cena_display = round(cena_aktualna, 2) if isinstance(cena_aktualna, float) else 0.0
 
         # Obliczamy zysk/stratę
         if cena_display:
@@ -121,26 +121,32 @@ if rows:
         elif zysk < 0:
             expander_label += " 🔴"
 
+        # Dodajemy ✏️ jeśli wcześniej ręcznie zmieniono cenę
+        if st.session_state[f"manual_edited_{id_}"]:
+            expander_label = f"✏️ {expander_label}"
+
         with st.expander(expander_label):
-            # Edycja nazwy i ceny zakupu
+            # Edycja ręcznej ceny
+            manual_price_input = st.number_input(
+                f"Ręczna cena rynkowa (opcjonalnie)",
+                value=manual_price_use if manual_price_use else 0.0,
+                step=0.01,
+                key=f"manual_{id_}"
+            )
+
+            # Jeśli zmieniono ręcznie cenę → ustawiamy flagę w session_state
+            if manual_price_input != (manual_price_use if manual_price_use else 0.0):
+                st.session_state[f"manual_edited_{id_}"] = True
+            manual_price_use = manual_price_input if manual_price_input > 0 else None
+
+            # Edycja nazwy i ilości
             new_name = st.text_input(f"Nazwa przedmiotu", nazwa, key=f"name_{id_}")
             new_cena_zakupu = st.number_input(f"Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
             new_ilosc = st.number_input(f"Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-            # Pole ręcznej ceny (tylko jeśli chcesz ją zmienić)
-            manual_price_input = st.number_input(f"Ręczna cena rynkowa (opcjonalnie)",
-                                                 value=manual_price_use if manual_price_use else 0.0,
-                                                 step=0.01, key=f"manual_{id_}")
-            new_manual_price = manual_price_input if manual_price_input > 0 else None
-
-            # Jeśli ręcznie zmieniono cenę, dodajemy ✏️ do expandera
-            manual_edited = False
-            if new_manual_price != manual_price_use:
-                manual_edited = True
-
             # Pobieranie ceny z API tylko jeśli brak manual_price
-            if new_manual_price is not None:
-                cena_display = new_manual_price
+            if manual_price_use is not None:
+                cena_display = manual_price_use
             else:
                 cena_aktualna = pobierz_cene(new_name)
                 if isinstance(cena_aktualna, float):
@@ -161,14 +167,13 @@ if rows:
                 zysk_display = "-"
                 procent_display = "-"
 
-            # Wyświetlenie aktualnej ceny i zysku
             st.write(f"💰 Aktualna cena: {cena_display}")
             st.write(f"📈 Zysk: {zysk_display} ({procent_display})")
 
             # Zapis zmian
             if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
                 c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=?, manual_price=? WHERE id=?",
-                          (new_name, new_cena_zakupu, new_ilosc, new_manual_price, id_))
+                          (new_name, new_cena_zakupu, new_ilosc, manual_price_use, id_))
                 conn.commit()
                 st.success(f"Zapisano zmiany dla {new_name}")
                 st.rerun()
