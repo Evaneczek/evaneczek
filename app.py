@@ -3,6 +3,7 @@ import sqlite3
 import requests
 from requests.utils import quote
 import pandas as pd
+import time
 
 # ------------------------------
 # Baza danych
@@ -22,9 +23,7 @@ conn.commit()
 # ------------------------------
 # Funkcja pobierająca cenę z Steam
 # ------------------------------
-import time
-
-def pobierz_cene(nazwa, retries=3):
+def pobierz_cene(nazwa, retries=2):
     nazwa_encoded = quote(nazwa)
     url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa_encoded}"
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
@@ -75,44 +74,57 @@ if st.button("🔄 Resetuj listę zakupów"):
     conn.commit()
     st.warning("Lista została wyczyszczona!")
 
-# Pobranie danych z bazy (z ID!)
+# Pobranie danych z bazy
 c.execute("SELECT id, nazwa, cena_zakupu, ilosc FROM zakupy")
 rows = c.fetchall()
 
-# Wyświetlanie tabeli
+# Wyświetlanie tabeli z edycją
 if rows:
-    data = []
+    st.subheader("📋 Twoje przedmioty")
+
+    updated_rows = []
     for id_, nazwa, cena_zakupu, ilosc in rows:
-        cena_aktualna = pobierz_cene(nazwa)
+        with st.expander(f"✏️ {nazwa} (ID: {id_})"):
+            # Edycja nazwy i ceny zakupu
+            new_name = st.text_input(f"Nazwa przedmiotu (ID {id_})", nazwa, key=f"name_{id_}")
+            new_cena_zakupu = st.number_input(f"Cena zakupu (zł) (ID {id_})", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
+            new_ilosc = st.number_input(f"Ilość (ID {id_})", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-        if isinstance(cena_aktualna, float):
-            zysk = (cena_aktualna - cena_zakupu) * ilosc
-            procent = (cena_aktualna - cena_zakupu) / cena_zakupu * 100
-            cena_display = round(cena_aktualna, 2)
-            zysk_display = round(zysk, 2)
-            procent_display = f"{round(procent, 2)}%"
-        else:
-            cena_display = cena_aktualna  # komunikat z funkcji
-            zysk_display = "-"
-            procent_display = "-"
+            # Pobieranie ceny z API
+            cena_aktualna = pobierz_cene(new_name)
 
-        # Dodajemy przycisk usuwania (unikalny klucz key=id_)
-        delete_button = st.button(f"Usuń {nazwa}", key=f"del_{id_}")
-        if delete_button:
-            c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
-            conn.commit()
-            st.warning(f"Usunięto: {nazwa}")
-            st.experimental_rerun()  # odświeżenie strony
+            if isinstance(cena_aktualna, float):
+                cena_display = round(cena_aktualna, 2)
+                manual_price = None
+            else:
+                # Jeśli API zwróci błąd -> użytkownik może wpisać cenę ręcznie
+                st.warning(f"⚠️ {cena_aktualna} – możesz wpisać ręcznie cenę.")
+                manual_price = st.number_input(f"Ręczna cena rynkowa (ID {id_})", step=0.01, key=f"manual_{id_}")
+                cena_display = manual_price if manual_price else cena_aktualna
 
-        data.append([
-            nazwa,
-            round(cena_zakupu, 2),
-            cena_display,
-            ilosc,
-            zysk_display,
-            procent_display
-        ])
+            # Obliczenia zysku
+            if isinstance(cena_display, float):
+                zysk = (cena_display - new_cena_zakupu) * new_ilosc
+                procent = (cena_display - new_cena_zakupu) / new_cena_zakupu * 100
+                zysk_display = round(zysk, 2)
+                procent_display = f"{round(procent, 2)}%"
+            else:
+                zysk_display = "-"
+                procent_display = "-"
 
-    # Tworzymy dataframe i wyświetlamy
-    df = pd.DataFrame(data, columns=["Nazwa", "Cena zakupu", "Cena aktualna", "Ilość", "Zysk", "Procent"])
-    st.dataframe(df, use_container_width=True)
+            st.write(f"💰 Aktualna cena: {cena_display}")
+            st.write(f"📈 Zysk: {zysk_display} ({procent_display})")
+
+            # Zapis zmian
+            if st.button(f"💾 Zapisz zmiany (ID {id_})", key=f"save_{id_}"):
+                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?", (new_name, new_cena_zakupu, new_ilosc, id_))
+                conn.commit()
+                st.success(f"Zapisano zmiany dla {new_name}")
+                st.experimental_rerun()
+
+            # Usuwanie
+            if st.button(f"🗑️ Usuń (ID {id_})", key=f"del_{id_}"):
+                c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
+                conn.commit()
+                st.warning(f"Usunięto: {nazwa}")
+                st.experimental_rerun()
