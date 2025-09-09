@@ -1,0 +1,72 @@
+import streamlit as st
+import sqlite3
+import requests
+import json
+
+# Połączenie z bazą danych
+conn = sqlite3.connect("zakupy.db")
+c = conn.cursor()
+
+# Tworzenie tabeli, jeśli nie istnieje
+c.execute("""
+CREATE TABLE IF NOT EXISTS zakupy (
+    id INTEGER PRIMARY KEY,
+    nazwa TEXT,
+    cena_zakupu REAL,
+    ilosc INTEGER,
+    cena_7d REAL,
+    cena_30d REAL
+)
+""")
+conn.commit()
+
+# Funkcja pobierająca dane z API Steam
+def pobierz_dane_steam(nazwa):
+    url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa}"
+    response = requests.get(url)
+    if response.status_code == 200:
+        dane = response.json()
+        if dane.get("success"):
+            return dane.get("pricemedian7d"), dane.get("pricemedian30d")
+    return None, None
+
+# Formularz dodawania przedmiotu
+with st.form("dodaj_form"):
+    nazwa = st.text_input("Nazwa przedmiotu (market_hash_name)")
+    cena = st.number_input("Cena zakupu (zł)", step=0.01)
+    ilosc = st.number_input("Ilość", min_value=1, step=1)
+    submit_button = st.form_submit_button("Dodaj")
+
+    if submit_button:
+        if nazwa and cena > 0 and ilosc > 0:
+            cena_7d, cena_30d = pobierz_dane_steam(nazwa)
+            if cena_7d is not None and cena_30d is not None:
+                c.execute("INSERT INTO zakupy (nazwa, cena_zakupu, ilosc, cena_7d, cena_30d) VALUES (?, ?, ?, ?, ?)",
+                          (nazwa, cena, ilosc, cena_7d, cena_30d))
+                conn.commit()
+                st.success("Dodano przedmiot!")
+            else:
+                st.error("Nie udało się pobrać danych z Steam.")
+        else:
+            st.error("Uzupełnij wszystkie pola poprawnie!")
+
+# Wyświetlanie tabeli z przedmiotami
+st.subheader("Twoje przedmioty")
+c.execute("SELECT * FROM zakupy")
+rows = c.fetchall()
+
+if rows:
+    for row in rows:
+        id_, nazwa, cena_zakupu, ilosc, cena_7d, cena_30d = row
+        zysk_7d = (cena_zakupu - cena_7d) * ilosc if cena_7d else 0
+        zysk_30d = (cena_zakupu - cena_30d) * ilosc if cena_30d else 0
+        expander_label = f"{nazwa} - {ilosc} szt. - Zysk 7d: {zysk_7d:.2f} zł - Zysk 30d: {zysk_30d:.2f} zł"
+        
+        with st.expander(expander_label):
+            st.write(f"**Cena zakupu:** {cena_zakupu} zł")
+            st.write(f"**Cena z ostatnich 7 dni:** {cena_7d} zł")
+            st.write(f"**Cena z ostatnich 30 dni:** {cena_30d} zł")
+            st.write(f"**Zysk z ostatnich 7 dni:** {zysk_7d:.2f} zł")
+            st.write(f"**Zysk z ostatnich 30 dni:** {zysk_30d:.2f} zł")
+else:
+    st.write("Brak danych do wyświetlenia.")
