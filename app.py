@@ -3,6 +3,7 @@ import sqlite3
 import requests
 from requests.utils import quote
 import time
+import random
 
 # ------------------------------
 # Baza danych
@@ -51,13 +52,10 @@ def pobierz_cene(nazwa, retries=2):
     return "Błąd połączenia"
 
 # ------------------------------
-# Funkcja pobierająca średnią cenę z historii (przykład)
+# Funkcja pobierająca średnią cenę z historii (symulacja)
 # ------------------------------
 def pobierz_srednia_cene(nazwa):
     """Zwraca przykładowe wartości dla 7 i 30 dni w zł i procenty w stosunku do obecnej ceny"""
-    # W praktyce trzeba by użyć pricehistory API Steam i sparsować JSON
-    # Tu damy symulowane wartości dla przykładu
-    import random
     srednia_7 = round(random.uniform(0.9, 1.1), 2)
     srednia_30 = round(random.uniform(0.85, 1.15), 2)
     return srednia_7, srednia_30
@@ -172,4 +170,55 @@ if rows:
                     )
                 else:
                     st.markdown(
-                        f"<span style='font-size:22px; color:white; font-weight:bold'>{c
+                        f"<span style='font-size:22px; color:white; font-weight:bold'>{cena_display} zł</span> "
+                        "📈 Zysk/strata: 0 zł",
+                        unsafe_allow_html=True
+                    )
+            else:
+                st.write("⚠️ Brak ceny – możesz wpisać ręcznie")
+
+            # -------------------------
+            # Ręczna cena na sam dół
+            # -------------------------
+            manual_price_input = st.number_input(
+                "Ręczna cena rynkowa (opcjonalnie)", 
+                value=manual_price_use if manual_price_use else 0.0, 
+                step=0.01, 
+                key=f"manual_{id_}"
+            )
+            st.markdown("<small style='color:gray'>Ręczna cena nie jest wymagana, używana tylko w wyjątkowych przypadkach</small>", unsafe_allow_html=True)
+
+            # Sprawdzenie ręcznej zmiany
+            if manual_price_input != (manual_price_use if manual_price_use else 0.0):
+                manual_price_use = manual_price_input if manual_price_input > 0 else None
+                c.execute("UPDATE zakupy SET manual_edited=1 WHERE id=?", (id_,))
+                conn.commit()
+
+            # Zapis zmian
+            if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
+                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=?, manual_price=? WHERE id=?",
+                          (new_name, new_cena_zakupu, new_ilosc, manual_price_use, id_))
+                conn.commit()
+                st.success(f"Zapisano zmiany dla {new_name}")
+                st.rerun()
+
+            # Usuwanie
+            if st.button(f"🗑️ Usuń", key=f"del_{id_}"):
+                c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
+                conn.commit()
+                st.warning(f"Usunięto: {nazwa}")
+                st.rerun()
+
+    # ------------------------------
+    # Podsumowanie portfela
+    # ------------------------------
+    st.subheader("📊 Podsumowanie portfela")
+    st.write(f"💸 Łączne wydatki: **{round(total_spent, 2)} zł**")
+    st.write(f"💰 Obecna wartość: **{round(total_value, 2)} zł**")
+    if total_spent > 0:
+        total_profit = total_value - total_spent
+        total_percent = (total_profit / total_spent) * 100
+        if total_profit >= 0:
+            st.success(f"📈 Łączny zysk: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
+        else:
+            st.error(f"📉 Łączna strata: **{round(total_profit, 2)} zł ({round(total_percent, 2)}%)**")
