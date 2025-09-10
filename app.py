@@ -33,16 +33,7 @@ CREATE TABLE IF NOT EXISTS zakupy (
     ilosc INTEGER,
     manual_price REAL,
     manual_edited INTEGER DEFAULT 0,
-    alert_price REAL
-)
-""")
-conn.commit()
-
-# Tabela historii portfela
-c.execute("""
-CREATE TABLE IF NOT EXISTS historia_portfela (
-    data TEXT PRIMARY KEY,
-    profit REAL
+    alert_price REAL DEFAULT 0
 )
 """)
 conn.commit()
