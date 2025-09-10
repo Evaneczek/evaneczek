@@ -5,7 +5,7 @@ from requests.utils import quote
 import time
 from datetime import datetime, timedelta
 import pandas as pd
-#w
+
 # ------------------------------
 # Baza danych
 # ------------------------------
@@ -35,20 +35,25 @@ CREATE TABLE IF NOT EXISTS historia_portfela (
 conn.commit()
 
 # ------------------------------
-# Cache cen Steam
+# Cache cen Steam + timer
 # ------------------------------
 if "steam_cache" not in st.session_state:
     st.session_state.steam_cache = {}
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = datetime.min
 
 CACHE_TIME = timedelta(minutes=5)
 
 def pobierz_cene(nazwa):
     teraz = datetime.now()
+
+    # użyj cache jeśli nie minął czas
     if nazwa in st.session_state.steam_cache:
         cena, timestamp = st.session_state.steam_cache[nazwa]
         if teraz - timestamp < CACHE_TIME:
             return cena
 
+    # pobierz z API
     nazwa_encoded = quote(nazwa)
     url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa_encoded}"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -64,7 +69,9 @@ def pobierz_cene(nazwa):
             return "Brak ofert"
         cena_str = data["lowest_price"].replace("zł", "").replace(",", ".").strip()
         cena = float(cena_str)
+
         st.session_state.steam_cache[nazwa] = (cena, teraz)
+        st.session_state.last_refresh = teraz
         return cena
     except:
         return "Błąd połączenia"
@@ -73,6 +80,23 @@ def pobierz_cene(nazwa):
 # Interfejs Streamlit
 # ------------------------------
 st.title("📊 Steam Skins Tracker")
+
+# Timer odświeżania
+next_refresh = st.session_state.last_refresh + CACHE_TIME
+remaining = next_refresh - datetime.now()
+
+col1, col2 = st.columns([3,1])
+with col1:
+    if remaining.total_seconds() > 0:
+        mins, secs = divmod(int(remaining.total_seconds()), 60)
+        st.info(f"⏳ Odświeżenie cen za: **{mins} min {secs} sek**")
+    else:
+        st.warning("🔄 Odświeżanie dostępne – nowe ceny zostaną pobrane przy kolejnym zapytaniu.")
+with col2:
+    if st.button("♻️ Odśwież ceny teraz"):
+        st.session_state.steam_cache = {}
+        st.session_state.last_refresh = datetime.min
+        st.success("✅ Cache wyczyszczony – nowe ceny pobiorą się przy kolejnym zapytaniu.")
 
 # ------------------------------
 # Formularz dodawania przedmiotu
@@ -90,7 +114,7 @@ with st.form("dodaj_form"):
             st.error("Uzupełnij wszystkie pola poprawnie!")
 
 # Resetowanie całej listy
-if st.button("🔄 Resetuj listę zakupów"):
+if st.button("🗑️ Resetuj listę zakupów"):
     c.execute("DELETE FROM zakupy")
     conn.commit()
     st.warning("Lista została wyczyszczona!")
@@ -111,6 +135,7 @@ total_value = 0
 for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
     manual_price_use = manual_price if manual_price else None
     cena_display = manual_price_use if manual_price_use else pobierz_cene(nazwa)
+
     zysk = (cena_display - cena_zakupu) * ilosc if isinstance(cena_display, float) else 0
     procent = (cena_display - cena_zakupu) / cena_zakupu * 100 if isinstance(cena_display, float) and cena_zakupu != 0 else 0
 
@@ -133,7 +158,7 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
         label = "✏️ " + label
 
     with st.expander(label):
-        # ✅ Cena zakupu na górze pośrodku
+        # Cena zakupu na górze
         st.markdown(
             f"<div style='text-align:center; background-color:rgba(255,255,255,0.1); "
             f"padding:5px; border-radius:5px'>"
@@ -141,7 +166,7 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
             f"</div>", unsafe_allow_html=True
         )
 
-        # ✅ Obecna cena i zysk
+        # Obecna cena i zysk
         st.markdown(
             f"<div style='background-color:{exp_color}; padding:5px; border-radius:5px'>"
             f"<div style='display:flex; justify-content: space-between; align-items:center'>"
@@ -160,14 +185,15 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
         # Ręczna cena
         manual_price_input = st.number_input(
             "Ręczna cena rynkowa (opcjonalnie)",
-            value=cena_display if manual_edited else 0.0,
+            value=manual_price if manual_price else 0.0,
             step=0.01,
             key=f"manual_{id_}"
         )
-        if manual_price_input > 0:
+        if manual_price_input > 0 and manual_price_input != manual_price:
             c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?",
                       (manual_price_input, id_))
             conn.commit()
+            manual_edited = 1
 
         # Zapis
         if st.button(f"💾 Zapisz zmiany", key=f"save_{id_}"):
