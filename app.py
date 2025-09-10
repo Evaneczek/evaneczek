@@ -24,10 +24,11 @@ CREATE TABLE IF NOT EXISTS zakupy (
 """)
 conn.commit()
 
-# Tabela historii portfela (przechowujemy %)
+# Tabela historii portfela – przechowujemy i zł i %
 c.execute("""
 CREATE TABLE IF NOT EXISTS historia_portfela (
     data TEXT PRIMARY KEY,
+    profit REAL,
     profit_percent REAL
 )
 """)
@@ -222,14 +223,21 @@ else:
 # Historia portfela – zapis i wykres
 # ------------------------------
 today = datetime.today().strftime("%Y-%m-%d")
-c.execute("INSERT OR REPLACE INTO historia_portfela (data, profit_percent) VALUES (?, ?)", (today, profit_percent))
+c.execute("INSERT OR REPLACE INTO historia_portfela (data, profit, profit_percent) VALUES (?, ?, ?)",
+          (today, total_profit, profit_percent))
 conn.commit()
 
-c.execute("SELECT data, profit_percent FROM historia_portfela")
+# Wybór trybu wykresu
+mode = st.radio("📊 Tryb wykresu:", ["% (procenty)", "zł (kwota)"])
+
+c.execute("SELECT data, profit, profit_percent FROM historia_portfela")
 historia = c.fetchall()
 
 if historia:
-    df_hist = pd.DataFrame(historia, columns=["Data","Profit %"])
+    df_hist = pd.DataFrame(historia, columns=["Data","Profit","Profit %"])
     df_hist["Data"] = pd.to_datetime(df_hist["Data"])
-    st.subheader("📈 Historia portfela (% do wydanych środków)")
-    st.line_chart(df_hist.set_index("Data")["Profit %"])
+    st.subheader("📈 Historia portfela")
+    if mode == "% (procenty)":
+        st.line_chart(df_hist.set_index("Data")["Profit %"])
+    else:
+        st.line_chart(df_hist.set_index("Data")["Profit"])
