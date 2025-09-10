@@ -5,7 +5,7 @@ from requests.utils import quote
 import time
 from datetime import datetime, timedelta
 import pandas as pd
-
+#w
 # ------------------------------
 # Baza danych
 # ------------------------------
