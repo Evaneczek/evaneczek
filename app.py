@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS zakupy (
 """)
 conn.commit()
 
-# BEZPIECZNA migracja / utworzenie tabeli historii (tak żeby nie było błędów)
-# jeśli tabela nie istnieje -> tworzymy z obiema kolumnami (profit i profit_percent)
+# BEZPIECZNA migracja historii
 c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='historia_portfela'")
 if not c.fetchone():
     c.execute("""
@@ -37,19 +36,18 @@ if not c.fetchone():
     """)
     conn.commit()
 else:
-    # tabela istnieje -> sprawdź kolumny i dodaj brakujące
     cols = [row[1] for row in c.execute("PRAGMA table_info(historia_portfela)").fetchall()]
     if "profit" not in cols:
         try:
             c.execute("ALTER TABLE historia_portfela ADD COLUMN profit REAL DEFAULT 0")
             conn.commit()
-        except Exception:
+        except:
             pass
     if "profit_percent" not in cols:
         try:
             c.execute("ALTER TABLE historia_portfela ADD COLUMN profit_percent REAL DEFAULT 0")
             conn.commit()
-        except Exception:
+        except:
             pass
 
 # ------------------------------
@@ -64,13 +62,11 @@ CACHE_TIME = timedelta(minutes=5)
 
 def pobierz_cene(nazwa):
     teraz = datetime.now()
-    # korzystaj z cache jeśli nie wygasł
     if nazwa in st.session_state.steam_cache:
         cena, ts = st.session_state.steam_cache[nazwa]
         if teraz - ts < CACHE_TIME:
             return cena
 
-    # pobieramy z API
     nazwa_encoded = quote(nazwa)
     url = f"https://steamcommunity.com/market/priceoverview/?country=PL&currency=6&appid=730&market_hash_name={nazwa_encoded}"
     headers = {"User-Agent": "Mozilla/5.0"}
@@ -89,7 +85,7 @@ def pobierz_cene(nazwa):
         st.session_state.steam_cache[nazwa] = (cena, teraz)
         st.session_state.last_refresh = teraz
         return cena
-    except Exception:
+    except:
         return "Błąd połączenia"
 
 # ------------------------------
@@ -97,7 +93,7 @@ def pobierz_cene(nazwa):
 # ------------------------------
 st.title("📊 Steam Skins Tracker")
 
-# Timer odświeżania cache i ręczne odświeżenie
+# Timer odświeżania cache
 next_refresh = st.session_state.last_refresh + CACHE_TIME
 remaining = next_refresh - datetime.now()
 
@@ -107,14 +103,14 @@ with col1:
         mins, secs = divmod(int(remaining.total_seconds()), 60)
         st.info(f"⏳ Odświeżenie cen za: **{mins} min {secs} sek**")
     else:
-        st.warning("🔄 Odświeżanie dostępne – nowe ceny pobiorą się przy kolejnym zapytaniu.")
+        st.warning("🔄 Odświeżanie dostępne – nowe ceny zostaną pobrane przy kolejnym zapytaniu.")
 with col2:
     if st.button("♻️ Odśwież ceny teraz"):
         st.session_state.steam_cache = {}
         st.session_state.last_refresh = datetime.min
         st.success("✅ Cache wyczyszczony — nowe ceny pobiorą się przy kolejnym zapytaniu.")
 
-# Formularz dodawania przedmiotu
+# Formularz dodawania
 with st.form("dodaj_form"):
     nazwa = st.text_input("Nazwa przedmiotu (market_hash_name)")
     cena = st.number_input("Cena zakupu (zł)", step=0.01)
@@ -137,22 +133,16 @@ if st.button("🗑️ Resetuj listę zakupów"):
 c.execute("SELECT id, nazwa, cena_zakupu, ilosc, manual_price, manual_edited FROM zakupy")
 rows = c.fetchall()
 
-# Agregaty do historii
+# Agregaty
 total_profit = 0.0
 total_spent = 0.0
 total_value = 0.0
 
-# Wyświetlanie items
-if rows:
-    st.subheader("📋 Twoje przedmioty")
-else:
-    st.info("Brak przedmiotów — dodaj coś w formularzu powyżej.")
-
+# Wyświetlanie przedmiotów
 for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
-    # normalizacja
     nazwa = str(nazwa)
-    cena_zakupu = float(cena_zakupu) if cena_zakupu is not None else 0.0
-    ilosc = int(ilosc) if ilosc is not None else 1
+    cena_zakupu = float(cena_zakupu or 0)
+    ilosc = int(ilosc or 1)
 
     manual_price_use = float(manual_price) if manual_price not in (None, "") else None
     cena_display_raw = manual_price_use if manual_price_use is not None else pobierz_cene(nazwa)
@@ -179,14 +169,14 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
         label = "✏️ " + label
 
     with st.expander(label):
-        # Cena zakupu na górze, wyśrodkowana
+        # Cena zakupu
         st.markdown(
             f"<div style='text-align:center; background-color:rgba(255,255,255,0.08); padding:6px; border-radius:6px'>"
             f"<span style='font-size:22px; font-weight:bold; color:white'>🛒 Cena zakupu: {cena_zakupu:.2f} zł</span>"
             f"</div>", unsafe_allow_html=True
         )
 
-        # Obecna cena (po lewej) i zysk (po prawej)
+        # Cena i zysk
         left_html = (f"<span style='font-size:22px; font-weight:bold; color:white'>💰 {cena_display:.2f} zł</span>"
                      if isinstance(cena_display_raw, float) else f"<span style='color:orange; font-weight:bold'>⚠️ {cena_display_raw}</span>")
         right_html = (f"<span style='font-size:22px; font-weight:bold;'>"
@@ -206,7 +196,7 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
         new_cena_zakupu = st.number_input("Cena zakupu (zł)", value=float(cena_zakupu), step=0.01, key=f"buy_{id_}")
         new_ilosc = st.number_input("Ilość", value=int(ilosc), min_value=1, step=1, key=f"qty_{id_}")
 
-        # Ręczna cena (na dole)
+        # Ręczna cena
         manual_price_input = st.number_input(
             "Ręczna cena rynkowa (opcjonalnie)",
             value=float(manual_price) if manual_price not in (None, "") else 0.0,
@@ -214,81 +204,54 @@ for id_, nazwa, cena_zakupu, ilosc, manual_price, manual_edited in rows:
             key=f"manual_{id_}"
         )
         if manual_price_input > 0 and (manual_price is None or abs(float(manual_price_input) - float(manual_price or 0)) > 1e-8):
-            try:
-                c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?", (float(manual_price_input), id_))
-                conn.commit()
-                st.success("Ręczna cena zapisana.")
-            except Exception as e:
-                st.error(f"Nie udało się zapisać ręcznej ceny: {e}")
+            c.execute("UPDATE zakupy SET manual_price=?, manual_edited=1 WHERE id=?", (float(manual_price_input), id_))
+            conn.commit()
 
-        # Zapis zmian
         if st.button("💾 Zapisz zmiany", key=f"save_{id_}"):
-            try:
-                c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?",
-                          (new_name.strip(), float(new_cena_zakupu), int(new_ilosc), id_))
-                conn.commit()
-                st.success("Zapisano zmiany.")
-            except Exception as e:
-                st.error(f"Nie udało się zapisać zmian: {e}")
+            c.execute("UPDATE zakupy SET nazwa=?, cena_zakupu=?, ilosc=? WHERE id=?",
+                      (new_name.strip(), float(new_cena_zakupu), int(new_ilosc), id_))
+            conn.commit()
+            st.success("Zapisano zmiany.")
 
-        # Usuń
         if st.button("🗑️ Usuń", key=f"del_{id_}"):
-            try:
-                c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
-                conn.commit()
-                st.warning("Usunięto przedmiot.")
-            except Exception as e:
-                st.error(f"Nie udało się usunąć: {e}")
+            c.execute("DELETE FROM zakupy WHERE id=?", (id_,))
+            conn.commit()
+            st.warning("Usunięto przedmiot.")
 
 # ------------------------------
-# Podsumowanie portfela (wartości i procent)
+# Podsumowanie portfela
 # ------------------------------
 st.subheader("📊 Podsumowanie portfela")
 st.write(f"💸 Łączne wydatki: **{total_spent:.2f} zł**")
 st.write(f"💰 Obecna wartość: **{total_value:.2f} zł**")
 
 profit_percent = ((total_value - total_spent) / total_spent * 100) if total_spent > 0 else 0.0
-if profit_percent >= 0:
-    st.success(f"📈 Łączny wynik: **{profit_percent:.2f}%**")
+if total_profit >= 0:
+    st.success(f"📈 Łączny wynik: {total_profit:.2f} zł ({profit_percent:.2f}%)")
 else:
-    st.error(f"📉 Łączny wynik: **{profit_percent:.2f}%**")
+    st.error(f"📉 Łączny wynik: {total_profit:.2f} zł ({profit_percent:.2f}%)")
 
 # ------------------------------
-# Zapis historii portfela (zabezpieczony)
+# Zapis historii
 # ------------------------------
 today = datetime.today().strftime("%Y-%m-%d")
-# upewnij się, że wartości są liczbami
-try:
-    profit_val = float(total_profit)
-except Exception:
-    profit_val = 0.0
-try:
-    profit_pct = float(profit_percent)
-except Exception:
-    profit_pct = 0.0
-
-# zapisujemy obie wartości (jeśli kolumny istnieją — migracja wyżej je utworzyła)
-try:
-    c.execute("INSERT OR REPLACE INTO historia_portfela (data, profit, profit_percent) VALUES (?, ?, ?)",
-              (today, profit_val, profit_pct))
-    conn.commit()
-except Exception as e:
-    st.error(f"Nie udało się zapisać historii portfela: {e}")
+c.execute("INSERT OR REPLACE INTO historia_portfela (data, profit, profit_percent) VALUES (?, ?, ?)",
+          (today, float(total_profit), float(profit_percent)))
+conn.commit()
 
 # ------------------------------
-# Tryb wykresu (procenty vs zł)
+# Tryb wykresu
 # ------------------------------
 mode = st.radio("📊 Tryb wykresu:", ["% (procenty)", "zł (kwota)"])
 
-# Pobierz historię (bez wymuszonego ORDER BY; wyświetlamy wg daty w Pandas)
 c.execute("SELECT data, profit, profit_percent FROM historia_portfela")
 historia = c.fetchall()
 
 if historia:
     df_hist = pd.DataFrame(historia, columns=["Data", "Profit", "Profit %"])
-    # konwersja daty i sortowanie po dacie (żeby wykres był logiczny)
     df_hist["Data"] = pd.to_datetime(df_hist["Data"], errors='coerce')
     df_hist = df_hist.dropna(subset=["Data"]).sort_values("Data")
+
     st.subheader("📈 Historia portfela")
     if mode == "% (procenty)":
         st.line_chart(df_hist.set_index("Data")["Profit %"])
