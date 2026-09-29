@@ -33,6 +33,7 @@ const SESSION_DAYS = 180;
 const DAY = 86400000;
 
 // ---------- baza ----------
+try { fs.mkdirSync(path.dirname(DB_PATH), { recursive: true }); } catch (e) {}
 const db = new DatabaseSync(DB_PATH);
 db.exec(`
 PRAGMA journal_mode = WAL;
