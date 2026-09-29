@@ -511,6 +511,8 @@ async function api(req, res, url) {
     if (plan === "exam") body.payment_intent_data = { metadata: { user_id: String(s.user.id) } };
     else body.subscription_data = { metadata: { user_id: String(s.user.id) } };
     if (STRIPE_TOS) body.consent_collection = { terms_of_service: "required" };
+    // „Managed Payments” (dodatkowe 3,5% prowizji) bywa domyślnie włączone na koncie: wyłączamy je dla naszych płatności
+    if (setting("mp_param") !== "brak") body.managed_payments = { enabled: false };
     // wygląd strony płatności: logo, żółte przyciski, kremowe tło (jeśli Stripe odrzuci, płatność otwiera się w standardowym wyglądzie)
     const brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
       display_name: "Liczę na Setkę", background_color: "#fbf6ea", button_color: "#ffc233", border_style: "rounded", font_family: "nunito",
@@ -519,6 +521,12 @@ async function api(req, res, url) {
       let cs;
       try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
       catch (e) {
+        if (/managed_payments/.test(e.message) && /unknown parameter/i.test(e.message)) {
+          // starsza wersja API nie zna tego parametru: próbujemy bez niego
+          setSetting("mp_param", "brak"); delete body.managed_payments;
+          try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); return json(res, 200, { url: cs.url }); }
+          catch (e2) { e = e2; }
+        }
         if (!brand.branding_settings) throw e;
         log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak"); setSetting("branding_error", e.message.slice(0, 300));
         cs = await stripe("POST", "/v1/checkout/sessions", body);
@@ -576,7 +584,7 @@ setInterval(() => {
 }, 3600000).unref();
 
 // po każdym wdrożeniu jeszcze raz próbujemy wyglądu płatności (mógł zostać poprawiony)
-try { q("DELETE FROM settings WHERE key IN ('branding', 'checkout_error')").run(); } catch (e) {}
+try { q("DELETE FROM settings WHERE key IN ('branding', 'checkout_error', 'branding_error', 'mp_param')").run(); } catch (e) {}
 stripeSetup();
 server.listen(PORT, () => log(`Serwer działa: ${BASE_URL} (port ${PORT}, pliki: ${PUBLIC}, baza: ${DB_PATH})`));
 module.exports = { server };
