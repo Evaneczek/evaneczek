@@ -100,7 +100,7 @@
       el.innerHTML = `
         <div class="kid-head"><span class="avatar">${esc(name[0].toUpperCase())}</span>
           <div><b>${esc(name)}</b><small>Login: <code>${esc(st.login)}</code></small></div>
-          <div class="kid-actions"><button class="btn btn-small" type="button" data-pin>Ustaw nowy PIN</button><button class="text-link" type="button" data-rename>Zmień imię</button></div></div>
+          <div class="kid-actions"><button class="btn btn-small${st.pinShown ? "" : " btn-yellow"}" type="button" data-pin>${st.pinShown ? "Ustaw nowy PIN" : "Utwórz PIN dla dziecka"}</button><button class="text-link" type="button" data-rename>Zmień imię</button></div></div>
         <div class="kid-pin" hidden></div>
         <div class="kid-grid">
           <div><div class="pp-label">Nauka w ostatnich 14 dniach</div><div class="pp-days kid-days">${daysRow(sum.days, sum.today)}</div>
@@ -109,12 +109,20 @@
             ${inProgress.length ? `<p class="kid-note">W trakcie: ${inProgress.slice(0, 4).join(", ")}${inProgress.length > 4 ? " i inne" : ""}.</p>` : ""}</div>
         </div>`;
       el.querySelector("[data-pin]").addEventListener("click", async () => {
-        if (!confirm("Ustawić nowy PIN? Stary przestanie działać, a dziecko zostanie wylogowane na swoich urządzeniach.")) return;
+        if (st.pinShown && !confirm("Ustawić nowy PIN? Stary przestanie działać, a dziecko zostanie wylogowane na swoich urządzeniach.")) return;
         try {
           const r = await M8.api(`/api/students/${st.id}/pin`, { method: "POST" });
           const box = el.querySelector(".kid-pin");
-          box.innerHTML = `Dane do logowania dziecka (zakładka <b>Uczeń</b> na stronie logowania):<div class="pin-show"><span>Login: <code>${esc(r.login)}</code></span><span>PIN: <code>${esc(r.pin)}</code></span></div><small>Zapisz PIN teraz: ze względów bezpieczeństwa nie pokażemy go ponownie.</small>`;
+          box.innerHTML = `<b>Dane do logowania dziecka</b><div class="pin-show"><span>Login: <code>${esc(r.login)}</code></span><span>PIN: <code>${esc(r.pin)}</code></span></div>
+            <small>Dziecko wchodzi na <b>liczenasetke.pl</b> → <b>Zaloguj się</b> → zakładka <b>Uczeń</b> i wpisuje login oraz PIN. Zapisz PIN teraz albo wyślij go dziecku: ze względów bezpieczeństwa nie pokażemy go ponownie.</small>
+            <div class="btn-row"><button class="btn btn-small" type="button" data-send>Wyślij dziecku wiadomością</button></div>`;
           box.hidden = false;
+          const txt = `Twoje logowanie do kursu Liczę na Setkę:\nstrona: https://liczenasetke.pl/logowanie.html (zakładka Uczeń)\nlogin: ${r.login}\nPIN: ${r.pin}`;
+          box.querySelector("[data-send]").addEventListener("click", async e => {
+            if (navigator.share) { try { await navigator.share({ title: "Logowanie do kursu", text: txt }); } catch (err) {} return; }
+            try { await navigator.clipboard.writeText(txt); e.target.textContent = "✓ Skopiowano, wklej dziecku w wiadomości"; } catch (err) { prompt("Skopiuj i wyślij dziecku:", txt); }
+          });
+          st.pinShown = 1; el.querySelector("[data-pin]").textContent = "Ustaw nowy PIN"; el.querySelector("[data-pin]").classList.remove("btn-yellow");
         } catch (e) { alert(e.message); }
       });
       el.querySelector("[data-rename]").addEventListener("click", async () => {
@@ -173,7 +181,18 @@
           </div>
           <p class="guarantee"><span class="g-ico" aria-hidden="true">✓</span><span><b>14 dni na zwrot pieniędzy.</b> Jeśli kurs Wam nie podpasuje, zwrócimy całą kwotę bez podawania przyczyny.</span></p>`}</div>`;
       }
-      acc.innerHTML = accHtml + `<h2 class="acc-h">Postępy dziecka</h2><div id="kids" class="acc-kids"></div>
+      const steps = a.active ? `<div class="acc-card box acc-steps"><div class="pp-label">Co teraz?</div>
+          <ol><li><span><b>Zdecyduj, gdzie dziecko będzie się uczyć.</b> Na tym urządzeniu może zacząć od razu. Na własnym telefonie lub komputerze potrzebuje loginu i PIN-u (niżej).</span></li>
+          <li><span><b>Zacznijcie od testu startowego.</b> 40 minut, a wynik pokaże, od którego tematu zacząć. <a href="test-startowy.html">Otwórz test startowy →</a></span></li>
+          <li><span><b>Zaglądaj tu co jakiś czas.</b> Zobaczysz dni nauki i wyniki testów, bez sprawdzania zeszytu.</span></li></ol></div>` : "";
+      const guide = `<details class="acc-card box acc-guide"${a.active && !(me.students || []).some(x => x.pinShown) ? " open" : ""}><summary><b>Jak dziecko ma się logować?</b> Krótko o loginie i PIN-ie</summary>
+          <dl>
+            <dt>Dziecko uczy się na Twoim telefonie lub komputerze</dt><dd>Nic nie musisz robić. To urządzenie jest zalogowane na Twoje konto, więc dziecko może od razu otworzyć kurs, a postępy zapiszą się na jego koncie.</dd>
+            <dt>Dziecko uczy się na swoim urządzeniu</dt><dd>Kliknij niżej <b>„Utwórz PIN dla dziecka”</b>. Dostaniesz login (np. <code>ola-4821</code>) i 6-cyfrowy PIN. Dziecko wchodzi na <b>liczenasetke.pl</b> → <b>Zaloguj się</b> → zakładka <b>Uczeń</b> i wpisuje login oraz PIN. Robi to tylko raz: urządzenie zapamięta logowanie.</dd>
+            <dt>Czy to bezpieczne?</dt><dd>Login dziecka służy tylko do nauki. Dziecko nie może nic kupić, zmienić ustawień ani zobaczyć Twojego e-maila. Nie podajemy nazwiska ani szkoły dziecka.</dd>
+            <dt>Dziecko zapomniało PIN-u</dt><dd>Kliknij <b>„Ustaw nowy PIN”</b>. Stary przestanie działać, a nowy od razu zobaczysz na ekranie. Postępy zostają.</dd>
+          </dl></details>`;
+      acc.innerHTML = accHtml + steps + `<h2 class="acc-h">Postępy dziecka</h2><div id="kids" class="acc-kids"></div>` + guide + `
         <details class="acc-danger"><summary>Usuń konto</summary>
           <p>Usuniemy konto, loginy dzieci i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję w „Zarządzaj subskrypcją”." : ""}</p>
           <label>Wpisz <b>USUŃ</b>, aby potwierdzić <input type="text" id="del-confirm" autocomplete="off"></label>

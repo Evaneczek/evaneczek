@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS payments (
   id INTEGER PRIMARY KEY, user_id INTEGER, kind TEXT, stripe_id TEXT, amount INTEGER, at INTEGER NOT NULL);
 `);
 const q = sql => db.prepare(sql);
+try { db.exec("ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0"); } catch (e) { /* kolumna już jest */ }
 
 // ---------- narzędzia ----------
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
@@ -111,7 +112,7 @@ function createStudent(userId, name) {
     .run(userId, login, hashPin(pin), String(name || "").slice(0, 40), now());
   return { id: Number(r.lastInsertRowid), login, pin };
 }
-function students(userId) { return q("SELECT id, login, name FROM students WHERE user_id = ? ORDER BY id").all(userId); }
+function students(userId) { return q("SELECT id, login, name, pin_shown AS pinShown FROM students WHERE user_id = ? ORDER BY id").all(userId); }
 function access(u) {
   if (!u) return { active: false };
   const t = now(), rev = u.revoked_at && u.revoked_at > 0;
@@ -475,7 +476,7 @@ async function api(req, res, url) {
     if (!st) return json(res, 404, { error: "Nie ma takiego ucznia." });
     if (mm[2] === "/pin" && m === "POST") {
       const pin = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
-      q("UPDATE students SET pin_hash = ? WHERE id = ?").run(hashPin(pin), st.id);
+      q("UPDATE students SET pin_hash = ?, pin_shown = 1 WHERE id = ?").run(hashPin(pin), st.id);
       q("DELETE FROM sessions WHERE student_id = ?").run(st.id);
       return json(res, 200, { login: st.login, pin });
     }

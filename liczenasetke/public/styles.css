@@ -2074,3 +2074,17 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
 .g-lead b { font-family: var(--display); font-size: 19px; }
 .g-lead span { font-size: 14px; color: var(--muted); font-weight: 700; }
 .g-box .g-btn { min-height: 44px; }
+
+/* Panel: kolejne kroki i poradnik o loginie dziecka */
+.acc-steps ol { margin: 4px 0 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 10px; }
+.acc-steps li { display: flex; gap: 12px; counter-increment: s; color: var(--muted); }
+.acc-steps li::before { content: counter(s); flex: none; width: 30px; height: 30px; border-radius: 9px; border: 2px solid var(--ink); background: var(--yellow); color: var(--ink); display: grid; place-items: center; font-weight: 800; }
+.acc-steps li b { color: var(--ink); }
+.acc-steps a { color: var(--ink); font-weight: 800; }
+.acc-guide summary { cursor: pointer; font-size: 16px; color: var(--muted); }
+.acc-guide summary b { font-family: var(--display); font-size: 20px; color: var(--ink); margin-right: 6px; }
+.acc-guide dl { margin: 12px 0 0; display: grid; gap: 12px; }
+.acc-guide dt { font-weight: 800; color: var(--ink); }
+.acc-guide dd { margin: 2px 0 0; color: var(--muted); }
+.acc-guide code { font-family: var(--mono); background: var(--paper); border: 1.5px solid var(--line); border-radius: 6px; padding: 0 5px; color: var(--ink); }
+.kid-pin small { color: var(--muted); font-weight: 600; }
