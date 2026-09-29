@@ -26,7 +26,8 @@ const GOOGLE_TOKENINFO = ENV.GOOGLE_TOKENINFO || "https://oauth2.googleapis.com/
 const RESEND_KEY = ENV.RESEND_API_KEY || "";
 const RESEND_API = ENV.RESEND_API || "https://api.resend.com";
 const MAIL_FROM = ENV.MAIL_FROM || "Liczę na Setkę <kontakt@liczenasetke.pl>";
-const REPLY_TO = ENV.REPLY_TO || "liczenasetke@gmail.com";   // odpowiedzi rodziców na nasze maile trafiają do skrzynki supportu
+const REPLY_TO = ENV.REPLY_TO || "liczenasetke@gmail.com";
+const BACKUP_TO = ENV.BACKUP_TO || REPLY_TO;   // dokąd idzie codzienna kopia bazy   // odpowiedzi rodziców na nasze maile trafiają do skrzynki supportu
 // dostęp „Do dnia egzaminu”: do końca 11 maja 2027 r. czasu polskiego
 const EXAM_END = Date.parse(ENV.EXAM_END || "2027-05-11T23:59:59+02:00");
 const FREE = new Set(["dane-procenty.js"]);          // darmowy temat
@@ -172,11 +173,11 @@ function endSession(req, res) {
 }
 
 // ---------- e-mail ----------
-async function sendMail(to, subject, html) {
+async function sendMail(to, subject, html, attachments) {
   if (!RESEND_KEY) { log("[e-mail bez wysyłki]", to, subject); return true; }
   const r = await fetch(RESEND_API + "/emails", {
     method: "POST", headers: { Authorization: "Bearer " + RESEND_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: MAIL_FROM, to: [to], reply_to: REPLY_TO, subject, html })
+    body: JSON.stringify({ from: MAIL_FROM, to: [to], reply_to: REPLY_TO, subject, html, attachments })
   });
   if (!r.ok) log("błąd wysyłki e-mail", r.status, await r.text());
   return r.ok;
@@ -597,6 +598,7 @@ async function api(req, res, url) {
     q("UPDATE users SET weekly_opt = 0 WHERE id = ?").run(uid);
     return send(res, 302, "", "text/plain", { Location: "/konto.html?podsumowanie=wylaczone" });
   }
+  if (p === "/api/dev/backup" && m === "POST" && DEV) return json(res, 200, { ok: await sendBackup() });
   if (p === "/api/dev/weekly" && m === "POST" && DEV) { const n = await sendWeekly(true); return json(res, 200, { sent: n }); }
 
   // wszystko dalej wymaga zalogowania
@@ -784,6 +786,29 @@ setInterval(() => {
   const hr = Number(d.toLocaleString("en-US", { timeZone: "Europe/Warsaw", hour: "2-digit", hour12: false }));
   const key = "weekly_" + warsawDay();
   if (wd === "Sun" && hr >= 18 && !setting(key)) { setSetting(key, "1"); sendWeekly(false); }
+}, 15 * 60000).unref();
+
+// codzienna kopia bazy na skrzynkę supportu (Railway w darmowym planie nie robi kopii wolumenu).
+// VACUUM INTO daje spójny plik nawet w trakcie pracy serwera; kopia jest spakowana gzipem.
+async function sendBackup() {
+  const tmp = path.join(path.dirname(DB_PATH), "kopia-" + Date.now() + ".db");
+  try {
+    db.exec(`VACUUM INTO '${tmp.replace(/'/g, "''")}'`);
+    const gz = require("node:zlib").gzipSync(fs.readFileSync(tmp));
+    const n = q("SELECT COUNT(*) AS n FROM users").get().n, p = q("SELECT COUNT(*) AS n FROM payments").get().n;
+    const ok = await sendMail(BACKUP_TO, `Kopia bazy ${warsawDay()} (konta: ${n}, płatności: ${p})`, mailWrap(`<p>Automatyczna kopia bazy kursu z ${warsawDay()}.</p>
+      <p>Konta rodziców: <b>${n}</b>, zapisane płatności: <b>${p}</b>.</p>
+      <p style="color:#5e5a51;font-size:13px">Plik zawiera dane osobowe (adresy e-mail, postępy). Nie przekazuj go dalej. W razie awarii odeślij go, żeby odtworzyć konta.</p>`),
+      [{ filename: `liczenasetke-baza-${warsawDay()}.db.gz`, content: gz.toString("base64") }]);
+    log("kopia bazy wysłana:", ok, gz.length, "B");
+    return ok;
+  } catch (e) { log("kopia bazy:", e.message); return false; }
+  finally { try { fs.unlinkSync(tmp); } catch (e) {} }
+}
+setInterval(() => {
+  const hr = Number(new Date().toLocaleString("en-US", { timeZone: "Europe/Warsaw", hour: "2-digit", hour12: false }));
+  const key = "backup_" + warsawDay();
+  if (hr >= 4 && RESEND_KEY && !setting(key)) { setSetting(key, "1"); sendBackup(); }
 }, 15 * 60000).unref();
 
 // sprzątanie: stare sesje i linki
