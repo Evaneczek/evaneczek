@@ -1,0 +1,8 @@
+# Do zrobienia później
+
+- [ ] **Piksel Meta:** założyć Piksel w Events Manager (business.facebook.com), numer wpisać w Railway jako `META_PIXEL_ID`. Kod na stronie jest gotowy (zgoda na cookies, zdarzenia: rozpoczęcie płatności, logowanie, zakup).
+- [ ] **Poczta:** w Cloudflare (Email → Email Routing) przekierować `kontakt@liczenasetke.pl` na `liczenasetke@gmail.com` i sprawdzić, czy dochodzi.
+- [ ] **Dane firmy** w regulaminie i polityce prywatności (pola na żółtym tle): nazwa, adres, NIP, REGON, CEIDG/KRS, data.
+- [ ] **Dzień startu:** zdjąć blokadę wyszukiwarek (noindex i robots.txt).
+- [ ] **Stripe:** w Public details ustawić nazwę, stronę i opis na wyciągu; w Customer emails włączyć „Successful payments”.
+- [ ] **Resend:** przy większej liczbie rodziców przejść na płatny plan (darmowy: 100 maili dziennie).
