@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Panel rodzica w kursie Liczę na Setkę: postępy dziecka, wyniki testów, dni nauki i cotygodniowe podsumowanie e-mailem.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Liczę na Setkę">
 <meta property="og:locale" content="pl_PL">
 <meta property="og:title" content="Panel rodzica · Liczę na Setkę">
-<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:description" content="Panel rodzica w kursie Liczę na Setkę: postępy dziecka, wyniki testów, dni nauki i cotygodniowe podsumowanie e-mailem.">
 <meta property="og:url" content="https://liczenasetke.pl/dla-rodzica.html">
 <meta property="og:image" content="https://liczenasetke.pl/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -21,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=7039b0d3e9">
 </head>
 <body>
 <div id="site-header" data-page="rodzic"></div>
@@ -37,59 +38,55 @@
 
   <section class="section" style="padding-top:36px">
     <div class="container">
-      <div class="example-note">To podgląd z przykładowymi danymi. Wiersz „Procenty” pokazuje prawdziwe postępy z przykładowej lekcji na tym urządzeniu.</div>
+      <div class="example-note">To podgląd z przykładowymi danymi. Dokładnie tak wygląda panel rodzica po zakupie dostępu.</div>
 
-      <div class="pp" style="margin-bottom:8px">
-        <div class="pp-head"><b>Panel rodzica</b><span>PRZYKŁADOWE KONTO</span></div>
-        <div class="pp-child"><span class="avatar">O</span><div><b>Ola, klasa 8b</b><small>Ostatnia nauka: wczoraj, 40 minut</small></div><span class="pp-status">Na dobrej drodze</span></div>
-        <div class="pp-block">
-          <div class="pp-label">Kiedy uczyła się w tym tygodniu</div>
-          <div class="pp-days" aria-label="Poniedziałek, środa, czwartek i sobota"><span class="on">Pn</span><span>Wt</span><span class="on">Śr</span><span class="on">Cz</span><span>Pt</span><span class="on">So</span><span>Nd</span></div>
-          <p>4 razy, razem 2 godziny 10 minut.</p>
-        </div>
-        <div class="pp-block">
-          <div class="pp-label">Ostatni test</div>
-          <p>Potęgi i pierwiastki: <b>12 z 14 punktów</b> <span class="pp-grade">bardzo dobrze</span></p>
-        </div>
-        <div class="pp-block warn">
-          <div class="pp-label">Warto porozmawiać</div>
-          <p>Ola myli się w zadaniach, w których cena zmienia się dwa razy, np. najpierw podwyżka, a potem obniżka. Kurs dał jej te zadania do powtórki.</p>
-        </div>
-      </div>
-
-      <div class="dash">
-        <div class="panel box">
-          <h3>Temat po temacie</h3>
-          <div class="table-scroll">
-            <table class="weeks">
-              <tr><th>Temat</th><th>Ćwiczenia</th><th>Test</th><th>Status</th></tr>
-              <tr><td>Liczby i działania</td><td class="num">12 / 12</td><td class="num">7 / 7</td><td class="st-ok">Zrobione</td></tr>
-              <tr><td>Ułamki zwykłe i dziesiętne</td><td class="num">11 / 12</td><td class="num">6 / 7</td><td class="st-ok">Zrobione</td></tr>
-              <tr><td>Potęgi i pierwiastki</td><td class="num">12 / 12</td><td class="num">6 / 7</td><td class="st-ok">Zrobione</td></tr>
-              <tr><td>Procenty</td><td class="num" id="w4-practice">0 / 12</td><td class="num" id="w4-test">—</td><td id="w4-status" class="st-now">W trakcie</td></tr>
-              <tr><td>Wyrażenia algebraiczne</td><td class="num">—</td><td class="num">—</td><td class="st-no">Czeka</td></tr>
-            </table>
+      <div class="acc-page acc-demo">
+        <div class="acc-layout">
+          <div class="acc-main">
+            <article class="acc-card kid" aria-label="Przykładowy panel rodzica">
+              <header class="kid-head"><span class="avatar">O</span>
+                <div><b>Ola</b><small>Ostatnia nauka: wczoraj</small></div></header>
+              <div class="kid-stats">
+                <div><b>4</b><span>dni nauki<br>w tym tygodniu</span></div>
+                <div><b>5<small>/20</small></b><span>tematów<br>z testem</span></div>
+                <div><b>79%</b><span>średni wynik<br>testów</span></div>
+              </div>
+              <div class="kid-block"><div class="pp-label">Ostatnie 14 dni</div><div class="kid-days" aria-label="Nauka w 7 z ostatnich 14 dni"><span>śr</span><span class="on">cz</span><span>pt</span><span class="on">so</span><span>ni</span><span class="on">po</span><span>wt</span><span class="on">śr</span><span class="on">cz</span><span>pt</span><span class="on">so</span><span>ni</span><span class="on">po</span><span class="today">wt</span></div></div>
+              <div class="kid-next"><span class="pp-label">Następny krok</span><b>Ułamki zwykłe i dziesiętne →</b><span>Temat jest rozpoczęty. Dokończcie naukę i test na końcu.</span></div>
+              <div class="kid-block"><div class="pp-label">Wyniki testów</div>
+                <ul class="kid-tests">
+                  <li><span>Procenty</span><b class="sc mid">11/14</b></li>
+                  <li><span>Potęgi i pierwiastki</span><b class="sc good">12/14</b></li>
+                  <li><span>Ułamki zwykłe i dziesiętne</span><b class="sc mid">8/13</b></li>
+                  <li><span>Podzielność, NWD i NWW</span><b class="sc good">11/12</b></li>
+                  <li><span>Liczby i działania</span><b class="sc good">12/13</b></li>
+                  <li><span>Test startowy</span><em>test startowy</em><b class="sc mid">12/20</b></li>
+                </ul>
+                <p class="kid-weak"><b>Warto powtórzyć:</b> Ułamki zwykłe i dziesiętne, Procenty</p>
+              </div>
+            </article>
           </div>
-        </div>
-        <div>
-          <div class="panel box">
-            <h3>Nauka w tym tygodniu</h3>
-            <div class="days" aria-label="Minuty nauki w kolejnych dniach">
-              <div><em>30</em><i style="height:66px"></i><span>Pn</span></div>
-              <div><em>0</em><i class="zero"></i><span>Wt</span></div>
-              <div><em>35</em><i style="height:77px"></i><span>Śr</span></div>
-              <div><em>25</em><i style="height:55px"></i><span>Cz</span></div>
-              <div><em>0</em><i class="zero"></i><span>Pt</span></div>
-              <div><em>40</em><i style="height:88px"></i><span>So</span></div>
-              <div><em>0</em><i class="zero"></i><span>Nd</span></div>
+          <aside class="acc-side">
+            <div class="acc-card side-card mail-demo">
+              <h3>Co niedzielę na e-mail</h3>
+              <div class="mail-box">
+                <div class="mail-top"><span>Od: Liczę na Setkę</span><b>Podsumowanie tygodnia: nauka matematyki</b></div>
+                <div class="mail-body">
+                  <p><b>Ola</b></p>
+                  <p>Nauka w tym tygodniu: <b>4 dni</b>.</p>
+                  <p><b>Nowe wyniki testów:</b></p>
+                  <ul><li>Potęgi i pierwiastki: <b>12 / 14 pkt</b></li><li>Procenty: <b>11 / 14 pkt</b></li></ul>
+                  <p><b>Warto powtórzyć:</b> Ułamki zwykłe i dziesiętne, Procenty.</p>
+                  <span class="mail-btn">Zobacz szczegóły w panelu rodzica</span>
+                </div>
+              </div>
+              <p>Podsumowanie wyłączasz jednym kliknięciem w mailu albo w panelu.</p>
             </div>
-            <p class="mono" style="font-size:13px;color:var(--muted);margin-top:10px">MINUTY NAUKI · RAZEM 130 MIN</p>
-          </div>
-          <div class="panel box">
-            <h3>Na co zwrócić uwagę</h3>
-            <div class="alert"><b>Warto powtórzyć</b>Zadania, w których cena zmienia się dwa razy, np. podwyżka, a potem obniżka. W tym tygodniu 2 błędy.</div>
-            <div class="good-note"><b>Idzie dobrze</b>Liczenie procentu z liczby, np. 30% ze 150. Wszystkie zadania bez błędu.</div>
-          </div>
+            <div class="acc-card side-card">
+              <h3>Osobny login dziecka</h3>
+              <p>Dziecko loguje się swoim loginem i 6-cyfrowym PIN-em, który ustawiasz w panelu. Login służy tylko do nauki: nie da się nim nic kupić ani zmienić ustawień.</p>
+            </div>
+          </aside>
         </div>
       </div>
     </div>
@@ -120,17 +117,6 @@
 </main>
 
 <div id="site-footer"></div>
-<script src="app.js"></script>
-<script>
-  (function () {
-    const p = window.M8.progress();
-    document.getElementById("w4-practice").textContent = p.good + " / " + p.practiceTotal;
-    document.getElementById("w4-test").textContent = p.score === null ? "—" : p.score + " / " + p.testMax;
-    const st = document.getElementById("w4-status");
-    const started = p.learnPct > 0 || p.tried > 0 || p.score !== null;
-    if (p.score !== null && p.score >= 6) { st.textContent = "Zrobione"; st.className = "st-ok"; }
-    else if (!started) { st.textContent = "Nie rozpoczęto"; st.className = "st-no"; }
-  })();
-</script>
+<script src="app.js?v=0df7d9bb4b"></script>
 </body>
 </html>

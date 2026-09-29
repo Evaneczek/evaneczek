@@ -7,7 +7,9 @@
   const T = window.TEMAT;
   if (M8 && !T) {
     // treść tematu nie przyszła z serwera: ta część kursu wymaga zalogowania i dostępu
-    const host = document.querySelector("main .workspace .container, main .section .container, main") || document.body;
+    // plansza w miejscu treści, pod tytułem strony (querySelector z listą wybrałby <main>, bo jest pierwszy w dokumencie)
+    const host = ["main .workspace .container", "main .section .container", "main"].map(q => document.querySelector(q)).find(Boolean) || document.body;
+    host.querySelectorAll(".exam-rules").forEach(e => e.remove());
     const box = document.createElement("div");
     box.className = "locked box";
     box.innerHTML = `<div class="locked-ico" aria-hidden="true">🔒</div><h2>Ten temat jest w pełnej wersji kursu</h2>
@@ -370,7 +372,7 @@
     function buildSelf() {
       selfBox = el("div", { class: "self-box" });
       selfBox.innerHTML = `<div class="self-title">Oceń swoje rozwiązanie tak jak egzaminator</div>
-        <p class="self-lead">Porównaj to, co masz na kartce, z rozwiązaniem powyżej. Zaznacz to, co zrobiłeś dobrze.</p>`;
+        <p class="self-lead">Porównaj to, co masz na kartce, z rozwiązaniem powyżej. Zaznacz to, co masz dobrze.</p>`;
       answer.self = answer.self || task.criteria.map(() => false);
       task.criteria.forEach((c, i) => {
         const id = "self-" + mode + "-" + task.id + "-" + i;
@@ -1159,7 +1161,7 @@
       const box = el("div", { class: "test-start box" });
       box.innerHTML = KIND === "topic" ? `<h2>Test: ${T.title.toLowerCase()}</h2>
         <div class="test-facts"><span>${T.test.length} zadań</span><span>${TEST_MAX} punktów</span><span>${T.test_minutes || 20} minut</span></div>
-        <p style="color:var(--muted)">Bez notatek, jak na egzaminie. Obliczenia zapisuj na kartce. Wynik, poprawne odpowiedzi i rozwiązania zobaczysz po zakończeniu.${hasSelf ? " Zadania otwarte ocenisz sam według punktacji." : ""}</p>`
+        <p style="color:var(--muted)">Bez notatek, jak na egzaminie. Obliczenia zapisuj na kartce. Wynik, poprawne odpowiedzi i rozwiązania zobaczysz po zakończeniu.${hasSelf ? " Zadania otwarte ocenisz samodzielnie według punktacji." : ""}</p>`
         : `<h2>${KIND === "exam" ? "Start egzaminu" : "Start testu"}</h2><p style="color:var(--muted)">${T.start_note}</p>`;
       const b = el("button", { class: "btn btn-yellow", type: "button" }, KIND === "exam" ? "Rozpocznij egzamin" : KIND === "diag" ? "Rozpocznij test startowy" : "Rozpocznij test");
       b.addEventListener("click", () => { S.test = { started: Date.now(), answers: {}, done: false }; M8.save(); run(); });

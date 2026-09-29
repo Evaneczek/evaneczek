@@ -59,7 +59,8 @@ const q = sql => db.prepare(sql);
 for (const sql of ["ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0", "ALTER TABLE users ADD COLUMN weekly_opt INTEGER DEFAULT 1",
   "ALTER TABLE users ADD COLUMN marketing INTEGER DEFAULT 0", "ALTER TABLE magic ADD COLUMN code_hash TEXT", "ALTER TABLE magic ADD COLUMN tries INTEGER DEFAULT 0",
   "CREATE TABLE IF NOT EXISTS claims (cs TEXT PRIMARY KEY, at INTEGER NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS weekly_snap (student_id INTEGER PRIMARY KEY, data TEXT NOT NULL, at INTEGER NOT NULL)"])
+  "CREATE TABLE IF NOT EXISTS weekly_snap (student_id INTEGER PRIMARY KEY, data TEXT NOT NULL, at INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, student_id INTEGER, rating INTEGER NOT NULL, who TEXT, name TEXT, city TEXT, text TEXT NOT NULL, consent INTEGER DEFAULT 0, at INTEGER NOT NULL)"])
   try { db.exec(sql); } catch (e) { /* już jest */ }
 const CONTACT = ENV.CONTACT_EMAIL || "kontakt@liczenasetke.pl";
 const META_PIXEL_ID = ENV.META_PIXEL_ID || "";
@@ -396,9 +397,9 @@ function sameOrigin(req) {
 const ip = req => (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress;
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
-  ".png": "image/png", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".json": "application/json" };
+  ".png": "image/png", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".json": "application/json", ".xml": "application/xml; charset=utf-8" };
 
-function serveStatic(req, res, pathname) {
+function serveStatic(req, res, pathname, versioned) {
   if (pathname === "/") pathname = "/index.html";
   let file;
   try { file = path.join(PUBLIC, decodeURIComponent(pathname)); } catch (e) { return send(res, 400, "Zły adres", "text/plain"); }
@@ -415,8 +416,13 @@ function serveStatic(req, res, pathname) {
       return fs.existsSync(nf) ? send(res, 404, fs.readFileSync(nf), TYPES[".html"]) : send(res, 404, "Nie ma takiej strony", "text/plain; charset=utf-8");
     }
     const ext = path.extname(file);
-    const cache = ext === ".html" || base.startsWith("dane-") ? "no-cache" : "public, max-age=3600";
-    res.writeHead(200, { "Content-Type": TYPES[ext] || "application/octet-stream", "Cache-Control": base.startsWith("dane-") && !FREE.has(base) ? "private, no-store" : cache,
+    // pliki z wersją w adresie (?v=…) mogą leżeć w pamięci przeglądarki długo; reszta jest sprawdzana przy każdym wejściu
+    const cache = base.startsWith("dane-") && !FREE.has(base) ? "private, no-store"
+      : versioned && (ext === ".css" || ext === ".js") ? "public, max-age=31536000, immutable"
+      : ext === ".png" || ext === ".svg" ? "public, max-age=86400" : "no-cache";
+    const etag = `"${st.size.toString(36)}-${Math.floor(st.mtimeMs).toString(36)}"`;
+    if (cache === "no-cache" && req.headers["if-none-match"] === etag) { res.writeHead(304, { ETag: etag, "Cache-Control": cache }); return res.end(); }
+    res.writeHead(200, { "Content-Type": TYPES[ext] || "application/octet-stream", "Cache-Control": cache, ETag: etag,
       "Content-Length": st.size, "X-Content-Type-Options": "nosniff", "Referrer-Policy": "strict-origin-when-cross-origin" });
     if (req.method === "HEAD") return res.end();
     fs.createReadStream(file).pipe(res);
@@ -595,6 +601,23 @@ async function api(req, res, url) {
   const s = session(req);
   if (!s) return json(res, 401, { error: "Zaloguj się." });
 
+  // --- opinie: zapis w bazie i kopia na skrzynkę supportu (publikujemy ręcznie, tylko za zgodą autora) ---
+  if (p === "/api/reviews" && m === "POST") {
+    const b = await jsonBody(req);
+    const rating = Number(b.rating), text = String(b.text || "").trim().slice(0, 3000);
+    const who = String(b.who || "").trim().slice(0, 60), name = String(b.name || "").trim().slice(0, 40), city = String(b.city || "").trim().slice(0, 40);
+    if (!(rating >= 1 && rating <= 5 && Number.isInteger(rating))) return json(res, 400, { error: "Wybierz ocenę od 1 do 5 gwiazdek." });
+    if (text.length < 10) return json(res, 400, { error: "Napisz kilka słów opinii (co najmniej 10 znaków)." });
+    if (b.consent && !name) return json(res, 400, { error: "Do publikacji podaj imię i pierwszą literę nazwiska." });
+    if (limited("rv:" + s.user.id, 5, DAY)) return json(res, 429, { error: "Dziękujemy, dziś już wysłano kilka opinii. Spróbuj jutro." });
+    q("INSERT INTO reviews (user_id, student_id, rating, who, name, city, text, consent, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+      .run(s.user.id, s.role === "student" ? s.student_id : null, rating, who, name, city, text, b.consent ? 1 : 0, now());
+    sendMail(REPLY_TO, `Nowa opinia: ${"★".repeat(rating)}${"☆".repeat(5 - rating)}`, mailWrap(`<p><b>Ocena:</b> ${rating}/5<br><b>Kto:</b> ${esc(who)} (${s.role === "student" ? "konto ucznia" : "konto rodzica"}, ${esc(s.user.email)})<br>
+      <b>Podpis:</b> ${esc(name || "brak")}${city ? ", " + esc(city) : ""}<br><b>Zgoda na publikację:</b> ${b.consent ? "tak" : "nie"}</p>
+      <p style="white-space:pre-wrap;background:#fbf6ea;padding:12px 14px;border-radius:10px">${esc(text)}</p>`)).catch(() => {});
+    return json(res, 200, { ok: true });
+  }
+
   // --- postępy ucznia ---
   if (p === "/api/progress" && m === "GET") {
     const row = s.learner && q("SELECT data, updated_at FROM progress WHERE student_id = ?").get(s.learner);
@@ -671,6 +694,7 @@ async function api(req, res, url) {
     const ids = students(s.user.id).map(x => x.id);
     for (const id of ids) { q("DELETE FROM progress WHERE student_id = ?").run(id); q("DELETE FROM activity WHERE student_id = ?").run(id); }
     q("DELETE FROM students WHERE user_id = ?").run(s.user.id);
+    q("DELETE FROM reviews WHERE user_id = ?").run(s.user.id);
     q("DELETE FROM sessions WHERE user_id = ?").run(s.user.id);
     // dane o płatnościach zostają (obowiązek księgowy), bez adresu e-mail
     q("UPDATE users SET email = ?, google_sub = NULL WHERE id = ?").run("usuniete-" + s.user.id + "@" + "brak", s.user.id);
@@ -690,7 +714,7 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, BASE_URL);
     if (url.pathname.startsWith("/api/")) return await api(req, res, url);
     if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "Metoda niedozwolona", "text/plain; charset=utf-8");
-    return serveStatic(req, res, url.pathname);
+    return serveStatic(req, res, url.pathname, url.searchParams.has("v"));
   } catch (e) {
     log("błąd", e && e.stack || e);
     if (!res.headersSent) json(res, 500, { error: "Coś poszło nie tak. Spróbuj ponownie." });

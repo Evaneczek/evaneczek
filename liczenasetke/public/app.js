@@ -72,7 +72,7 @@
               <ul>
                 <li><a href="dla-rodzica.html">Panel rodzica</a></li>
                 <li><a href="cennik.html#pytania">Częste pytania</a></li>
-                <li><a href="logowanie.html">Zaloguj się</a></li>
+                <li><a class="foot-login" href="logowanie.html">Zaloguj się</a></li>
                 <li><a href="regulamin.html">Regulamin</a></li>
                 <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
               </ul>
@@ -209,6 +209,8 @@
     // nagłówek: zalogowany widzi „Moje konto”, a z dostępem „Kurs” zamiast „Rozpocznij”
     const login = document.querySelector(".nav-login"), cta = document.querySelector(".nav-cta");
     if (me.role && login) { login.textContent = "Moje konto"; login.href = "konto.html"; }
+    const fl = document.querySelector(".foot-login");
+    if (me.role && fl) { fl.textContent = "Moje konto"; fl.href = "konto.html"; }
     if (me.access && me.access.active && cta) { cta.textContent = "Kurs"; cta.href = "kurs.html"; }
     if (me.role) {
       const changed = await M8.syncProgress(me);
@@ -265,7 +267,7 @@
   // ---------- Liczniki: liczba „dobiega” do wartości, gdy pojawi się na ekranie (bez animacji zostaje gotowy tekst) ----------
   const nums = document.querySelectorAll("[data-count]");
   if (nums.length && !calm && "IntersectionObserver" in window) {
-    const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    const fmt = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0");
     const run = el => {
       const to = Number(el.dataset.count), suf = el.dataset.suffix || "", t0 = performance.now(), dur = 1400;
       const step = now => {
@@ -330,22 +332,6 @@
     el.textContent = v < 1 ? `To mniej niż 1 zł dziennie do egzaminu (ok. ${Math.ceil(v * 100)} gr).`
       : `To ok. ${v.toFixed(2).replace(".", ",")} zł dziennie do egzaminu.`;
     el.hidden = false;
-  });
-
-  // ---------- „Wyślij darmową lekcję dziecku”: systemowe udostępnianie na telefonie, inaczej kopiowanie linku ----------
-  document.querySelectorAll("[data-share-kid]").forEach(btn => {
-    const url = new URL("kurs.html?lekcja=przykladowa", location.href).href;
-    const text = "Zobacz darmową lekcję z matematyki do egzaminu ósmoklasisty (temat „Procenty”):";
-    const label = btn.innerHTML;
-    const done = msg => { btn.textContent = msg; setTimeout(() => { btn.innerHTML = label; }, 2500); };
-    btn.addEventListener("click", async () => {
-      if (navigator.share) {
-        try { await navigator.share({ title: "Liczę na Setkę", text, url }); } catch (e) { /* anulowane */ }
-        return;
-      }
-      try { await navigator.clipboard.writeText(url); done("✓ Link skopiowany. Wklej go dziecku w wiadomości"); }
-      catch (e) { location.href = "sms:?&body=" + encodeURIComponent(text + " " + url); }
-    });
   });
 
   // ---------- Przycisk przyklejony na dole ekranu (telefon): pojawia się po minięciu przycisku z góry strony,

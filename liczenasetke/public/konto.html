@@ -3,13 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Panel rodzica w kursie Liczę na Setkę.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Liczę na Setkę">
 <meta property="og:locale" content="pl_PL">
 <meta property="og:title" content="Panel rodzica · Liczę na Setkę">
-<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:description" content="Panel rodzica w kursie Liczę na Setkę.">
 <meta property="og:url" content="https://liczenasetke.pl/konto.html">
 <meta property="og:image" content="https://liczenasetke.pl/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -21,39 +22,42 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=7039b0d3e9">
 </head>
 <body>
 <div id="site-header" data-page="konto"></div>
 
-<main>
-  <section class="page-hero">
+<main class="acc-page">
+  <section class="acc-top">
     <div class="container acc-hero">
       <div>
         <nav class="crumbs" aria-label="Ścieżka"><a href="./">Start</a><span class="sep">/</span><span>Moje konto</span></nav>
         <h1 id="acc-title">Panel rodzica</h1>
-        <p class="lead" id="acc-lead">Ładowanie…</p>
+        <p class="acc-sub" id="acc-lead">Ładowanie…</p>
       </div>
-      <button class="btn btn-small btn-ghost" type="button" id="logout" hidden>Wyloguj się</button>
+      <button class="btn btn-small" type="button" id="logout" hidden>Wyloguj się</button>
     </div>
   </section>
-
-  <section class="section" style="padding-top:26px">
-    <div class="container acc" id="acc"></div>
+  <section class="acc-body">
+    <div class="container" id="acc"></div>
   </section>
 </main>
 
 <div id="site-footer"></div>
-<script src="program.js"></script>
-<script src="app.js"></script>
+<script src="program.js?v=c9b76ec773"></script>
+<script src="app.js?v=0df7d9bb4b"></script>
 <script>
   (function () {
     const M8 = window.M8, $ = id => document.getElementById(id);
     const acc = $("acc"), lead = $("acc-lead"), title = $("acc-title");
+    const QS = new URLSearchParams(location.search);
     const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const date = t => new Date(t).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+    const dni = n => n === 1 ? "dzień" : "dni";
     const TOPICS = [];
     (window.PROGRAM || []).forEach(d => d.topics.forEach(t => TOPICS.push({ ...t, dzial: d.label })));
+    const EXAM = new Date("2027-05-11T09:00:00+02:00");
+    const daysLeft = Math.max(0, Math.ceil((EXAM - new Date()) / 864e5));
 
     $("logout").addEventListener("click", async () => {
       try { await M8.api("/api/auth/logout", { method: "POST" }); } catch (e) {}
@@ -61,7 +65,7 @@
       location.href = "./";
     });
 
-    // wyniki z zapisanych postępów ucznia: testy tematów, test startowy, egzaminy próbne
+    // wyniki z postępów ucznia: testy tematów, test startowy, egzaminy próbne
     function results(data) {
       const t = (data && data.t) || {};
       return TOPICS.map(x => {
@@ -69,8 +73,19 @@
         const max = meta.testMax || x.pts;
         const score = S.test && S.test.done ? S.test.score : (S.lastScore != null ? S.lastScore : null);
         const started = !!(S.learned || S.learnPct || Object.keys(S.practice || {}).length || S.test);
-        return { ...x, score, max, started };
-      }).filter(x => x.started || x.score != null);
+        return { ...x, score, max, started, pct: score == null ? null : Math.round(score / max * 100) };
+      });
+    }
+    // co dalej: najpierw test startowy, potem pierwszy temat „do nauki” bez zaliczonego testu
+    function nextStep(data, res) {
+      const diag = data && data.t && data.t["test-startowy"] && data.t["test-startowy"].diag;
+      const start = res.find(r => r.slug === "test-startowy");
+      if (!start || start.score == null) return { slug: "test-startowy", title: "Test startowy", why: "40 minut. Wynik pokaże, co dziecko już umie i od którego tematu zacząć." };
+      const todo = res.find(r => !r.kind && r.status !== "soon" && (r.pct == null || r.pct < 80) && !(diag && diag[r.slug] && !r.started));
+      if (todo) return { slug: todo.slug, title: todo.title, why: todo.started ? "Temat jest rozpoczęty. Dokończcie naukę i test na końcu." : "Według testu startowego to pierwszy temat do nauki." };
+      const exam = res.find(r => r.kind === "exam" && r.score == null);
+      if (exam) return { slug: exam.slug, title: exam.title, why: "Tematy są przerobione. Czas na pełny arkusz, 125 minut jak w maju." };
+      return null;
     }
     function daysRow(days, today) {
       const set = new Set(days), out = [];
@@ -79,57 +94,147 @@
         const d = new Date(base); d.setDate(base.getDate() - i);
         const key = d.toLocaleDateString("sv-SE");
         const lbl = d.toLocaleDateString("pl-PL", { weekday: "short" }).slice(0, 2);
-        out.push(`<span class="${set.has(key) ? "on" : ""}" title="${d.toLocaleDateString("pl-PL")}">${lbl}</span>`);
+        out.push(`<span class="${set.has(key) ? "on" : ""}${i === 0 ? " today" : ""}" title="${d.toLocaleDateString("pl-PL")}${set.has(key) ? ": nauka" : ""}">${lbl}</span>`);
       }
       return out.join("");
     }
 
-    async function studentCard(st) {
+    async function kidCard(st, active) {
       const sum = await M8.api(`/api/students/${st.id}/summary`).catch(() => ({ data: null, days: [], today: new Date().toLocaleDateString("sv-SE") }));
-      const res = results(sum.data);
-      const tests = res.filter(r => r.score != null);
-      const learnDays = sum.days.filter(d => d >= new Date(Date.now() - 7 * 864e5).toLocaleDateString("sv-SE")).length;
-      const rows = tests.length ? tests.map(r => {
-        const pct = Math.round(r.score / r.max * 100);
-        return `<li><span>${esc(r.title)}${r.kind ? ` <em>${r.kind === "diag" ? "test startowy" : "egzamin próbny"}</em>` : ""}</span><b class="${pct >= 80 ? "good" : pct >= 55 ? "mid" : "low"}">${r.score} / ${r.max} pkt</b></li>`;
-      }).join("") : `<li class="none">Jeszcze nie ma wyników testów. Pierwszy wynik pojawi się po teście na końcu tematu.</li>`;
-      const inProgress = res.filter(r => r.score == null).map(r => esc(r.title));
+      const res = results(sum.data), tests = res.filter(r => r.score != null);
+      const weekAgo = new Date(Date.now() - 6 * 864e5).toLocaleDateString("sv-SE");
+      const week = sum.days.filter(d => d >= weekAgo).length;
+      const avg = tests.length ? Math.round(tests.reduce((a, r) => a + r.pct, 0) / tests.length) : null;
+      const topicsDone = tests.filter(r => !r.kind).length, topicsAll = TOPICS.filter(t => !t.kind).length;
+      const weak = tests.filter(r => !r.kind && r.pct < 80).sort((a, b) => a.pct - b.pct).slice(0, 3);
+      const next = active ? nextStep(sum.data, res) : null;
       const name = st.name || "Dziecko";
       const el = document.createElement("article");
-      el.className = "acc-card box kid";
+      el.className = "acc-card kid";
+      const pill = r => `<b class="sc ${r.pct >= 80 ? "good" : r.pct >= 55 ? "mid" : "low"}">${r.score}/${r.max}</b>`;
       el.innerHTML = `
-        <div class="kid-head"><span class="avatar">${esc(name[0].toUpperCase())}</span>
-          <div><b>${esc(name)}</b><small>Login: <code>${esc(st.login)}</code></small></div>
-          <div class="kid-actions"><button class="btn btn-small${st.pinShown ? "" : " btn-yellow"}" type="button" data-pin>${st.pinShown ? "Ustaw nowy PIN" : "Utwórz PIN dla dziecka"}</button><button class="text-link" type="button" data-rename>Zmień imię</button></div></div>
-        <div class="kid-pin" hidden></div>
-        <div class="kid-grid">
-          <div><div class="pp-label">Nauka w ostatnich 14 dniach</div><div class="pp-days kid-days">${daysRow(sum.days, sum.today)}</div>
-            <p class="kid-note">${learnDays ? `W tym tygodniu: <b>${learnDays} ${learnDays === 1 ? "dzień" : "dni"}</b> nauki.` : "W tym tygodniu jeszcze bez nauki."}${sum.at ? ` Ostatnio: ${date(sum.at)}.` : ""}</p></div>
-          <div><div class="pp-label">Wyniki testów</div><ul class="kid-tests">${rows}</ul>
-            ${inProgress.length ? `<p class="kid-note">W trakcie: ${inProgress.slice(0, 4).join(", ")}${inProgress.length > 4 ? " i inne" : ""}.</p>` : ""}</div>
+        <header class="kid-head"><span class="avatar">${esc(name[0].toUpperCase())}</span>
+          <div><b>${esc(name)}</b><small>${sum.at ? "Ostatnia nauka: " + date(sum.at) : "Jeszcze bez nauki"}</small></div>
+          <button class="linkish" type="button" data-rename>Zmień imię</button></header>
+        <div class="kid-stats">
+          <div><b>${week}</b><span>${dni(week)} nauki<br>w tym tygodniu</span></div>
+          <div><b>${topicsDone}<small>/${topicsAll}</small></b><span>tematów<br>z testem</span></div>
+          <div><b>${avg == null ? "–" : avg + "%"}</b><span>średni wynik<br>testów</span></div>
+        </div>
+        <div class="kid-block"><div class="pp-label">Ostatnie 14 dni</div><div class="kid-days">${daysRow(sum.days, sum.today)}</div></div>
+        ${next ? `<a class="kid-next" href="${next.slug}.html"><span class="pp-label">Następny krok</span><b>${esc(next.title)} →</b><span>${esc(next.why)}</span></a>` : ""}
+        <div class="kid-block"><div class="pp-label">Wyniki testów</div>
+          ${tests.length ? `<ul class="kid-tests">${tests.slice().reverse().map(r => `<li><a href="${r.slug}.html">${esc(r.title)}</a>${r.kind ? `<em>${r.kind === "diag" ? "test startowy" : "egzamin próbny"}</em>` : ""}${pill(r)}</li>`).join("")}</ul>`
+            : `<p class="kid-empty">Tu pojawią się wyniki po pierwszym teście. ${active ? "Najlepiej zacząć od testu startowego." : "Na początek: darmowy temat „Procenty”."}</p>`}
+          ${weak.length ? `<p class="kid-weak"><b>Warto powtórzyć:</b> ${weak.map(r => `<a href="${r.slug}.html">${esc(r.title)}</a>`).join(", ")}</p>` : ""}
         </div>`;
-      el.querySelector("[data-pin]").addEventListener("click", async () => {
+      el.querySelector("[data-rename]").addEventListener("click", async () => {
+        const n = prompt("Imię dziecka (do powitania w kursie i w podsumowaniach):", st.name || "");
+        if (n == null) return;
+        try { await M8.api(`/api/students/${st.id}`, { method: "PATCH", body: { name: n } }); location.reload(); } catch (e) { alert(e.message); }
+      });
+      return { el, hasProgress: !!(sum.at) };
+    }
+
+    function loginCard(st, openGuide) {
+      const el = document.createElement("div");
+      el.className = "acc-card side-card";
+      el.innerHTML = `<h3>Logowanie dziecka</h3>
+        <p>Na <b>Twoim</b> telefonie lub komputerze dziecko może uczyć się od razu. Na <b>swoim</b> urządzeniu loguje się loginem i PIN-em.</p>
+        <div class="login-line"><span>Login</span><code>${esc(st.login)}</code></div>
+        <button class="btn btn-small ${st.pinShown ? "" : "btn-yellow"}" type="button" data-pin>${st.pinShown ? "Ustaw nowy PIN" : "Utwórz PIN dla dziecka"}</button>
+        <div class="kid-pin" hidden></div>
+        <details class="mini-faq"${openGuide ? " open" : ""}><summary>Jak to działa?</summary>
+          <p><b>Gdzie dziecko wpisuje PIN?</b> Na liczenasetke.pl → „Zaloguj się” → zakładka „Uczeń”. Robi to raz, urządzenie zapamięta logowanie.</p>
+          <p><b>Czy to bezpieczne?</b> Login dziecka służy tylko do nauki: nie da się nim nic kupić, zmienić ustawień ani zobaczyć Twojego e-maila.</p>
+          <p><b>Dziecko zapomniało PIN-u?</b> Kliknij „Ustaw nowy PIN”. Postępy zostają.</p>
+        </details>`;
+      el.querySelector("[data-pin]").addEventListener("click", async e => {
         if (st.pinShown && !confirm("Ustawić nowy PIN? Stary przestanie działać, a dziecko zostanie wylogowane na swoich urządzeniach.")) return;
         try {
           const r = await M8.api(`/api/students/${st.id}/pin`, { method: "POST" });
           const box = el.querySelector(".kid-pin");
-          box.innerHTML = `<b>Dane do logowania dziecka</b><div class="pin-show"><span>Login: <code>${esc(r.login)}</code></span><span>PIN: <code>${esc(r.pin)}</code></span></div>
-            <small>Dziecko wchodzi na <b>liczenasetke.pl</b> → <b>Zaloguj się</b> → zakładka <b>Uczeń</b> i wpisuje login oraz PIN. Zapisz PIN teraz albo wyślij go dziecku: ze względów bezpieczeństwa nie pokażemy go ponownie.</small>
-            <div class="btn-row"><button class="btn btn-small" type="button" data-send>Wyślij dziecku wiadomością</button></div>`;
+          box.innerHTML = `<div class="pin-show"><span>Login<code>${esc(r.login)}</code></span><span>PIN<code>${esc(r.pin)}</code></span></div>
+            <small>Zapisz PIN albo wyślij go dziecku teraz: ze względów bezpieczeństwa nie pokażemy go ponownie.</small>
+            <button class="btn btn-small btn-ink" type="button" data-send>Wyślij dziecku wiadomością</button>`;
           box.hidden = false;
           const txt = `Twoje logowanie do kursu Liczę na Setkę:\nstrona: https://liczenasetke.pl/logowanie.html (zakładka Uczeń)\nlogin: ${r.login}\nPIN: ${r.pin}`;
-          box.querySelector("[data-send]").addEventListener("click", async e => {
+          box.querySelector("[data-send]").addEventListener("click", async ev => {
             if (navigator.share) { try { await navigator.share({ title: "Logowanie do kursu", text: txt }); } catch (err) {} return; }
-            try { await navigator.clipboard.writeText(txt); e.target.textContent = "✓ Skopiowano, wklej dziecku w wiadomości"; } catch (err) { prompt("Skopiuj i wyślij dziecku:", txt); }
+            try { await navigator.clipboard.writeText(txt); ev.target.textContent = "✓ Skopiowano: wklej dziecku w wiadomości"; } catch (err) { prompt("Skopiuj i wyślij dziecku:", txt); }
           });
-          st.pinShown = 1; el.querySelector("[data-pin]").textContent = "Ustaw nowy PIN"; el.querySelector("[data-pin]").classList.remove("btn-yellow");
-        } catch (e) { alert(e.message); }
+          st.pinShown = 1; e.target.textContent = "Ustaw nowy PIN"; e.target.classList.remove("btn-yellow");
+        } catch (err) { alert(err.message); }
       });
-      el.querySelector("[data-rename]").addEventListener("click", async () => {
-        const n = prompt("Imię dziecka (do powitania w kursie):", st.name || "");
-        if (n == null) return;
-        try { await M8.api(`/api/students/${st.id}`, { method: "PATCH", body: { name: n } }); location.reload(); } catch (e) { alert(e.message); }
+      return el;
+    }
+
+    function planCard(a) {
+      const el = document.createElement("div");
+      el.className = "acc-card side-card";
+      if (a.plan === "exam") el.innerHTML = `<h3>Plan i płatność</h3><p><b>Do dnia egzaminu</b>: jedna płatność, dostęp do ${date(a.until)}. Nic się samo nie odnawia.</p>`;
+      else el.innerHTML = `<h3>Plan i płatność</h3>
+        <p><b>Miesięcznie, 49 zł</b>: ${a.cancelAtEnd ? `subskrypcja wyłączona, dostęp do ${date(a.until)}.` : `następna płatność ${date(a.until)}.`}</p>
+        ${a.canManage ? `<button class="btn btn-small" type="button" data-portal>${a.cancelAtEnd ? "Ustawienia płatności" : "Zmień kartę albo zrezygnuj"}</button>` : ""}
+        <div class="upgrade"><b>Wygodniej: plan do egzaminu</b><p>Płacisz raz 199 zł i dostęp zostaje do 11 maja 2027. Subskrypcja wyłączy się sama na koniec opłaconego miesiąca.</p>
+        <button class="btn btn-small btn-yellow" type="button" data-buy="exam">Przechodzę na plan do egzaminu</button></div>`;
+      const pb = el.querySelector("[data-portal]");
+      if (pb) pb.addEventListener("click", async () => { try { location.href = (await M8.api("/api/portal", { method: "POST" })).url; } catch (e) { alert(e.message); } });
+      return el;
+    }
+
+    function settingsCard(me, a) {
+      const el = document.createElement("div");
+      el.className = "acc-card side-card";
+      el.innerHTML = `<h3>Powiadomienia</h3>
+        <label class="switch-row"><span><b>Podsumowanie tygodnia</b><small>W niedzielę wieczorem e-mail: dni nauki, nowe wyniki i co powtórzyć.</small></span>
+          <input type="checkbox" class="switch" id="weekly" ${me.weekly ? "checked" : ""}></label>
+        ${QS.get("podsumowanie") === "wylaczone" ? `<p class="acc-note">Podsumowania są wyłączone. Możesz je tu włączyć ponownie.</p>` : ""}
+        <h3 class="mt">Pomoc</h3>
+        <p>Pytanie, problem albo zwrot pieniędzy (14 dni od zakupu)? Napisz: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a></p>
+        <p class="acc-links"><a href="cennik.html#pytania">Częste pytania</a> · <a href="regulamin.html">Regulamin</a></p>
+        <details class="acc-danger"><summary>Usuń konto</summary>
+          <p>Usuniemy konto, login dziecka i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję." : ""}</p>
+          <label>Wpisz <b>USUŃ</b>, aby potwierdzić<input type="text" id="del-confirm" autocomplete="off"></label>
+          <button class="btn btn-small" type="button" id="del-acc">Usuń konto na zawsze</button></details>`;
+      el.querySelector("#weekly").addEventListener("change", async e => {
+        try { await M8.api("/api/account", { method: "PATCH", body: { weekly: e.target.checked } }); } catch (err) { alert(err.message); e.target.checked = !e.target.checked; }
       });
+      el.querySelector("#del-acc").addEventListener("click", async () => {
+        try { await M8.api("/api/account", { method: "DELETE", body: { confirm: el.querySelector("#del-confirm").value.trim() } });
+          try { localStorage.removeItem("matma8-v3"); } catch (e) {} location.href = "./"; }
+        catch (e) { alert(e.message); }
+      });
+      return el;
+    }
+
+    function buyCard(paid) {
+      const el = document.createElement("div");
+      el.className = "acc-card acc-buy";
+      const waiting = QS.get("platnosc") === "czeka";
+      el.innerHTML = paid ? `<h2>Dziękujemy! Włączamy dostęp…</h2><p>Płatność przeszła. Dostęp włączy się w ciągu kilku sekund, a ta strona odświeży się sama.</p>`
+        : `<div class="pp-label">Pełny dostęp</div><h2>Odblokuj cały kurs</h2>
+        <p>${waiting ? "Płatność została przyjęta, ale dostęp jeszcze się nie włączył. Odśwież stronę za minutę. Jeśli to nie pomoże, napisz do nas: włączymy dostęp ręcznie." : "Temat „Procenty” masz za darmo. Z pełnym dostępem dziecko dostaje:"}</p>
+        <ul class="acc-benefits">
+          <li><span><b>Wszystkie 20 tematów</b>: od liczb i ułamków po bryły i prawdopodobieństwo</span></li>
+          <li><span><b>Test startowy</b>, który pokazuje, od którego tematu zacząć</span></li>
+          <li><span><b>2 pełne egzaminy próbne</b> z wynikiem i listą tematów do powtórki</span></li>
+          <li><span><b>Ponad 1000 zadań</b> z rozwiązaniem krok po kroku</span></li>
+          <li><span><b>Wyniki i dni nauki dziecka</b> w tym panelu i co tydzień na e-mail</span></li>
+        </ul>
+        <div class="acc-plans">
+          <div class="acc-plan featured"><span class="pill yellow ribbon">Bez subskrypcji</span><b>Do dnia egzaminu</b>
+            <div class="acc-price">199 zł <small>jednorazowo</small></div><p class="per-day" data-perday hidden></p>
+            <p>Dostęp do 11 maja 2027. Nic się samo nie odnawia.</p>
+            <button class="btn btn-yellow" type="button" data-buy="exam">Wybieram do egzaminu</button></div>
+          <div class="acc-plan"><b>Miesięcznie</b>
+            <div class="acc-price">49 zł <small>/ miesiąc</small></div>
+            <p>Rezygnujesz jednym kliknięciem, dostęp zostaje do końca opłaconego miesiąca.</p>
+            <button class="btn" type="button" data-buy="monthly">Wybieram miesięcznie</button></div>
+        </div>
+        <p class="guarantee"><span class="g-ico" aria-hidden="true">✓</span><span><b>14 dni na zwrot pieniędzy.</b> Jeśli kurs Wam nie podpasuje, zwrócimy całą kwotę bez podawania przyczyny.</span></p>`;
+      const pd = el.querySelector("[data-perday]");
+      if (pd && daysLeft >= 7) { const v = 199 / daysLeft; pd.textContent = v < 1 ? `Mniej niż 1 zł dziennie (ok. ${Math.ceil(v * 100)} gr)` : `Ok. ${v.toFixed(2).replace(".", ",")} zł dziennie`; pd.hidden = false; }
       return el;
     }
 
@@ -138,93 +243,44 @@
       if (!me.role) { location.href = "logowanie.html"; return; }
       $("logout").hidden = false;
       if (me.role === "student") {
-        title.textContent = "Konto ucznia";
-        lead.innerHTML = `Zalogowano jako <b>${esc(me.student && me.student.login)}</b>.`;
-        acc.innerHTML = `<div class="acc-card box"><h2>Czas na naukę</h2><p>Postępy zapisują się na koncie, więc możesz się uczyć na każdym urządzeniu.</p>
-          <div class="btn-row"><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a></div></div>`;
+        title.textContent = "Cześć!";
+        lead.innerHTML = `Konto ucznia <b>${esc(me.student && me.student.login)}</b>. Postępy zapisują się na koncie, więc możesz się uczyć na każdym urządzeniu.`;
+        acc.innerHTML = `<div class="acc-card acc-status ok"><div><b>Czas na naukę</b><span>Do egzaminu zostało ${daysLeft} ${dni(daysLeft)}.</span></div><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a></div>`;
         return;
       }
-      lead.innerHTML = `Zalogowano jako <b>${esc(me.email)}</b>.`;
-      const a = me.access || {};
-      const paid = new URLSearchParams(location.search).get("platnosc") === "ok";
-      let accHtml;
+      const a = me.access || {}, paid = QS.get("platnosc") === "ok";
+      lead.innerHTML = `Zalogowano jako <b>${esc(me.email)}</b>`;
+      acc.innerHTML = `<div class="acc-layout"><div class="acc-main" id="acc-main"></div><aside class="acc-side" id="acc-side"></aside></div>`;
+      const main = $("acc-main"), side = $("acc-side");
       if (a.active) {
-        accHtml = `<div class="acc-card box acc-ok"><div class="pp-label">Dostęp do kursu</div>
-          <h2>✓ Dostęp aktywny</h2>
-          <p>${a.plan === "exam" ? `Plan „Do dnia egzaminu”: dostęp do <b>${date(a.until)}</b>. Nic się samo nie odnawia.`
-            : a.cancelAtEnd ? `Plan „Miesięcznie”: subskrypcja wyłączona, dostęp do <b>${date(a.until)}</b>.`
-            : `Plan „Miesięcznie”: następna płatność <b>${date(a.until)}</b>. Możesz zrezygnować w każdej chwili.`}</p>
-          <div class="btn-row"><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a>
-          ${a.plan === "monthly" && a.canManage ? `<button class="btn btn-ghost" type="button" id="portal">Zarządzaj subskrypcją</button>` : ""}</div></div>
-          ${a.plan === "monthly" ? `<div class="acc-card box acc-upgrade"><div class="pp-label">Wygodniej i taniej do egzaminu</div>
-            <h2>Przejdź na plan „Do dnia egzaminu”</h2>
-            <p>Płacisz raz <b>199 zł</b> i dostęp zostaje do 11 maja 2027. Obecna subskrypcja wyłączy się sama na koniec opłaconego miesiąca, więc kolejnych płatności po 49 zł już nie będzie.</p>
-            <div class="btn-row"><button class="btn btn-yellow" type="button" data-buy="exam">Przechodzę na plan do egzaminu</button></div></div>` : ""}`;
-      } else {
-        accHtml = `<div class="acc-card box"><div class="pp-label">Dostęp do kursu</div>
-          <h2>${paid ? "Dziękujemy! Włączamy dostęp…" : "Odblokuj cały kurs"}</h2>
-          <p>${paid ? "Płatność przeszła. Dostęp włączy się w ciągu kilku sekund, ta strona odświeży się sama."
-            : new URLSearchParams(location.search).get("platnosc") === "czeka" ? "Płatność została przyjęta, ale dostęp jeszcze się nie włączył. Odśwież tę stronę za minutę. Jeśli to nie pomoże, napisz do nas: włączymy dostęp ręcznie."
-            : "Temat „Procenty” masz za darmo. Z pełnym dostępem dziecko dostaje:"}</p>
-          ${paid ? "" : `<ul class="acc-benefits">
-            <li><span><b>Wszystkie 20 tematów</b>: od liczb i ułamków po bryły i prawdopodobieństwo</span></li>
-            <li><span><b>Test startowy</b>, który pokazuje, od którego tematu zacząć</span></li>
-            <li><span><b>2 pełne egzaminy próbne</b> z wynikiem i listą tematów do powtórki</span></li>
-            <li><span><b>Ponad 1000 zadań</b> z rozwiązaniem krok po kroku</span></li>
-            <li><span><b>Wyniki i dni nauki dziecka</b> w tym panelu</span></li>
-          </ul>
-          <div class="acc-plans">
-            <div class="acc-plan featured"><span class="pill yellow ribbon">Bez subskrypcji</span><b>Do dnia egzaminu</b>
-              <div class="acc-price">199 zł <small>jednorazowo</small></div><p class="per-day" data-perday="199" hidden></p>
-              <p>Dostęp do 11 maja 2027. Bez subskrypcji, nic się samo nie odnawia.</p>
-              <button class="btn btn-yellow" type="button" data-buy="exam">Wybieram do egzaminu</button></div>
-            <div class="acc-plan"><b>Miesięcznie</b>
-              <div class="acc-price">49 zł <small>/ miesiąc</small></div>
-              <p>Rezygnujesz jednym kliknięciem, dostęp zostaje do końca opłaconego miesiąca.</p>
-              <button class="btn" type="button" data-buy="monthly">Wybieram miesięcznie</button></div>
-          </div>
-          <p class="guarantee"><span class="g-ico" aria-hidden="true">✓</span><span><b>14 dni na zwrot pieniędzy.</b> Jeśli kurs Wam nie podpasuje, zwrócimy całą kwotę bez podawania przyczyny.</span></p>`}</div>`;
+        main.insertAdjacentHTML("beforeend", `<div class="acc-card acc-status ok">
+          <span class="st-ico" aria-hidden="true">✓</span>
+          <div><b>Dostęp aktywny</b><span>${a.plan === "exam" ? `Plan „Do dnia egzaminu”, do ${date(a.until)}` : `Plan „Miesięcznie”, ${a.cancelAtEnd ? "do " : "odnawia się "}${date(a.until)}`} · do egzaminu ${daysLeft} ${dni(daysLeft)}</span></div>
+          <a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a></div>`);
+      } else main.appendChild(buyCard(paid));
+      const kids = me.students || [];
+      let anyProgress = false;
+      for (const st of kids) {
+        const { el, hasProgress } = await kidCard(st, a.active);
+        anyProgress = anyProgress || hasProgress;
+        main.appendChild(el);
       }
-      const steps = a.active ? `<div class="acc-card box acc-steps"><div class="pp-label">Co teraz?</div>
-          <ol><li><span><b>Zdecyduj, gdzie dziecko będzie się uczyć.</b> Na tym urządzeniu może zacząć od razu. Na własnym telefonie lub komputerze potrzebuje loginu i PIN-u (niżej).</span></li>
-          <li><span><b>Zacznijcie od testu startowego.</b> 40 minut, a wynik pokaże, od którego tematu zacząć. <a href="test-startowy.html">Otwórz test startowy →</a></span></li>
-          <li><span><b>Zaglądaj tu co jakiś czas.</b> Zobaczysz dni nauki i wyniki testów, bez sprawdzania zeszytu.</span></li></ol></div>` : "";
-      const guide = `<details class="acc-card box acc-guide"${a.active && !(me.students || []).some(x => x.pinShown) ? " open" : ""}><summary><b>Jak dziecko ma się logować?</b> Krótko o loginie i PIN-ie</summary>
-          <dl>
-            <dt>Dziecko uczy się na Twoim telefonie lub komputerze</dt><dd>Nic nie musisz robić. To urządzenie jest zalogowane na Twoje konto, więc dziecko może od razu otworzyć kurs, a postępy zapiszą się na jego koncie.</dd>
-            <dt>Dziecko uczy się na swoim urządzeniu</dt><dd>Kliknij niżej <b>„Utwórz PIN dla dziecka”</b>. Dostaniesz login (np. <code>ola-4821</code>) i 6-cyfrowy PIN. Dziecko wchodzi na <b>liczenasetke.pl</b> → <b>Zaloguj się</b> → zakładka <b>Uczeń</b> i wpisuje login oraz PIN. Robi to tylko raz: urządzenie zapamięta logowanie.</dd>
-            <dt>Czy to bezpieczne?</dt><dd>Login dziecka służy tylko do nauki. Dziecko nie może nic kupić, zmienić ustawień ani zobaczyć Twojego e-maila. Nie podajemy nazwiska ani szkoły dziecka.</dd>
-            <dt>Dziecko zapomniało PIN-u</dt><dd>Kliknij <b>„Ustaw nowy PIN”</b>. Stary przestanie działać, a nowy od razu zobaczysz na ekranie. Postępy zostają.</dd>
-          </dl></details>`;
-      acc.innerHTML = accHtml + steps + `<h2 class="acc-h">Postępy dziecka</h2><div id="kids" class="acc-kids"></div>` + guide + `
-        <div class="acc-card box acc-settings">
-          <label class="acc-toggle"><input type="checkbox" id="weekly" ${me.weekly ? "checked" : ""}><span><b>Podsumowanie tygodnia na e-mail</b>W niedzielę wieczorem: ile dni dziecko się uczyło, nowe wyniki testów i co warto powtórzyć.</span></label>
-          ${QS.get("podsumowanie") === "wylaczone" ? `<p class="kid-note">Podsumowania zostały wyłączone. Możesz je tu włączyć ponownie.</p>` : ""}
-          <p class="acc-help">Pytanie albo problem? Napisz: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a>. Odpowiadamy w dni robocze.</p>
-        </div>
-        <details class="acc-danger"><summary>Usuń konto</summary>
-          <p>Usuniemy konto, loginy dzieci i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję w „Zarządzaj subskrypcją”." : ""}</p>
-          <label>Wpisz <b>USUŃ</b>, aby potwierdzić <input type="text" id="del-confirm" autocomplete="off"></label>
-          <button class="btn btn-small" type="button" id="del-acc">Usuń konto na zawsze</button></details>`;
+      if (a.active && !anyProgress) main.insertBefore(Object.assign(document.createElement("div"), { className: "acc-card acc-steps", innerHTML: `<div class="pp-label">Jak zacząć</div>
+        <ol><li><span><b>Wybierz urządzenie.</b> Na tym dziecko może zacząć od razu. Na swoim telefonie lub komputerze potrzebuje loginu i PIN-u (karta obok).</span></li>
+        <li><span><b>Zacznijcie od testu startowego.</b> 40 minut, a wynik pokaże, od którego tematu zacząć. <a href="test-startowy.html">Otwórz test startowy →</a></span></li>
+        <li><span><b>Zaglądaj tu co jakiś czas.</b> Zobaczysz dni nauki i wyniki testów. W niedzielę przyjdzie też podsumowanie na e-mail.</span></li></ol>` }), main.children[1] || null);
+      if (a.active) main.insertAdjacentHTML("beforeend", `<div class="acc-card acc-links"><div class="pp-label">Na skróty</div>
+        <div class="acc-links-grid">
+          <a href="kurs.html"><b>Program kursu</b><span>20 tematów w 4 działach</span></a>
+          <a href="test-startowy.html"><b>Test startowy</b><span>od którego tematu zacząć</span></a>
+          <a href="egzamin-probny-1.html"><b>Egzamin próbny 1</b><span>pełny arkusz, 125 minut</span></a>
+          <a href="egzamin-probny-2.html"><b>Egzamin próbny 2</b><span>pełny arkusz, 125 minut</span></a>
+        </div></div>`);
+      if (kids[0]) side.appendChild(loginCard(kids[0], a.active && !kids[0].pinShown));
+      if (a.active) side.appendChild(planCard(a));
+      side.appendChild(settingsCard(me, a));
       acc.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => M8.buy(b.dataset.buy, b)));
-      acc.querySelectorAll("[data-perday]").forEach(el => {
-        const days = Math.ceil((new Date("2027-05-11T09:00:00+02:00") - new Date()) / 864e5);
-        if (days < 7) return; const v = 199 / days;
-        el.textContent = v < 1 ? `Mniej niż 1 zł dziennie (ok. ${Math.ceil(v * 100)} gr)` : `Ok. ${v.toFixed(2).replace(".", ",")} zł dziennie`; el.hidden = false;
-      });
-      $("weekly").addEventListener("change", async e => {
-        try { await M8.api("/api/account", { method: "PATCH", body: { weekly: e.target.checked } }); } catch (err) { alert(err.message); e.target.checked = !e.target.checked; }
-      });
       M8.config.then(c => { if (c.contact) acc.querySelectorAll("[data-contact]").forEach(x => { x.href = "mailto:" + c.contact; x.textContent = c.contact; }); });
-      const portal = $("portal");
-      if (portal) portal.addEventListener("click", async () => { try { location.href = (await M8.api("/api/portal", { method: "POST" })).url; } catch (e) { alert(e.message); } });
-      $("del-acc").addEventListener("click", async () => {
-        try { await M8.api("/api/account", { method: "DELETE", body: { confirm: $("del-confirm").value.trim() } });
-          try { localStorage.removeItem("matma8-v3"); } catch (e) {} location.href = "./"; }
-        catch (e) { alert(e.message); }
-      });
-      const kids = $("kids");
-      for (const st of me.students || []) kids.appendChild(await studentCard(st));
       if (!a.active && paid) {
         // webhook Stripe dochodzi zwykle po kilku sekundach
         let n = 0;
@@ -235,7 +291,6 @@
         }, 2000);
       }
     }
-    const QS = new URLSearchParams(location.search);
     function trackPurchase() {
       const k = "m8-purchase-" + (QS.get("cs") || "x");
       if (sessionStorage.getItem(k)) return;
@@ -243,7 +298,7 @@
       M8.track("Purchase", { value: QS.get("plan") === "monthly" ? 49 : 199, currency: "PLN" });
     }
     M8.ready.then(async me => {
-      // wracamy z płatności Stripe bez logowania: logujemy na konto założone z e-maila z płatności
+      // powrót z płatności Stripe bez logowania: logujemy na konto założone z e-maila podanego w płatności
       if (me && !me.role && QS.get("platnosc") === "ok" && QS.get("cs")) {
         try { await M8.api("/api/checkout/claim", { method: "POST", body: { cs: QS.get("cs") } }); me = await M8.api("/api/me"); M8.me = me; await M8.syncProgress(me); }
         catch (e) { lead.innerHTML = esc(e.message) + ' <a href="logowanie.html">Zaloguj się →</a>'; return; }
