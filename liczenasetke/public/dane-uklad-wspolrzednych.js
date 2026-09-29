@@ -254,7 +254,7 @@ window.TEMAT = {
         ],
         [
          6,
-         "Nie podzieliłeś przez 2."
+         "Nie podzielono przez 2."
         ]
        ]
       }
@@ -282,7 +282,7 @@ window.TEMAT = {
      "ok": 0,
      "why": {
       "B": "2,5 to połowa długości odcinka (5 : 2), a nie współrzędna. x = (−1 + 4) : 2.",
-      "C": "Dodałeś współrzędne, ale nie podzieliłeś przez 2.",
+      "C": "Dodano współrzędne, ale nie podzielono przez 2.",
       "D": "y środka to (3 + 3) : 2 = 3, a nie 0."
      },
      "sol": [
@@ -409,8 +409,8 @@ window.TEMAT = {
      "ok": 0,
      "why": {
       "B": "To środek odcinka AS, a nie punkt B.",
-      "C": "Zmieniłeś znak tylko jednej współrzędnej.",
-      "D": "Zmieniłeś znak tylko jednej współrzędnej."
+      "C": "Zmieniono znak tylko jednej współrzędnej.",
+      "D": "Zmieniono znak tylko jednej współrzędnej."
      },
      "sol": [
       "Środek to (0, 0), więc B jest „po drugiej stronie” zera: [[B(−3, 5)]]."
@@ -526,7 +526,7 @@ window.TEMAT = {
        "why": [
         [
          7,
-         "Dodałeś przesunięcia 3 i 4. Długość: √(9 + 16)."
+         "Dodano przesunięcia 3 i 4. Długość: √(9 + 16)."
         ]
        ]
       }
@@ -553,7 +553,7 @@ window.TEMAT = {
      ],
      "ok": 0,
      "why": {
-      "B": "Dodałeś przesunięcia 2 i 4. Trzeba dodać ich kwadraty.",
+      "B": "Dodano przesunięcia 2 i 4. Trzeba dodać ich kwadraty.",
       "C": "20 to kwadrat długości. Wyciągnij pierwiastek.",
       "D": "√6 = √(2 + 4). Pod pierwiastkiem są kwadraty: 4 + 16."
      },
@@ -810,7 +810,7 @@ window.TEMAT = {
        "why": [
         [
          30,
-         "Zapomniałeś podzielić przez 2."
+         "Zapomniano podzielić przez 2."
         ]
        ]
       }
@@ -1231,7 +1231,7 @@ window.TEMAT = {
       ],
       [
        10,
-       "Nie podzieliłeś przez 2."
+       "Nie podzielono przez 2."
       ]
      ]
     },
@@ -1246,7 +1246,7 @@ window.TEMAT = {
       ],
       [
        2,
-       "Nie podzieliłeś przez 2."
+       "Nie podzielono przez 2."
       ]
      ]
     }
@@ -1340,7 +1340,7 @@ window.TEMAT = {
    "ok": 3,
    "why": {
     "A": "Liczysz połowę różnicy, a trzeba średnią współrzędnych.",
-    "B": "Nie podzieliłeś sum przez 2.",
+    "B": "Nie podzielono sum przez 2.",
     "C": "Pomylone znaki: (−5 + 2) : 2 = −1,5 i (2 − 1) : 2 = 0,5."
    },
    "sol": [
@@ -1364,7 +1364,7 @@ window.TEMAT = {
     "ok": 1,
     "why": {
      "A": "To połowy różnic, a nie średnie.",
-     "C": "Nie podzieliłeś sum przez 2.",
+     "C": "Nie podzielono sum przez 2.",
      "D": "Pomylony znak: (3 + (−2)) : 2 = 0,5."
     },
     "sol": [
@@ -1479,7 +1479,7 @@ window.TEMAT = {
      "why": [
       [
        14,
-       "Dodałeś przesunięcia 6 i 8. Długość: √(36 + 64)."
+       "Dodano przesunięcia 6 i 8. Długość: √(36 + 64)."
       ],
       [
        100,
@@ -1508,7 +1508,7 @@ window.TEMAT = {
       "why": [
        [
         17,
-        "Dodałeś przesunięcia 5 i 12."
+        "Dodano przesunięcia 5 i 12."
        ]
       ]
      }
@@ -1638,7 +1638,7 @@ window.TEMAT = {
    ],
    "ok": 1,
    "why": {
-    "A": "Dodałeś przesunięcia 3 i 3. Trzeba dodać ich kwadraty.",
+    "A": "Dodano przesunięcia 3 i 3. Trzeba dodać ich kwadraty.",
     "C": "18 to kwadrat długości.",
     "D": "√6 = √(3 + 3). Pod pierwiastkiem są kwadraty."
    },
@@ -1662,7 +1662,7 @@ window.TEMAT = {
     ],
     "ok": 3,
     "why": {
-     "A": "Dodałeś przesunięcia 2 i 6.",
+     "A": "Dodano przesunięcia 2 i 6.",
      "B": "40 to kwadrat długości.",
      "C": "Przesunięcie w pionie to 3 − (−3) = 6, a nie 0."
     },
@@ -1783,7 +1783,7 @@ window.TEMAT = {
      "why": [
       [
        30,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ],
       [
        12,
@@ -1846,7 +1846,7 @@ window.TEMAT = {
       "why": [
        [
         24,
-        "Zapomniałeś podzielić przez 2."
+        "Zapomniano podzielić przez 2."
        ],
        [
         9,
@@ -2014,15 +2014,15 @@ window.TEMAT = {
    "q": "Punkty A(−2, −1), B(4, −1) i C(4, 7) są wierzchołkami trójkąta. Oblicz obwód i pole tego trójkąta. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś długości boków poziomego i pionowego: AB = 6, BC = 8.",
+     "t": "Obliczono długości boków poziomego i pionowego: AB = 6, BC = 8.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś AC = √(36 + 64) = 10.",
+     "t": "Obliczono AC = √(36 + 64) = 10.",
      "pts": 1
     },
     {
-     "t": "Podałeś obwód 24 i pole 24.",
+     "t": "Podano obwód 24 i pole 24.",
      "pts": 1
     }
    ],
@@ -2078,11 +2078,11 @@ window.TEMAT = {
    "q": "Punkt S(2, 3) jest środkiem odcinka AB, a A(−1, 5). Oblicz współrzędne punktu B i długość odcinka AB. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś B(5, 1).",
+     "t": "Obliczono B(5, 1).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś |AB| = √(36 + 16) = √52 = 2√13.",
+     "t": "Obliczono |AB| = √(36 + 16) = √52 = 2√13.",
      "pts": 1
     }
    ],
@@ -2134,11 +2134,11 @@ window.TEMAT = {
    "q": "Prostokąt ABCD ma wierzchołki A(−3, −2), B(5, −2) i C(5, 4). Oblicz współrzędne wierzchołka D i długość przekątnej prostokąta. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Podałeś D(−3, 4).",
+     "t": "Podano D(−3, 4).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś przekątną: boki 8 i 6, przekątna 10.",
+     "t": "Obliczono przekątną: boki 8 i 6, przekątna 10.",
      "pts": 1
     }
    ],
@@ -2356,7 +2356,7 @@ window.TEMAT = {
    "ok": 2,
    "why": {
     "A": "To połowy różnic, a nie średnie.",
-    "B": "Nie podzieliłeś sum przez 2.",
+    "B": "Nie podzielono sum przez 2.",
     "D": "Pomylony znak: (3 − 2) : 2 = 0,5."
    },
    "sol": [
@@ -2438,7 +2438,7 @@ window.TEMAT = {
    ],
    "ok": 0,
    "why": {
-    "B": "Dodałeś przesunięcia.",
+    "B": "Dodano przesunięcia.",
     "C": "20 to kwadrat długości.",
     "D": "Pod pierwiastkiem jest 4 + 16 = 20, a nie 12."
    },
@@ -2545,11 +2545,11 @@ window.TEMAT = {
    "q": "Punkty A(0, 0), B(8, 0) i C(8, 6) są wierzchołkami trójkąta. Oblicz jego obwód. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś AC = √(64 + 36) = 10.",
+     "t": "Obliczono AC = √(64 + 36) = 10.",
      "pts": 1
     },
     {
-     "t": "Podałeś obwód: 8 + 6 + 10 = 24.",
+     "t": "Podano obwód: 8 + 6 + 10 = 24.",
      "pts": 1
     }
    ],
@@ -2574,11 +2574,11 @@ window.TEMAT = {
    "q": "Punkt S(−1, 2) jest środkiem odcinka AB, a A(3, −1). Oblicz współrzędne punktu B i długość odcinka AB. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś B(−5, 5).",
+     "t": "Obliczono B(−5, 5).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś |AB| = 10.",
+     "t": "Obliczono |AB| = 10.",
      "pts": 1
     }
    ],

@@ -782,15 +782,15 @@ window.TEMAT = {
    "q": "Tata jest 4 razy starszy od syna. Za 20 lat będzie od niego 2 razy starszy. Ile lat ma teraz syn, a ile tata? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś wiek obu osób teraz i za 20 lat (x i 4x; x + 20 i 4x + 20).",
+     "t": "Zapisano wiek obu osób teraz i za 20 lat (x i 4x; x + 20 i 4x + 20).",
      "pts": 1
     },
     {
-     "t": "Ułożyłeś równanie 4x + 20 = 2(x + 20).",
+     "t": "Ułożono równanie 4x + 20 = 2(x + 20).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wiek: syn 10 lat, tata 40 lat.",
+     "t": "Obliczono wiek: syn 10 lat, tata 40 lat.",
      "pts": 1
     }
    ],
@@ -814,15 +814,15 @@ window.TEMAT = {
    "q": "Trzej przyjaciele wpłacili pieniądze na wspólny los: Adam 6 zł, Bartek 9 zł, a Czarek 15 zł. Los wygrał 2 000 zł. Ile powinien dostać każdy z nich przy podziale proporcjonalnym do wpłat? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś stosunek wpłat 2 : 3 : 5 albo udział jednej osoby (np. 6/30 = 1/5).",
+     "t": "Zapisano stosunek wpłat 2 : 3 : 5 albo udział jednej osoby (np. 6/30 = 1/5).",
      "pts": 1
     },
     {
-     "t": "Zastosowałeś poprawny sposób obliczenia kwot dla wszystkich trzech osób.",
+     "t": "Zastosowano poprawny sposób obliczenia kwot dla wszystkich trzech osób.",
      "pts": 1
     },
     {
-     "t": "Podałeś kwoty: Adam 400 zł, Bartek 600 zł, Czarek 1 000 zł.",
+     "t": "Podano kwoty: Adam 400 zł, Bartek 600 zł, Czarek 1 000 zł.",
      "pts": 1
     }
    ],
@@ -850,11 +850,11 @@ window.TEMAT = {
    "q": "W sadzie rosną jabłonie, grusze i śliwy w stosunku 5 : 3 : 2. Jabłoni jest o 36 więcej niż śliw. Ile drzew rośnie w sadzie? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zauważyłeś, że różnica 36 to 5 − 2 = 3 części, więc jedna część to 12 drzew.",
+     "t": "Zauważono, że różnica 36 to 5 − 2 = 3 części, więc jedna część to 12 drzew.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę wszystkich drzew: 10 · 12 = 120.",
+     "t": "Obliczono liczbę wszystkich drzew: 10 · 12 = 120.",
      "pts": 1
     }
    ],
@@ -880,15 +880,15 @@ window.TEMAT = {
    "q": "Ogródek ma kształt prostokąta o wymiarach 14 m na 9 m. Na obsianie 40 m² potrzeba 1 kg nasion trawy. Nasiona sprzedaje się w paczkach po 0,5 kg, a paczka kosztuje 18,50 zł. Ile trzeba zapłacić za nasiona? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole ogródka (126 m²) i ilość nasion: 126 : 40 = 3,15 kg.",
+     "t": "Obliczono pole ogródka (126 m²) i ilość nasion: 126 : 40 = 3,15 kg.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę paczek, zaokrąglając w górę: 3,15 : 0,5 = 6,3, więc 7 paczek.",
+     "t": "Obliczono liczbę paczek, zaokrąglając w górę: 3,15 : 0,5 = 6,3, więc 7 paczek.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: 7 · 18,50 = 129,50 zł.",
+     "t": "Obliczono koszt: 7 · 18,50 = 129,50 zł.",
      "pts": 1
     }
    ],
@@ -1245,11 +1245,11 @@ window.TEMAT = {
    "q": "W dwóch pudełkach są razem 64 kredki. W pierwszym pudełku jest 3 razy więcej kredek niż w drugim. Ile kredek jest w każdym pudełku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś równanie x + 3x = 64 (albo zauważyłeś, że to 4 równe części).",
+     "t": "Ułożono równanie x + 3x = 64 (albo zauważono, że to 4 równe części).",
      "pts": 1
     },
     {
-     "t": "Podałeś liczby kredek: 48 i 16.",
+     "t": "Podano liczby kredek: 48 i 16.",
      "pts": 1
     }
    ],
@@ -1273,15 +1273,15 @@ window.TEMAT = {
    "q": "Trzy sąsiadki kupiły razem węgiel: pani Ala zamówiła 2 t, pani Beata 1,5 t, a pani Celina 2,5 t. Za cały węgiel z rabatem zapłaciły 7 200 zł. Ile powinna zapłacić każda z nich, żeby wpłaty były proporcjonalne do zamówionej ilości? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś łączną ilość (6 t) i cenę jednej tony: 7 200 : 6 = 1 200 zł, albo zapisałeś stosunek 4 : 3 : 5.",
+     "t": "Obliczono łączną ilość (6 t) i cenę jednej tony: 7 200 : 6 = 1 200 zł, albo zapisano stosunek 4 : 3 : 5.",
      "pts": 1
     },
     {
-     "t": "Zastosowałeś poprawny sposób obliczenia kwot dla wszystkich trzech pań.",
+     "t": "Zastosowano poprawny sposób obliczenia kwot dla wszystkich trzech pań.",
      "pts": 1
     },
     {
-     "t": "Podałeś kwoty: Ala 2 400 zł, Beata 1 800 zł, Celina 3 000 zł.",
+     "t": "Podano kwoty: Ala 2 400 zł, Beata 1 800 zł, Celina 3 000 zł.",
      "pts": 1
     }
    ],
@@ -1307,15 +1307,15 @@ window.TEMAT = {
    "q": "Pan Tomek wyjechał z domu o 7:20. Pierwsze 120 km jechał ze średnią prędkością 80 km/h, potem zrobił 20 minut przerwy, a pozostałe 90 km jechał z prędkością 60 km/h. O której dojechał na miejsce? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś czasy jazdy: 120 : 80 = 1,5 h i 90 : 60 = 1,5 h.",
+     "t": "Obliczono czasy jazdy: 120 : 80 = 1,5 h i 90 : 60 = 1,5 h.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś łączny czas z przerwą: 3 h 20 min.",
+     "t": "Obliczono łączny czas z przerwą: 3 h 20 min.",
      "pts": 1
     },
     {
-     "t": "Podałeś godzinę przyjazdu: 10:40.",
+     "t": "Podano godzinę przyjazdu: 10:40.",
      "pts": 1
     }
    ],

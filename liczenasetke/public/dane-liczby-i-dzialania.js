@@ -90,7 +90,7 @@ window.TEMAT = {
       "Na końcu odejmowanie: [[18 − 4 = 14]]."
      ],
      "answer": "14.",
-     "tip": "Jeśli wyszło Ci 17, to pomnożyłeś 3 · 2 przed dzieleniem. Mnożenie i dzielenie liczysz od lewej.",
+     "tip": "Wynik 17 oznacza, że 3 · 2 zostało pomnożone przed dzieleniem. Mnożenie i dzielenie liczysz od lewej.",
      "check": [
       "18 - 6/3*2 == 14"
      ]
@@ -313,7 +313,7 @@ window.TEMAT = {
      "Sprawdzenie: od −2,5 do 1 jest 3,5 i od 1 do 4,5 też jest 3,5. Zgadza się."
     ],
     "result": "Odległość to 7, a środek to liczba 1.",
-    "tip": "Odległość nigdy nie jest ujemna. Jeśli wyszedł Ci minus, odjąłeś w złej kolejności.",
+    "tip": "Odległość nigdy nie jest ujemna. Jeśli wyszedł Ci minus, odejmowanie było w złej kolejności.",
     "check": [
      "4.5 - (-2.5) == 7",
      "(-2.5 + 4.5)/2 == 1"
@@ -1970,11 +1970,11 @@ window.TEMAT = {
    "q": "Pan Adam ma 2 000 zł. Chce kupić 48 paczek płytek po 39,90 zł za paczkę. Uzasadnij bez dokładnego liczenia, że wystarczy mu pieniędzy.",
    "criteria": [
     {
-     "t": "Zaokrągliłeś obie liczby w górę: 48 < 50 i 39,90 < 40, i obliczyłeś 50 · 40 = 2 000.",
+     "t": "Zaokrąglono obie liczby w górę: 48 < 50 i 39,90 < 40, i obliczono 50 · 40 = 2 000.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś wniosek: prawdziwy koszt jest mniejszy niż 2 000 zł, bo obie liczby zaokrągliłeś w górę, więc pieniędzy wystarczy.",
+     "t": "Zapisano wniosek: prawdziwy koszt jest mniejszy niż 2 000 zł, bo obie liczby zaokrąglono w górę, więc pieniędzy wystarczy.",
      "pts": 1
     }
    ],
@@ -2001,11 +2001,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że wartość wyrażenia (−2)⁴ − 2⁴ + (−3)² · (−1) jest liczbą ujemną.",
    "criteria": [
     {
-     "t": "Obliczyłeś poprawnie potęgi: (−2)⁴ = 16, 2⁴ = 16, (−3)² = 9.",
+     "t": "Obliczono poprawnie potęgi: (−2)⁴ = 16, 2⁴ = 16, (−3)² = 9.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wartość wyrażenia: 16 − 16 + 9 · (−1) = −9 i zapisałeś wniosek, że jest ujemna.",
+     "t": "Obliczono wartość wyrażenia: 16 − 16 + 9 · (−1) = −9 i zapisano wniosek, że jest ujemna.",
      "pts": 1
     }
    ],
@@ -2031,15 +2031,15 @@ window.TEMAT = {
    "q": "Na osi liczbowej zaznaczono punkty A = −7 i B = 5. Odcinek AB podzielono na 4 równe części punktami K, L i M (w tej kolejności od A). Oblicz współrzędne punktów K, L, M oraz odległość punktu K od zera. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś długość odcinka (12) i długość jednej części (3).",
+     "t": "Obliczono długość odcinka (12) i długość jednej części (3).",
      "pts": 1
     },
     {
-     "t": "Wyznaczyłeś K = −4, L = −1, M = 2.",
+     "t": "Wyznaczono K = −4, L = −1, M = 2.",
      "pts": 1
     },
     {
-     "t": "Podałeś odległość K od zera: 4.",
+     "t": "Podano odległość K od zera: 4.",
      "pts": 1
     }
    ],
@@ -2370,11 +2370,11 @@ window.TEMAT = {
    "q": "W lutym najniższa temperatura wyniosła −13,5°C, a najwyższa 4,5°C. Uzasadnij, że różnica między nimi była większa niż 17 stopni.",
    "criteria": [
     {
-     "t": "Obliczyłeś różnicę: 4,5 − (−13,5) = 18 stopni.",
+     "t": "Obliczono różnicę: 4,5 − (−13,5) = 18 stopni.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś wniosek: 18 > 17, więc różnica była większa niż 17 stopni.",
+     "t": "Zapisano wniosek: 18 > 17, więc różnica była większa niż 17 stopni.",
      "pts": 1
     }
    ],

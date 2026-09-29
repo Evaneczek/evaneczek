@@ -339,7 +339,7 @@ window.TEMAT = {
      "why": {
       "B": "Oś podaje tysiące mieszkańców. 10 tysięcy to 10 000.",
       "C": "18 : 8 = 2,25 mówi, ile razy więcej, a pytanie brzmi „o ile”.",
-      "D": "Dodałeś liczby mieszkańców, a trzeba je odjąć."
+      "D": "Dodano liczby mieszkańców, a trzeba je odjąć."
      },
      "sol": [
       "Borowo 18 tys., Cisowo 8 tys.: [[18 − 8 = 10]] tys., czyli [[10 000]]."
@@ -1101,7 +1101,7 @@ window.TEMAT = {
        "why": [
         [
          2.5,
-         "Pominąłeś zero. Dni jest 5, więc dzielisz przez 5."
+         "Pominięto zero. Dni jest 5, więc dzielisz przez 5."
         ],
         [
          3.6,
@@ -1821,7 +1821,7 @@ window.TEMAT = {
    "why": {
     "A": "Oś podaje tysiące turystów. 6 tysięcy to 6 000.",
     "B": "10 : 4 = 2,5 mówi, ile razy więcej, a pytanie brzmi „o ile”.",
-    "D": "Dodałeś liczby, a trzeba je odjąć."
+    "D": "Dodano liczby, a trzeba je odjąć."
    },
    "sol": [
     "B: 10 tys., C: 4 tys. [[10 − 4 = 6]] tys., czyli [[6 000]]."
@@ -1870,7 +1870,7 @@ window.TEMAT = {
     "why": {
      "B": "Oś podaje tysiące. 2 tysiące to 2 000.",
      "C": "14 tys. to liczba mieszkańców Dębna, a nie różnica.",
-     "D": "Dodałeś liczby zamiast je odjąć."
+     "D": "Dodano liczby zamiast je odjąć."
     },
     "sol": [
      "[[14 − 12 = 2]] tys., czyli [[2 000]]."
@@ -2952,11 +2952,11 @@ window.TEMAT = {
    "q": "Średnia pięciu ocen Oli z matematyki to 4,2. Po kolejnej ocenie średnia wzrosła do 4,5. Jaką ocenę dostała Ola? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś sumę pięciu ocen: 5 · 4,2 = 21.",
+     "t": "Obliczono sumę pięciu ocen: 5 · 4,2 = 21.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś sumę sześciu ocen 6 · 4,5 = 27 i podałeś ocenę 27 − 21 = 6.",
+     "t": "Obliczono sumę sześciu ocen 6 · 4,5 = 27 i podano ocenę 27 − 21 = 6.",
      "pts": 1
     }
    ],
@@ -2976,11 +2976,11 @@ window.TEMAT = {
     "q": "Średnia wieku czterech zawodników drużyny to 15 lat. Po dołączeniu trenera średnia wieku wzrosła do 20 lat. Ile lat ma trener? Zapisz obliczenia.",
     "criteria": [
      {
-      "t": "Obliczyłeś sumę wieku zawodników: 4 · 15 = 60.",
+      "t": "Obliczono sumę wieku zawodników: 4 · 15 = 60.",
       "pts": 1
      },
      {
-      "t": "Obliczyłeś 5 · 20 = 100 i wiek trenera 40 lat.",
+      "t": "Obliczono 5 · 20 = 100 i wiek trenera 40 lat.",
       "pts": 1
      }
     ],
@@ -3005,11 +3005,11 @@ window.TEMAT = {
    "q": "W ankiecie wzięło udział 80 uczniów. Wycieczkę w góry wybrało 32 uczniów, nad morze 24, do Warszawy 16, a pozostali do Krakowa. Oblicz, jaki procent uczniów wybrał każdą propozycję, i kąty wycinków diagramu kołowego. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś liczbę uczniów dla Krakowa (8) i procenty: 40%, 30%, 20%, 10%.",
+     "t": "Obliczono liczbę uczniów dla Krakowa (8) i procenty: 40%, 30%, 20%, 10%.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś kąty: 144°, 108°, 72°, 36° (razem 360°).",
+     "t": "Obliczono kąty: 144°, 108°, 72°, 36° (razem 360°).",
      "pts": 1
     }
    ],
@@ -3098,11 +3098,11 @@ window.TEMAT = {
    "q": "Wykres pokazuje, jak zmieniała się odległość pana Adama od domu podczas wycieczki rowerowej. Oblicz jego średnią prędkość przed postojem i po postoju. Kiedy jechał szybciej? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Odczytałeś z wykresu: przed postojem 15 km w 1 h, po postoju 15 km w 1,5 h.",
+     "t": "Odczytano z wykresu: przed postojem 15 km w 1 h, po postoju 15 km w 1,5 h.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś prędkości 15 km/h i 10 km/h i odpowiedziałeś: szybciej przed postojem.",
+     "t": "Obliczono prędkości 15 km/h i 10 km/h i odpowiedziano: szybciej przed postojem.",
      "pts": 1
     }
    ],
@@ -3156,7 +3156,7 @@ window.TEMAT = {
     "q": "Wykres pokazuje odległość pani Ewy od domu podczas wycieczki rowerowej. Oblicz jej średnią prędkość przed postojem i po postoju. Kiedy jechała szybciej? Zapisz obliczenia.",
     "criteria": [
      {
-      "t": "Odczytałeś: 20 km w 2 h, potem 15 km w 1 h.",
+      "t": "Odczytano: 20 km w 2 h, potem 15 km w 1 h.",
       "pts": 1
      },
      {
@@ -3213,11 +3213,11 @@ window.TEMAT = {
    "q": "Diagram pokazuje, ile złotych Kuba odkładał w kolejnych miesiącach. Ile złotych musi odłożyć w maju, żeby średnio odkładał 60 zł miesięcznie przez te pięć miesięcy? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Odczytałeś kwoty i obliczyłeś sumę: 40 + 70 + 50 + 60 = 220 zł.",
+     "t": "Odczytano kwoty i obliczono sumę: 40 + 70 + 50 + 60 = 220 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś 5 · 60 = 300 zł i kwotę na maj: 300 − 220 = 80 zł.",
+     "t": "Obliczono 5 · 60 = 300 zł i kwotę na maj: 300 − 220 = 80 zł.",
      "pts": 1
     }
    ],
@@ -3293,11 +3293,11 @@ window.TEMAT = {
    "q": "W klasie jest 12 dziewcząt i 8 chłopców. Średni wzrost dziewcząt to 160 cm, a chłopców 165 cm. Oblicz średni wzrost wszystkich uczniów tej klasy. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś sumy wzrostu: 12 · 160 = 1 920 cm i 8 · 165 = 1 320 cm.",
+     "t": "Obliczono sumy wzrostu: 12 · 160 = 1 920 cm i 8 · 165 = 1 320 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś średnią: 3 240 : 20 = 162 cm.",
+     "t": "Obliczono średnią: 3 240 : 20 = 162 cm.",
      "pts": 1
     }
    ],
@@ -3754,7 +3754,7 @@ window.TEMAT = {
    "ok": 2,
    "why": {
     "A": "(0 + 1 + 2) : 3 = 1 to średnia z nagłówków tabeli.",
-    "B": "18 : 3 = 6: podzieliłeś przez liczbę kolumn, a trzeba przez liczbę uczniów (20).",
+    "B": "18 : 3 = 6: podzielono przez liczbę kolumn, a trzeba przez liczbę uczniów (20).",
     "D": "18 to liczba wszystkich zwierząt. Trzeba ją podzielić przez 20."
    },
    "sol": [
@@ -3814,11 +3814,11 @@ window.TEMAT = {
    "q": "Średnia długość skoków czterech skoczków to 110 m. Po skoku piątego zawodnika średnia spadła do 108 m. Ile metrów skoczył piąty zawodnik? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś sumy: 4 · 110 = 440 m i 5 · 108 = 540 m.",
+     "t": "Obliczono sumy: 4 · 110 = 440 m i 5 · 108 = 540 m.",
      "pts": 1
     },
     {
-     "t": "Podałeś wynik: 540 − 440 = 100 m.",
+     "t": "Podano wynik: 540 − 440 = 100 m.",
      "pts": 1
     }
    ],
@@ -3843,11 +3843,11 @@ window.TEMAT = {
    "q": "Lodziarnia sprzedała w ciągu dnia 60 porcji lodów: 27 waniliowych, 18 czekoladowych, a resztę truskawkowych. Oblicz, jaki procent sprzedanych porcji stanowiły lody truskawkowe, i kąt wycinka „truskawkowe” na diagramie kołowym. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś liczbę porcji truskawkowych (15) i procent: 15 : 60 = 25%.",
+     "t": "Obliczono liczbę porcji truskawkowych (15) i procent: 15 : 60 = 25%.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś kąt: 25% z 360° = 90°.",
+     "t": "Obliczono kąt: 25% z 360° = 90°.",
      "pts": 1
     }
    ],

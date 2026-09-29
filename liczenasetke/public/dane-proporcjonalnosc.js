@@ -1791,15 +1791,15 @@ window.TEMAT = {
    "q": "Pan Tomek chce pomalować 45 m² ściany jedną warstwą farby. Litr farby wystarcza na 8 m². Farbę sprzedaje się w puszkach po 2,5 l, a jedna puszka kosztuje 39 zł. Ile zapłaci za farbę? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś, ile litrów farby potrzeba: 45 : 8 = 5,625 l.",
+     "t": "Obliczono, ile litrów farby potrzeba: 45 : 8 = 5,625 l.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę puszek, zaokrąglając w górę: 5,625 : 2,5 = 2,25, więc 3 puszki.",
+     "t": "Obliczono liczbę puszek, zaokrąglając w górę: 5,625 : 2,5 = 2,25, więc 3 puszki.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: 3 · 39 = 117 zł.",
+     "t": "Obliczono koszt: 3 · 39 = 117 zł.",
      "pts": 1
     }
    ],
@@ -1929,15 +1929,15 @@ window.TEMAT = {
    "q": "Ogródek ma kształt prostokąta o wymiarach 12 m na 8,5 m. Pani Anna chce go obsiać trawą. Jedno opakowanie nasion wystarcza na 25 m² i kosztuje 23,80 zł. Ile złotych musi wydać na nasiona? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole ogródka: 12 · 8,5 = 102 m².",
+     "t": "Obliczono pole ogródka: 12 · 8,5 = 102 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę opakowań, zaokrąglając w górę: 102 : 25 = 4,08, więc 5 opakowań.",
+     "t": "Obliczono liczbę opakowań, zaokrąglając w górę: 102 : 25 = 4,08, więc 5 opakowań.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: 5 · 23,80 = 119 zł.",
+     "t": "Obliczono koszt: 5 · 23,80 = 119 zł.",
      "pts": 1
     }
    ],
@@ -1965,15 +1965,15 @@ window.TEMAT = {
    "q": "Zaprawę przygotowuje się z cementu, piasku i wody w stosunku masowym 1 : 3 : 0,5. Ile kilogramów piasku potrzeba na 180 kg zaprawy? Ile worków cementu po 25 kg trzeba kupić? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś jedną część: 1 + 3 + 0,5 = 4,5, a 180 : 4,5 = 40 kg.",
+     "t": "Obliczono jedną część: 1 + 3 + 0,5 = 4,5, a 180 : 4,5 = 40 kg.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś masę piasku: 3 · 40 = 120 kg.",
+     "t": "Obliczono masę piasku: 3 · 40 = 120 kg.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę worków cementu: 40 kg, więc 2 worki.",
+     "t": "Obliczono liczbę worków cementu: 40 kg, więc 2 worki.",
      "pts": 1
     }
    ],
@@ -2289,11 +2289,11 @@ window.TEMAT = {
    "q": "Trzej koledzy kupili razem piłkę. Adam zapłacił 30 zł, Bartek 45 zł, a Czarek 75 zł. Po sezonie sprzedali piłkę za 90 zł i podzielili pieniądze proporcjonalnie do wkładów. Ile dostał każdy z nich? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś stosunek wkładów 2 : 3 : 5 albo udziały (np. 30/150 = 1/5).",
+     "t": "Zapisano stosunek wkładów 2 : 3 : 5 albo udziały (np. 30/150 = 1/5).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś kwoty: Adam 18 zł, Bartek 27 zł, Czarek 45 zł.",
+     "t": "Obliczono kwoty: Adam 18 zł, Bartek 27 zł, Czarek 45 zł.",
      "pts": 1
     }
    ],
@@ -2319,11 +2319,11 @@ window.TEMAT = {
    "q": "Na pomalowanie 1 m² ściany potrzeba 0,15 l farby. Farbę sprzedaje się w puszkach po 2 l. Ile puszek trzeba kupić, żeby pomalować 70 m² ściany? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś, ile farby potrzeba: 70 · 0,15 = 10,5 l.",
+     "t": "Obliczono, ile farby potrzeba: 70 · 0,15 = 10,5 l.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę puszek, zaokrąglając w górę: 6 puszek.",
+     "t": "Obliczono liczbę puszek, zaokrąglając w górę: 6 puszek.",
      "pts": 1
     }
    ],

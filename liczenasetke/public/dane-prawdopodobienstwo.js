@@ -228,7 +228,7 @@ window.TEMAT = {
        "why": [
         [
          12,
-         "Mecz A–B to ten sam mecz co B–A. Policzyłeś każdy dwa razy."
+         "Mecz A–B to ten sam mecz co B–A. Policzono każdy dwa razy."
         ],
         [
          16,
@@ -1208,7 +1208,7 @@ window.TEMAT = {
       "why": [
        [
         10,
-        "Zapomniałeś o zerze albo o jednym końcu: 5 − (−5) + 1 = 11."
+        "Zapomniano o zerze albo o jednym końcu: 5 − (−5) + 1 = 11."
        ]
       ]
      }
@@ -1240,7 +1240,7 @@ window.TEMAT = {
    "ok": 2,
    "why": {
     "A": "7 · 15 = 105, a to więcej niż 100.",
-    "B": "Pominąłeś 7 · 1 = 7 albo 7 · 14 = 98.",
+    "B": "Pominięto 7 · 1 = 7 albo 7 · 14 = 98.",
     "D": "100 : 10 = 10 to liczba wielokrotności 10, a nie 7."
    },
    "sol": [
@@ -1890,7 +1890,7 @@ window.TEMAT = {
      "why": [
       [
        0.5,
-       "15 dzieli się i przez 3, i przez 5. Policzyłeś ją dwa razy."
+       "15 dzieli się i przez 3, i przez 5. Policzono ją dwa razy."
       ],
       [
        0.3,
@@ -1921,7 +1921,7 @@ window.TEMAT = {
       "why": [
        [
         0.75,
-        "6 jest parzysta i podzielna przez 3. Policzyłeś ją dwa razy."
+        "6 jest parzysta i podzielna przez 3. Policzono ją dwa razy."
        ]
       ]
      }
@@ -2307,11 +2307,11 @@ window.TEMAT = {
    "q": "W pudełku są tylko kule białe, czerwone i niebieskie. Kul białych jest dwa razy więcej niż czerwonych, a niebieskich jest o 3 więcej niż czerwonych. Prawdopodobieństwo wylosowania kuli niebieskiej jest równe 1/3. Ile kul jest w pudełku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś liczby kul przez jedną niewiadomą (czerwone x, białe 2x, niebieskie x + 3) i równanie, np. 3(x + 3) = 4x + 3.",
+     "t": "Zapisano liczby kul przez jedną niewiadomą (czerwone x, białe 2x, niebieskie x + 3) i równanie, np. 3(x + 3) = 4x + 3.",
      "pts": 1
     },
     {
-     "t": "Rozwiązałeś równanie (x = 6) i podałeś liczbę wszystkich kul: 27.",
+     "t": "Rozwiązano równanie (x = 6) i podano liczbę wszystkich kul: 27.",
      "pts": 1
     }
    ],
@@ -2362,11 +2362,11 @@ window.TEMAT = {
    "q": "Losujemy jedną liczbę dwucyfrową. Oblicz prawdopodobieństwo, że suma jej cyfr jest równa 5. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Podałeś liczbę wszystkich liczb dwucyfrowych: 90.",
+     "t": "Podano liczbę wszystkich liczb dwucyfrowych: 90.",
      "pts": 1
     },
     {
-     "t": "Wypisałeś liczby 14, 23, 32, 41, 50 i obliczyłeś P = 5/90 = 1/18.",
+     "t": "Wypisano liczby 14, 23, 32, 41, 50 i obliczono P = 5/90 = 1/18.",
      "pts": 1
     }
    ],
@@ -2416,11 +2416,11 @@ window.TEMAT = {
    "q": "Rzucamy trzema monetami. Wypisz wszystkie możliwe wyniki i oblicz prawdopodobieństwo, że wypadną dokładnie dwa orły.",
    "criteria": [
     {
-     "t": "Wypisałeś 8 wyników: OOO, OOR, ORO, ORR, ROO, ROR, RRO, RRR.",
+     "t": "Wypisano 8 wyników: OOO, OOR, ORO, ORR, ROO, ROR, RRO, RRR.",
      "pts": 1
     },
     {
-     "t": "Wskazałeś 3 sprzyjające (OOR, ORO, ROO) i P = 3/8.",
+     "t": "Wskazano 3 sprzyjające (OOR, ORO, ROO) i P = 3/8.",
      "pts": 1
     }
    ],
@@ -2469,11 +2469,11 @@ window.TEMAT = {
    "q": "W pudełku są 4 kule czerwone i 8 białych. a) Oblicz prawdopodobieństwo wylosowania kuli czerwonej. b) Ile kul białych trzeba wyjąć z pudełka, żeby prawdopodobieństwo wylosowania kuli czerwonej było równe 2/3? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "a) Obliczyłeś P = 4/12 = 1/3.",
+     "t": "a) Obliczono P = 4/12 = 1/3.",
      "pts": 1
     },
     {
-     "t": "b) Ustaliłeś, że wszystkich kul ma być 6 (4 to 2/3 z 6), więc trzeba wyjąć 6 białych.",
+     "t": "b) Ustalono, że wszystkich kul ma być 6 (4 to 2/3 z 6), więc trzeba wyjąć 6 białych.",
      "pts": 1
     }
    ],
@@ -2523,11 +2523,11 @@ window.TEMAT = {
    "q": "Kasia losuje jedną kartkę spośród kartek ponumerowanych od 1 do 50. Oblicz prawdopodobieństwo, że numer kartki jest podzielny przez 4, ale nie jest podzielny przez 8. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Policzyłeś liczby podzielne przez 4 (12) i przez 8 (6).",
+     "t": "Policzono liczby podzielne przez 4 (12) i przez 8 (6).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś 12 − 6 = 6 i P = 6/50 = 3/25.",
+     "t": "Obliczono 12 − 6 = 6 i P = 6/50 = 3/25.",
      "pts": 1
     }
    ],
@@ -2878,11 +2878,11 @@ window.TEMAT = {
    "q": "W pudełku są tylko kule zielone i niebieskie. Zielonych jest 4 razy więcej niż niebieskich. Po dołożeniu 6 kul niebieskich prawdopodobieństwo wylosowania kuli niebieskiej jest równe 1/2. Ile kul było w pudełku na początku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Oznaczyłeś niebieskie x, zielone 4x i zapisałeś warunek x + 6 = 4x (połowa: tyle samo kul obu kolorów).",
+     "t": "Oznaczono niebieskie x, zielone 4x i zapisano warunek x + 6 = 4x (połowa: tyle samo kul obu kolorów).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś x = 2 i liczbę kul na początku: 2 + 8 = 10.",
+     "t": "Obliczono x = 2 i liczbę kul na początku: 2 + 8 = 10.",
      "pts": 1
     }
    ],
@@ -2909,11 +2909,11 @@ window.TEMAT = {
    "q": "Losujemy jedną liczbę dwucyfrową. Oblicz prawdopodobieństwo, że będzie to liczba mniejsza od 40 i podzielna przez 5. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Podałeś liczbę wszystkich liczb dwucyfrowych: 90.",
+     "t": "Podano liczbę wszystkich liczb dwucyfrowych: 90.",
      "pts": 1
     },
     {
-     "t": "Wypisałeś 10, 15, 20, 25, 30, 35 i obliczyłeś P = 6/90 = 1/15.",
+     "t": "Wypisano 10, 15, 20, 25, 30, 35 i obliczono P = 6/90 = 1/15.",
      "pts": 1
     }
    ],

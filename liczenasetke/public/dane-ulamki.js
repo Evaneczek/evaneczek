@@ -2080,15 +2080,15 @@ window.TEMAT = {
    "q": "Na wycieczkę pojechało 3/5 uczniów klasy. Spośród pozostałych uczniów 1/4 była chora, a reszta, czyli 6 uczniów, przyszła do szkoły. Ilu uczniów liczy ta klasa? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś, jaką częścią klasy są uczniowie, którzy nie pojechali: 2/5.",
+     "t": "Obliczono, jaką częścią klasy są uczniowie, którzy nie pojechali: 2/5.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś, jaką częścią klasy są uczniowie w szkole: 3/4 z 2/5 = 3/10.",
+     "t": "Obliczono, jaką częścią klasy są uczniowie w szkole: 3/4 z 2/5 = 3/10.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę uczniów: 3/10 klasy to 6, więc klasa liczy 20 uczniów.",
+     "t": "Obliczono liczbę uczniów: 3/10 klasy to 6, więc klasa liczy 20 uczniów.",
      "pts": 1
     }
    ],
@@ -2296,15 +2296,15 @@ window.TEMAT = {
    "q": "W klasie jest 28 uczniów, a 3/7 z nich to dziewczęta. Okulary nosi 1/4 dziewcząt i połowa chłopców. Ilu uczniów tej klasy nosi okulary? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś liczbę dziewcząt (12) i chłopców (16).",
+     "t": "Obliczono liczbę dziewcząt (12) i chłopców (16).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś, ile dziewcząt (3) i ilu chłopców (8) nosi okulary.",
+     "t": "Obliczono, ile dziewcząt (3) i ilu chłopców (8) nosi okulary.",
      "pts": 1
     },
     {
-     "t": "Podałeś wynik: 11 uczniów.",
+     "t": "Podano wynik: 11 uczniów.",
      "pts": 1
     }
    ],
@@ -2331,11 +2331,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że 3/7 < 0,43 < 4/9.",
    "criteria": [
     {
-     "t": "Zamieniłeś ułamki na dziesiętne: 3/7 = 0,428…, 4/9 = 0,444… (albo porównałeś inaczej poprawnie).",
+     "t": "Zamieniono ułamki na dziesiętne: 3/7 = 0,428…, 4/9 = 0,444… (albo porównano inaczej poprawnie).",
      "pts": 1
     },
     {
-     "t": "Porównałeś z 0,43 i zapisałeś wniosek.",
+     "t": "Porównano z 0,43 i zapisano wniosek.",
      "pts": 1
     }
    ],
@@ -2638,11 +2638,11 @@ window.TEMAT = {
    "q": "Liczbę 7/10 zapisano w postaci sumy trzech ułamków zwykłych. Dwa z nich to 1/5 i 1/4. Uzasadnij, że trzeci składnik można zapisać jako ułamek o liczniku 1 i mianowniku będącym liczbą całkowitą dodatnią. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś trzeci składnik: 7/10 − 1/5 − 1/4 = 14/20 − 4/20 − 5/20 = 5/20.",
+     "t": "Obliczono trzeci składnik: 7/10 − 1/5 − 1/4 = 14/20 − 4/20 − 5/20 = 5/20.",
      "pts": 1
     },
     {
-     "t": "Skróciłeś do 1/4 i zapisałeś wniosek.",
+     "t": "Skrócono do 1/4 i zapisano wniosek.",
      "pts": 1
     }
    ],

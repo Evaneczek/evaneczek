@@ -394,10 +394,12 @@ function sameOrigin(req) {
   const o = req.headers.origin;
   return !o || o === BASE_URL || (!SECURE && /^http:\/\/localhost(:\d+)?$/.test(o));
 }
-const ip = req => (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress;
+// adres klienta: X-Real-IP albo ostatni wpis X-Forwarded-For dopisany przez serwer pośredniczący Railway
+// (pierwszy wpis może podać sam klient, więc nie nadaje się do limitów prób)
+const ip = req => String(req.headers["x-real-ip"] || "").trim() || (req.headers["x-forwarded-for"] || "").split(",").pop().trim() || req.socket.remoteAddress;
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
-  ".png": "image/png", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".json": "application/json", ".xml": "application/xml; charset=utf-8" };
+  ".png": "image/png", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon", ".json": "application/json", ".xml": "application/xml; charset=utf-8", ".woff2": "font/woff2" };
 
 function serveStatic(req, res, pathname, versioned) {
   if (pathname === "/") pathname = "/index.html";
@@ -418,7 +420,7 @@ function serveStatic(req, res, pathname, versioned) {
     const ext = path.extname(file);
     // pliki z wersją w adresie (?v=…) mogą leżeć w pamięci przeglądarki długo; reszta jest sprawdzana przy każdym wejściu
     const cache = base.startsWith("dane-") && !FREE.has(base) ? "private, no-store"
-      : versioned && (ext === ".css" || ext === ".js") ? "public, max-age=31536000, immutable"
+      : (versioned && (ext === ".css" || ext === ".js")) || ext === ".woff2" ? "public, max-age=31536000, immutable"
       : ext === ".png" || ext === ".svg" ? "public, max-age=86400" : "no-cache";
     const etag = `"${st.size.toString(36)}-${Math.floor(st.mtimeMs).toString(36)}"`;
     if (cache === "no-cache" && req.headers["if-none-match"] === etag) { res.writeHead(304, { ETag: etag, "Cache-Control": cache }); return res.end(); }
@@ -707,6 +709,13 @@ async function api(req, res, url) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    // nagłówki bezpieczeństwa dla każdej odpowiedzi: tylko HTTPS, bez osadzania strony w cudzych ramkach, bez kamery i lokalizacji
+    if (SECURE) res.setHeader("Strict-Transport-Security", "max-age=31536000");
+    res.setHeader("X-Frame-Options", "DENY");
+    res.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+    res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
     // jeden adres strony: www i adres techniczny Railway przekierowują na BASE_URL (poza webhookiem Stripe)
     const host = (req.headers.host || "").toLowerCase(), want = new URL(BASE_URL).host;
     if (SECURE && host && host !== want && !req.url.startsWith("/api/stripe/") && (host === "www." + want || host.endsWith(".up.railway.app")))

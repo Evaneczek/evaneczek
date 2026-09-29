@@ -2098,15 +2098,15 @@ window.TEMAT = {
    "q": "Droga z Olszyny do Brzozowa przez Dębinę ma 123 km. Odcinek z Dębiny do Brzozowa jest o 27 km dłuższy od odcinka z Olszyny do Dębiny. Pan Karol jechał z Olszyny do Dębiny ze średnią prędkością 60 km/h, a z Dębiny do Brzozowa 75 km/h. Ile trwała cała podróż? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś długości odcinków: 48 km i 75 km (np. z równania x + x + 27 = 123).",
+     "t": "Obliczono długości odcinków: 48 km i 75 km (np. z równania x + x + 27 = 123).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś czasy jazdy: 48 : 60 = 0,8 h = 48 min oraz 75 : 75 = 1 h.",
+     "t": "Obliczono czasy jazdy: 48 : 60 = 0,8 h = 48 min oraz 75 : 75 = 1 h.",
      "pts": 1
     },
     {
-     "t": "Podałeś łączny czas: 1 h 48 min.",
+     "t": "Podano łączny czas: 1 h 48 min.",
      "pts": 1
     }
    ],
@@ -2134,15 +2134,15 @@ window.TEMAT = {
    "q": "Na ścianie wiszą dwie tablice. Mała, narysowana w skali 1 : 20, jest kwadratem o boku 3 cm. Duża tablica jest prostokątem o rzeczywistych wymiarach 180 cm na 90 cm. Ile razy pole dużej tablicy jest większe od pola małej? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś rzeczywisty bok małej tablicy: 3 · 20 = 60 cm.",
+     "t": "Obliczono rzeczywisty bok małej tablicy: 3 · 20 = 60 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pola: 3 600 cm² i 16 200 cm².",
+     "t": "Obliczono pola: 3 600 cm² i 16 200 cm².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś iloraz: 16 200 : 3 600 = 4,5 raza.",
+     "t": "Obliczono iloraz: 16 200 : 3 600 = 4,5 raza.",
      "pts": 1
     }
    ],
@@ -2340,15 +2340,15 @@ window.TEMAT = {
    "q": "Sklep kupił 2,4 t jabłek po 1,80 zł za kilogram. 5% jabłek zgniło. Resztę sprzedano po 2,50 zł za kilogram. Ile złotych zarobił sklep? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zamieniłeś 2,4 t na 2 400 kg i obliczyłeś koszt zakupu: 4 320 zł.",
+     "t": "Zamieniono 2,4 t na 2 400 kg i obliczono koszt zakupu: 4 320 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś, ile sprzedano (2 280 kg), i przychód: 5 700 zł.",
+     "t": "Obliczono, ile sprzedano (2 280 kg), i przychód: 5 700 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś zysk: 5 700 − 4 320 = 1 380 zł.",
+     "t": "Obliczono zysk: 5 700 − 4 320 = 1 380 zł.",
      "pts": 1
     }
    ],
@@ -2377,15 +2377,15 @@ window.TEMAT = {
    "q": "Kasia gra na pianinie od poniedziałku do piątku po 40 minut, a w sobotę i niedzielę po 1 h 15 min. Ile czasu gra w ciągu 4 tygodni? Podaj wynik w godzinach i minutach. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś czas w ciągu tygodnia: 5 · 40 + 2 · 75 = 350 min.",
+     "t": "Obliczono czas w ciągu tygodnia: 5 · 40 + 2 · 75 = 350 min.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś czas w ciągu 4 tygodni: 1 400 min.",
+     "t": "Obliczono czas w ciągu 4 tygodni: 1 400 min.",
      "pts": 1
     },
     {
-     "t": "Zamieniłeś na godziny i minuty: 23 h 20 min.",
+     "t": "Zamieniono na godziny i minuty: 23 h 20 min.",
      "pts": 1
     }
    ],
@@ -2692,11 +2692,11 @@ window.TEMAT = {
    "q": "Pan Jan wyjechał o 8:15 i przejechał 210 km ze średnią prędkością 70 km/h. Po drodze zatrzymał się na 25 minut. O której dojechał? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś czas jazdy: 210 : 70 = 3 h.",
+     "t": "Obliczono czas jazdy: 210 : 70 = 3 h.",
      "pts": 1
     },
     {
-     "t": "Doliczyłeś postój i podałeś godzinę przyjazdu: 11:40.",
+     "t": "Doliczono postój i podano godzinę przyjazdu: 11:40.",
      "pts": 1
     }
    ],
@@ -2720,11 +2720,11 @@ window.TEMAT = {
    "q": "Pokój ma podłogę o wymiarach 5 m na 4,2 m. Panele sprzedaje się w paczkach po 2,4 m², a paczka kosztuje 89 zł. Trzeba kupić o 10% więcej paneli, niż wynosi powierzchnia podłogi. Ile trzeba zapłacić za panele? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś potrzebną powierzchnię (5 · 4,2 = 21 m², z zapasem 23,1 m²) i liczbę paczek: 10.",
+     "t": "Obliczono potrzebną powierzchnię (5 · 4,2 = 21 m², z zapasem 23,1 m²) i liczbę paczek: 10.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: 10 · 89 = 890 zł.",
+     "t": "Obliczono koszt: 10 · 89 = 890 zł.",
      "pts": 1
     }
    ],

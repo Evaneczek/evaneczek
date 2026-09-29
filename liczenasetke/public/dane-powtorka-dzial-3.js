@@ -307,7 +307,7 @@ window.TEMAT = {
        "why": [
         [
          128,
-         "Zapomniałeś podzielić przez 2."
+         "Zapomniano podzielić przez 2."
         ]
        ]
       }
@@ -596,7 +596,7 @@ window.TEMAT = {
     "why": {
      "B": "7 to promień. L = 2πr.",
      "C": "49π to pole.",
-     "D": "Wstawiłeś 49 zamiast promienia."
+     "D": "Wstawiono 49 zamiast promienia."
     },
     "sol": [
      "[[r = 7]], [[L = 14π]] cm."
@@ -624,7 +624,7 @@ window.TEMAT = {
      "why": [
       [
        21,
-       "Dodałeś boki. d² = 81 + 144."
+       "Dodano boki. d² = 81 + 144."
       ]
      ]
     }
@@ -648,7 +648,7 @@ window.TEMAT = {
       "why": [
        [
         41,
-        "Dodałeś boki."
+        "Dodano boki."
        ]
       ]
      }
@@ -746,7 +746,7 @@ window.TEMAT = {
      "why": [
       [
        10,
-       "Dodałeś wymiary. Objętość to iloczyn."
+       "Dodano wymiary. Objętość to iloczyn."
       ],
       [
        30000,
@@ -852,7 +852,7 @@ window.TEMAT = {
      "why": [
       [
        14,
-       "Dodałeś przesunięcia 6 i 8."
+       "Dodano przesunięcia 6 i 8."
       ]
      ]
     }
@@ -876,7 +876,7 @@ window.TEMAT = {
       "why": [
        [
         17,
-        "Dodałeś przesunięcia."
+        "Dodano przesunięcia."
        ]
       ]
      }
@@ -1131,7 +1131,7 @@ window.TEMAT = {
      "why": [
       [
        48,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ],
       [
        32,
@@ -1299,15 +1299,15 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Zapisałeś twierdzenie Pitagorasa dla trójkąta AEF: AF² = (2a)² + a² = 5a² = 225.",
+     "t": "Zapisano twierdzenie Pitagorasa dla trójkąta AEF: AF² = (2a)² + a² = 5a² = 225.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś promień: AF = 15 cm, r = 7,5 cm (albo r² = 56,25).",
+     "t": "Obliczono promień: AF = 15 cm, r = 7,5 cm (albo r² = 56,25).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: 56,25π − 90 ≈ 86,6 cm².",
+     "t": "Obliczono pole: 56,25π − 90 ≈ 86,6 cm².",
      "pts": 1
     }
    ],
@@ -1361,11 +1361,11 @@ window.TEMAT = {
    "q": "Dany jest ostrokątny trójkąt równoramienny ABC, w którym AC = BC. W tym trójkącie poprowadzono wysokość AD. Udowodnij, że kąt ACB jest dwa razy większy od kąta BAD. (Przykład z podstawy programowej.)",
    "criteria": [
     {
-     "t": "Oznaczyłeś kąt ACB jako γ i wyraziłeś kąt przy podstawie: ABC = (180° − γ) : 2 = 90° − γ/2.",
+     "t": "Oznaczono kąt ACB jako γ i wyrażono kąt przy podstawie: ABC = (180° − γ) : 2 = 90° − γ/2.",
      "pts": 1
     },
     {
-     "t": "Z trójkąta prostokątnego ABD wyznaczyłeś BAD = 90° − (90° − γ/2) = γ/2 i zapisałeś wniosek: ACB = 2 · BAD.",
+     "t": "Z trójkąta prostokątnego ABD wyznaczono BAD = 90° − (90° − γ/2) = γ/2 i zapisano wniosek: ACB = 2 · BAD.",
      "pts": 1
     }
    ],
@@ -1384,11 +1384,11 @@ window.TEMAT = {
     "q": "Na bokach BC i CD prostokąta ABCD zbudowano, na zewnątrz prostokąta, trójkąty równoboczne BCE i CDF. Udowodnij, że AE = AF. (Przykład z podstawy programowej.)",
     "criteria": [
      {
-      "t": "Zapisałeś równości boków: AB = CD = DF oraz BE = BC = AD.",
+      "t": "Zapisano równości boków: AB = CD = DF oraz BE = BC = AD.",
       "pts": 1
      },
      {
-      "t": "Zapisałeś, że kąty ABE i FDA mają po 90° + 60° = 150°, i wyciągnąłeś wniosek z cechy bkb: trójkąty ABE i FDA są przystające, więc AE = AF.",
+      "t": "Zapisano, że kąty ABE i FDA mają po 90° + 60° = 150°, i wyciągnięto wniosek z cechy bkb: trójkąty ABE i FDA są przystające, więc AE = AF.",
       "pts": 1
      }
     ],
@@ -1415,15 +1415,15 @@ window.TEMAT = {
    "q": "Sześcian ma krawędź 6 cm. Ostrosłup ma podstawę taką jak dolna ściana sześcianu, a wierzchołek w środku górnej ściany. Oblicz objętość części sześcianu poza ostrosłupem i pole powierzchni bocznej ostrosłupa. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś objętość ostrosłupa: 36 · 6 : 3 = 72 cm³.",
+     "t": "Obliczono objętość ostrosłupa: 36 · 6 : 3 = 72 cm³.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś objętość części poza ostrosłupem: 216 − 72 = 144 cm³.",
+     "t": "Obliczono objętość części poza ostrosłupem: 216 − 72 = 144 cm³.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wysokość ściany: √(36 + 9) = 3√5 cm i pole boczne: 4 · 6 · 3√5 : 2 = 36√5 cm².",
+     "t": "Obliczono wysokość ściany: √(36 + 9) = 3√5 cm i pole boczne: 4 · 6 · 3√5 : 2 = 36√5 cm².",
      "pts": 1
     }
    ],
@@ -1479,11 +1479,11 @@ window.TEMAT = {
    "q": "Punkty A(−3, −2), B(3, −2) i C(5, 2) są wierzchołkami równoległoboku ABCD. Oblicz współrzędne punktu D i pole równoległoboku. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś D(−1, 2): przesunięcie z B do C (2, 4) dodałeś do A.",
+     "t": "Obliczono D(−1, 2): przesunięcie z B do C (2, 4) dodano do A.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: podstawa 6, wysokość 4, P = 24.",
+     "t": "Obliczono pole: podstawa 6, wysokość 4, P = 24.",
      "pts": 1
     }
    ],
@@ -1533,15 +1533,15 @@ window.TEMAT = {
    "q": "Działka ma kształt trapezu prostokątnego o podstawach 40 m i 25 m. Dłuższe ramię ma 17 m. Oblicz pole działki i koszt ogrodzenia jej siatką po 30 zł za metr. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość z twierdzenia Pitagorasa: 40 − 25 = 15, h = √(289 − 225) = 8 m.",
+     "t": "Obliczono wysokość z twierdzenia Pitagorasa: 40 − 25 = 15, h = √(289 − 225) = 8 m.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: (40 + 25) · 8 : 2 = 260 m².",
+     "t": "Obliczono pole: (40 + 25) · 8 : 2 = 260 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: obwód 90 m, 90 · 30 = 2 700 zł.",
+     "t": "Obliczono koszt: obwód 90 m, 90 · 30 = 2 700 zł.",
      "pts": 1
     }
    ],
@@ -1599,11 +1599,11 @@ window.TEMAT = {
    "q": "Do naczynia w kształcie prostopadłościanu o podstawie 20 cm × 15 cm nalano 4,5 litra wody. Do jakiej wysokości sięga woda? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zamieniłeś litry: 4,5 l = 4 500 cm³ i obliczyłeś pole podstawy 300 cm².",
+     "t": "Zamieniono litry: 4,5 l = 4 500 cm³ i obliczono pole podstawy 300 cm².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wysokość: 4 500 : 300 = 15 cm.",
+     "t": "Obliczono wysokość: 4 500 : 300 = 15 cm.",
      "pts": 1
     }
    ],
@@ -1967,15 +1967,15 @@ window.TEMAT = {
    "q": "Działka ma kształt trapezu prostokątnego o podstawach 24 m i 16 m. Dłuższe ramię ma 10 m. Oblicz pole działki i koszt ogrodzenia jej siatką po 15 zł za metr. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość: 24 − 16 = 8, h = √(100 − 64) = 6 m.",
+     "t": "Obliczono wysokość: 24 − 16 = 8, h = √(100 − 64) = 6 m.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: (24 + 16) · 6 : 2 = 120 m².",
+     "t": "Obliczono pole: (24 + 16) · 6 : 2 = 120 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: obwód 56 m, 56 · 15 = 840 zł.",
+     "t": "Obliczono koszt: obwód 56 m, 56 · 15 = 840 zł.",
      "pts": 1
     }
    ],
@@ -2003,15 +2003,15 @@ window.TEMAT = {
    "q": "Ostrosłup prawidłowy czworokątny ma krawędź podstawy 12 cm, a wysokość jego ściany bocznej ma 10 cm. Oblicz objętość i pole powierzchni całkowitej ostrosłupa. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość ostrosłupa: √(100 − 36) = 8 cm.",
+     "t": "Obliczono wysokość ostrosłupa: √(100 − 36) = 8 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś objętość: 144 · 8 : 3 = 384 cm³.",
+     "t": "Obliczono objętość: 144 · 8 : 3 = 384 cm³.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: 144 + 4 · 12 · 10 : 2 = 384 cm².",
+     "t": "Obliczono pole: 144 + 4 · 12 · 10 : 2 = 384 cm².",
      "pts": 1
     }
    ],
@@ -2039,11 +2039,11 @@ window.TEMAT = {
    "q": "Punkt S(2, −2) jest środkiem odcinka AB, a A(−1, 2). Oblicz współrzędne punktu B i długość odcinka AB. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś B(5, −6).",
+     "t": "Obliczono B(5, −6).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś |AB| = √(36 + 64) = 10.",
+     "t": "Obliczono |AB| = √(36 + 64) = 10.",
      "pts": 1
     }
    ],

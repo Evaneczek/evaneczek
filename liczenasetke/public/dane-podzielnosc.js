@@ -438,7 +438,7 @@ window.TEMAT = {
      "Zapis: 95 = 7 · 13 + 4."
     ],
     "result": "Reszta wynosi 4.",
-    "tip": "Sprawdzenie: pomnóż iloraz przez dzielnik i dodaj resztę. Musi wyjść liczba, którą dzieliłeś.",
+    "tip": "Sprawdzenie: pomnóż iloraz przez dzielnik i dodaj resztę. Musi wyjść liczba, którą dzielisz.",
     "check": [
      "95 == 7*13 + 4",
      "95 % 7 == 4"
@@ -1458,11 +1458,11 @@ window.TEMAT = {
    "q": "Kuba zapisał liczbę czterocyfrową podzielną przez 9. Skreślił w niej cyfrę jedności i otrzymał liczbę 385. Jaką liczbę czterocyfrową zapisał Kuba? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś, że liczba ma postać 385■ i jej suma cyfr 3 + 8 + 5 + ■ = 16 + ■ musi dzielić się przez 9.",
+     "t": "Zapisano, że liczba ma postać 385■ i jej suma cyfr 3 + 8 + 5 + ■ = 16 + ■ musi dzielić się przez 9.",
      "pts": 1
     },
     {
-     "t": "Wyznaczyłeś ■ = 2 i podałeś liczbę 3 852.",
+     "t": "Wyznaczono ■ = 2 i podano liczbę 3 852.",
      "pts": 1
     }
    ],
@@ -1489,15 +1489,15 @@ window.TEMAT = {
    "q": "Prostokątną podłogę o wymiarach 360 cm na 480 cm trzeba wyłożyć jednakowymi kwadratowymi płytkami, bez cięcia, tak żeby płytki były jak największe. Jaki bok ma taka płytka i ile płytek potrzeba? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zauważyłeś, że bok płytki to NWD(360, 480), i zapisałeś rozkłady lub inne poprawne obliczenie NWD.",
+     "t": "Zauważono, że bok płytki to NWD(360, 480), i zapisano rozkłady lub inne poprawne obliczenie NWD.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś bok płytki: 120 cm.",
+     "t": "Obliczono bok płytki: 120 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę płytek: 3 · 4 = 12.",
+     "t": "Obliczono liczbę płytek: 3 · 4 = 12.",
      "pts": 1
     }
    ],
@@ -1631,11 +1631,11 @@ window.TEMAT = {
    "q": "Agnieszka zapisała liczbę czterocyfrową podzielną przez 7. Skreśliła w tej liczbie cyfrę jedności i otrzymała liczbę 496. Jaką liczbę czterocyfrową zapisała Agnieszka? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś, że liczba ma postać 496■, i poprawnie sprawdzałeś podzielność przez 7 (np. 4 960 : 7 = 708 reszty 4).",
+     "t": "Zapisano, że liczba ma postać 496■, i poprawnie sprawdzano podzielność przez 7 (np. 4 960 : 7 = 708 reszty 4).",
      "pts": 1
     },
     {
-     "t": "Podałeś liczbę 4 963 (7 · 709 = 4 963).",
+     "t": "Podano liczbę 4 963 (7 · 709 = 4 963).",
      "pts": 1
     }
    ],
@@ -1860,11 +1860,11 @@ window.TEMAT = {
    "q": "Kwiaciarka ma 42 róże i 70 goździków. Chce zrobić jak najwięcej jednakowych bukietów i zużyć wszystkie kwiaty. Ile bukietów zrobi i ile róż oraz ile goździków będzie w każdym bukiecie? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś NWD(42, 70) = 14, czyli liczbę bukietów.",
+     "t": "Obliczono NWD(42, 70) = 14, czyli liczbę bukietów.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś skład bukietu: 3 róże i 5 goździków.",
+     "t": "Obliczono skład bukietu: 3 róże i 5 goździków.",
      "pts": 1
     }
    ],
@@ -1939,11 +1939,11 @@ window.TEMAT = {
    "q": "Agata zapisała liczbę czterocyfrową podzielną przez 4 i przez 9. Skreśliła w niej cyfrę jedności i otrzymała liczbę 734. Jaką liczbę zapisała Agata? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Z warunku podzielności przez 9 wyznaczyłeś cyfrę jedności: 7 + 3 + 4 + ■ = 14 + ■ = 18, więc ■ = 4.",
+     "t": "Z warunku podzielności przez 9 wyznaczono cyfrę jedności: 7 + 3 + 4 + ■ = 14 + ■ = 18, więc ■ = 4.",
      "pts": 1
     },
     {
-     "t": "Sprawdziłeś podzielność przez 4 (dwie ostatnie cyfry 44 : 4 = 11) i podałeś liczbę 7 344.",
+     "t": "Sprawdzono podzielność przez 4 (dwie ostatnie cyfry 44 : 4 = 11) i podano liczbę 7 344.",
      "pts": 1
     }
    ],

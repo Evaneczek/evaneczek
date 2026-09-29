@@ -191,7 +191,7 @@ window.TEMAT = {
        "why": [
         [
          17,
-         "Dodałeś boki. Dodaje się kwadraty: 25 + 144."
+         "Dodano boki. Dodaje się kwadraty: 25 + 144."
         ],
         [
          169,
@@ -221,7 +221,7 @@ window.TEMAT = {
      ],
      "ok": 0,
      "why": {
-      "B": "Dodałeś boki: 2 + 3. Dodaje się kwadraty: 4 + 9.",
+      "B": "Dodano boki: 2 + 3. Dodaje się kwadraty: 4 + 9.",
       "C": "13 to c². Trzeba wyciągnąć pierwiastek.",
       "D": "√5 = √(2 + 3). Pod pierwiastkiem są kwadraty: 4 + 9."
      },
@@ -357,7 +357,7 @@ window.TEMAT = {
      ],
      "ok": 0,
      "why": {
-      "B": "Odjąłeś boki: 6 − 4. Odejmuje się kwadraty: 36 − 16.",
+      "B": "Odjęto boki: 6 − 4. Odejmuje się kwadraty: 36 − 16.",
       "C": "√52 = √(36 + 16). Przy przyprostokątnej kwadraty się odejmuje.",
       "D": "10 to suma boków, a przyprostokątna musi być krótsza niż 6."
      },
@@ -475,7 +475,7 @@ window.TEMAT = {
        "why": [
         [
          17,
-         "Dodałeś boki. d² = 144 + 25."
+         "Dodano boki. d² = 144 + 25."
         ]
        ]
       }
@@ -645,7 +645,7 @@ window.TEMAT = {
        "why": [
         [
          120,
-         "Zapomniałeś podzielić przez 2."
+         "Zapomniano podzielić przez 2."
         ]
        ]
       }
@@ -673,7 +673,7 @@ window.TEMAT = {
      ],
      "ok": 0,
      "why": {
-      "B": "Zapomniałeś podzielić przez 2: h = a√3 : 2.",
+      "B": "Zapomniano podzielić przez 2: h = a√3 : 2.",
       "C": "5 cm to połowa boku, a nie wysokość.",
       "D": "25√3 cm² to pole tego trójkąta."
      },
@@ -1204,7 +1204,7 @@ window.TEMAT = {
      "why": [
       [
        21,
-       "Dodałeś boki. Dodaje się kwadraty: 81 + 144."
+       "Dodano boki. Dodaje się kwadraty: 81 + 144."
       ],
       [
        225,
@@ -1232,7 +1232,7 @@ window.TEMAT = {
       "why": [
        [
         31,
-        "Dodałeś boki. Dodaje się kwadraty: 49 + 576."
+        "Dodano boki. Dodaje się kwadraty: 49 + 576."
        ],
        [
         625,
@@ -1364,7 +1364,7 @@ window.TEMAT = {
    ],
    "ok": 2,
    "why": {
-    "A": "Dodałeś boki: 4 + 6. Dodaje się kwadraty.",
+    "A": "Dodano boki: 4 + 6. Dodaje się kwadraty.",
     "B": "52 to c². Trzeba wyciągnąć pierwiastek.",
     "D": "√10 = √(4 + 6). Pod pierwiastkiem są kwadraty: 16 + 36."
    },
@@ -1387,7 +1387,7 @@ window.TEMAT = {
     ],
     "ok": 0,
     "why": {
-     "B": "Dodałeś boki. c² = 9 + 9.",
+     "B": "Dodano boki. c² = 9 + 9.",
      "C": "18 to c². Trzeba wyciągnąć pierwiastek.",
      "D": "√6 = √(3 + 3). Pod pierwiastkiem są kwadraty."
     },
@@ -1417,7 +1417,7 @@ window.TEMAT = {
      "why": [
       [
        23,
-       "Dodałeś boki. d² = 225 + 64."
+       "Dodano boki. d² = 225 + 64."
       ],
       [
        289,
@@ -1445,7 +1445,7 @@ window.TEMAT = {
       "why": [
        [
         31,
-        "Dodałeś boki. d² = 576 + 49."
+        "Dodano boki. d² = 576 + 49."
        ]
       ]
      }
@@ -1644,7 +1644,7 @@ window.TEMAT = {
    ],
    "ok": 1,
    "why": {
-    "A": "Zapomniałeś podzielić przez 2: h = a√3 : 2.",
+    "A": "Zapomniano podzielić przez 2: h = a√3 : 2.",
     "C": "4 cm to połowa boku.",
     "D": "16√3 cm² to pole tego trójkąta."
    },
@@ -1667,7 +1667,7 @@ window.TEMAT = {
     ],
     "ok": 3,
     "why": {
-     "A": "Zapomniałeś podzielić przez 2.",
+     "A": "Zapomniano podzielić przez 2.",
      "B": "6 cm to połowa boku.",
      "C": "36√3 cm² to pole."
     },
@@ -1697,7 +1697,7 @@ window.TEMAT = {
      "why": [
       [
        18,
-       "Zapomniałeś podzielić przez 2: P = 6 · 3√3 : 2."
+       "Zapomniano podzielić przez 2: P = 6 · 3√3 : 2."
       ],
       [
        3,
@@ -1727,7 +1727,7 @@ window.TEMAT = {
       "why": [
        [
         8,
-        "Zapomniałeś podzielić przez 2."
+        "Zapomniano podzielić przez 2."
        ],
        [
         2,
@@ -1852,7 +1852,7 @@ window.TEMAT = {
      "why": [
       [
        224,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ]
      ]
     }
@@ -2227,15 +2227,15 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Obliczyłeś AB = 10 cm (twierdzenie Pitagorasa).",
+     "t": "Obliczono AB = 10 cm (twierdzenie Pitagorasa).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole trójkąta: 6 · 8 : 2 = 24 cm².",
+     "t": "Obliczono pole trójkąta: 6 · 8 : 2 = 24 cm².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś CD z pola: 10 · CD : 2 = 24, CD = 4,8 cm.",
+     "t": "Obliczono CD z pola: 10 · CD : 2 = 24, CD = 4,8 cm.",
      "pts": 1
     }
    ],
@@ -2333,11 +2333,11 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Obliczyłeś AE = √(64 + 16) = √80 = 4√5 cm (i zauważyłeś, że DE = AE).",
+     "t": "Obliczono AE = √(64 + 16) = √80 = 4√5 cm (i zauważono, że DE = AE).",
      "pts": 1
     },
     {
-     "t": "Podałeś obwód: 8 + 8√5 cm.",
+     "t": "Podano obwód: 8 + 8√5 cm.",
      "pts": 1
     }
    ],
@@ -2385,15 +2385,15 @@ window.TEMAT = {
    "q": "Maszt ma 12 m wysokości. Do jego wierzchołka przymocowano 4 liny, a każdą z nich przymocowano do ziemi 5 m od podstawy masztu. Na każdy węzeł trzeba doliczyć 0,5 m liny. Ile metrów liny trzeba kupić? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś długość jednej liny: √(144 + 25) = 13 m.",
+     "t": "Obliczono długość jednej liny: √(144 + 25) = 13 m.",
      "pts": 1
     },
     {
-     "t": "Doliczyłeś węzeł: 13,5 m na jedną linę.",
+     "t": "Doliczono węzeł: 13,5 m na jedną linę.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś całość: 4 · 13,5 = 54 m.",
+     "t": "Obliczono całość: 4 · 13,5 = 54 m.",
      "pts": 1
     }
    ],
@@ -2619,7 +2619,7 @@ window.TEMAT = {
    ],
    "ok": 2,
    "why": {
-    "A": "Dodałeś boki zamiast kwadratów.",
+    "A": "Dodano boki zamiast kwadratów.",
     "B": "20 to c².",
     "D": "√6 = √(2 + 4). Pod pierwiastkiem są kwadraty."
    },
@@ -2709,7 +2709,7 @@ window.TEMAT = {
    ],
    "ok": 3,
    "why": {
-    "A": "Zapomniałeś podzielić przez 2.",
+    "A": "Zapomniano podzielić przez 2.",
     "B": "5 cm to połowa boku.",
     "C": "25√3 cm² to pole."
    },
@@ -2835,11 +2835,11 @@ window.TEMAT = {
    "q": "Trapez równoramienny ma podstawy 18 cm i 8 cm, a jego ramię ma 13 cm. Oblicz pole trapezu. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość: (18 − 8) : 2 = 5, h² = 169 − 25, h = 12 cm.",
+     "t": "Obliczono wysokość: (18 − 8) : 2 = 5, h² = 169 − 25, h = 12 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: (18 + 8) · 12 : 2 = 156 cm².",
+     "t": "Obliczono pole: (18 + 8) · 12 : 2 = 156 cm².",
      "pts": 1
     }
    ],
@@ -2864,11 +2864,11 @@ window.TEMAT = {
    "q": "Z punktu A do punktu B można dojść ulicami: 300 m na wschód, a potem 400 m na północ. Przez łąkę można przejść prosto z A do B. O ile metrów krótsza jest droga przez łąkę? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś drogę przez łąkę: √(90 000 + 160 000) = 500 m.",
+     "t": "Obliczono drogę przez łąkę: √(90 000 + 160 000) = 500 m.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś różnicę: 700 − 500 = 200 m.",
+     "t": "Obliczono różnicę: 700 − 500 = 200 m.",
      "pts": 1
     }
    ],

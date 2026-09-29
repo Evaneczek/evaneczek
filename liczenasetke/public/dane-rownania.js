@@ -2243,15 +2243,15 @@ window.TEMAT = {
    "q": "Andrzej ma o 28 plakatów więcej niż Basia, a Marek ma 3 razy mniej plakatów niż Basia. Andrzej i Marek mają razem 60 plakatów. Ile plakatów ma każde z tych dzieci? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Wprowadziłeś oznaczenia i ułożyłeś równanie, np. x + 28 + x/3 = 60 (x – plakaty Basi).",
+     "t": "Wprowadzono oznaczenia i ułożono równanie, np. x + 28 + x/3 = 60 (x – plakaty Basi).",
      "pts": 1
     },
     {
-     "t": "Rozwiązałeś równanie: x = 24.",
+     "t": "Rozwiązano równanie: x = 24.",
      "pts": 1
     },
     {
-     "t": "Podałeś liczby plakatów wszystkich dzieci: Basia 24, Andrzej 52, Marek 8.",
+     "t": "Podano liczby plakatów wszystkich dzieci: Basia 24, Andrzej 52, Marek 8.",
      "pts": 1
     }
    ],
@@ -2276,11 +2276,11 @@ window.TEMAT = {
    "q": "Cena roweru wzrosła o 10%, a potem nowa cena spadła o 10%. Teraz rower kosztuje 1 485 zł. Ile kosztował na początku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś równanie 1,1 · 0,9 · x = 1 485, czyli 0,99x = 1 485.",
+     "t": "Ułożono równanie 1,1 · 0,9 · x = 1 485, czyli 0,99x = 1 485.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś cenę początkową: 1 500 zł.",
+     "t": "Obliczono cenę początkową: 1 500 zł.",
      "pts": 1
     }
    ],
@@ -2473,15 +2473,15 @@ window.TEMAT = {
    "q": "W sklepie były jabłka i gruszki, razem 240 kg. Jabłek było o 50% więcej niż gruszek. Sprzedano 20% jabłek. Ile kilogramów jabłek zostało? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś równanie x + 1,5x = 240 (x – gruszki).",
+     "t": "Ułożono równanie x + 1,5x = 240 (x – gruszki).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś masę jabłek: 144 kg.",
+     "t": "Obliczono masę jabłek: 144 kg.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś, ile jabłek zostało: 0,8 · 144 = 115,2 kg.",
+     "t": "Obliczono, ile jabłek zostało: 0,8 · 144 = 115,2 kg.",
      "pts": 1
     }
    ],
@@ -2508,15 +2508,15 @@ window.TEMAT = {
    "q": "Ojciec i syn mają razem 50 lat. 5 lat temu ojciec był 4 razy starszy od syna. Ile lat ma teraz syn? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś wiek obu osób za pomocą jednej niewiadomej, np. syn s, ojciec 50 − s.",
+     "t": "Zapisano wiek obu osób za pomocą jednej niewiadomej, np. syn s, ojciec 50 − s.",
      "pts": 1
     },
     {
-     "t": "Ułożyłeś równanie dla sytuacji sprzed 5 lat: 45 − s = 4(s − 5).",
+     "t": "Ułożono równanie dla sytuacji sprzed 5 lat: 45 − s = 4(s − 5).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wiek syna: 13 lat.",
+     "t": "Obliczono wiek syna: 13 lat.",
      "pts": 1
     }
    ],
@@ -2815,11 +2815,11 @@ window.TEMAT = {
    "q": "Za 4 kg jabłek i 2 kg śliwek zapłacono 32 zł. Kilogram śliwek jest o 4 zł droższy od kilograma jabłek. Ile kosztuje kilogram jabłek? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś poprawne równanie, np. 4x + 2(x + 4) = 32.",
+     "t": "Ułożono poprawne równanie, np. 4x + 2(x + 4) = 32.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś cenę kilograma jabłek: 4 zł.",
+     "t": "Obliczono cenę kilograma jabłek: 4 zł.",
      "pts": 1
     }
    ],
@@ -2843,11 +2843,11 @@ window.TEMAT = {
    "q": "W pierwszej skrzynce jest 3 razy więcej jabłek niż w drugiej. Gdy z pierwszej skrzynki przełożono 15 jabłek do drugiej, w obu było tyle samo jabłek. Ile jabłek było na początku w każdej skrzynce? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś poprawne równanie, np. 3x − 15 = x + 15.",
+     "t": "Ułożono poprawne równanie, np. 3x − 15 = x + 15.",
      "pts": 1
     },
     {
-     "t": "Podałeś liczby jabłek w obu skrzynkach: 45 i 15.",
+     "t": "Podano liczby jabłek w obu skrzynkach: 45 i 15.",
      "pts": 1
     }
    ],

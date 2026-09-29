@@ -2092,15 +2092,15 @@ window.TEMAT = {
    "q": "Grześ zebrał n kasztanów, a Bartek 3 razy więcej. Potem Bartek dał Grzesiowi 8 kasztanów. Zapisz wyrażeniami, ile kasztanów ma teraz każdy z chłopców i o ile więcej kasztanów ma teraz Bartek niż Grześ.",
    "criteria": [
     {
-     "t": "Zapisałeś, ile ma teraz Bartek: 3n − 8.",
+     "t": "Zapisano, ile ma teraz Bartek: 3n − 8.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś, ile ma teraz Grześ: n + 8.",
+     "t": "Zapisano, ile ma teraz Grześ: n + 8.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś różnicę: (3n − 8) − (n + 8) = 2n − 16.",
+     "t": "Obliczono różnicę: (3n − 8) − (n + 8) = 2n − 16.",
      "pts": 1
     }
    ],
@@ -2127,15 +2127,15 @@ window.TEMAT = {
    "q": "Prostokąt ma boki x + 3 i 2x, a kwadrat ma bok x + 1 (x > 0). Uzasadnij, że pole prostokąta jest większe od pola kwadratu o x² + 4x − 1.",
    "criteria": [
     {
-     "t": "Zapisałeś pole prostokąta: 2x(x + 3) = 2x² + 6x.",
+     "t": "Zapisano pole prostokąta: 2x(x + 3) = 2x² + 6x.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś pole kwadratu: (x + 1)² = x² + 2x + 1.",
+     "t": "Zapisano pole kwadratu: (x + 1)² = x² + 2x + 1.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś różnicę 2x² + 6x − (x² + 2x + 1) = x² + 4x − 1 i zapisałeś wniosek.",
+     "t": "Obliczono różnicę 2x² + 6x − (x² + 2x + 1) = x² + 4x − 1 i zapisano wniosek.",
      "pts": 1
     }
    ],
@@ -2240,15 +2240,15 @@ window.TEMAT = {
    "q": "Z prostokąta o bokach 2a i a + 6 wycięto kwadrat o boku a. Zapisz w najprostszej postaci pole pozostałej części i oblicz je dla a = 3.",
    "criteria": [
     {
-     "t": "Zapisałeś pole prostokąta: 2a(a + 6) = 2a² + 12a.",
+     "t": "Zapisano pole prostokąta: 2a(a + 6) = 2a² + 12a.",
      "pts": 1
     },
     {
-     "t": "Odjąłeś pole kwadratu i uprościłeś: 2a² + 12a − a² = a² + 12a.",
+     "t": "Odjęto pole kwadratu i uproszczono: 2a² + 12a − a² = a² + 12a.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole dla a = 3: 9 + 36 = 45.",
+     "t": "Obliczono pole dla a = 3: 9 + 36 = 45.",
      "pts": 1
     }
    ],
@@ -2567,11 +2567,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że pole prostokąta o bokach x + 5 i x − 1 (x > 1) jest o 4x − 5 większe od pola kwadratu o boku x.",
    "criteria": [
     {
-     "t": "Zapisałeś pole prostokąta: (x + 5)(x − 1) = x² + 4x − 5.",
+     "t": "Zapisano pole prostokąta: (x + 5)(x − 1) = x² + 4x − 5.",
      "pts": 1
     },
     {
-     "t": "Odjąłeś pole kwadratu x² i zapisałeś wniosek: różnica to 4x − 5.",
+     "t": "Odjęto pole kwadratu x² i zapisano wniosek: różnica to 4x − 5.",
      "pts": 1
     }
    ],
@@ -2596,11 +2596,11 @@ window.TEMAT = {
    "q": "Ania ma a zł, Basia 3 razy więcej niż Ania, a Celina o 15 zł mniej niż Basia. Zapisz w najprostszej postaci, ile złotych mają razem, i oblicz tę kwotę dla a = 20.",
    "criteria": [
     {
-     "t": "Zapisałeś sumę w najprostszej postaci: a + 3a + (3a − 15) = 7a − 15.",
+     "t": "Zapisano sumę w najprostszej postaci: a + 3a + (3a − 15) = 7a − 15.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś kwotę dla a = 20: 125 zł.",
+     "t": "Obliczono kwotę dla a = 20: 125 zł.",
      "pts": 1
     }
    ],

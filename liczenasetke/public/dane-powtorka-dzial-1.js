@@ -144,11 +144,11 @@ window.TEMAT = {
      "q": "Uzasadnij, że 5/12 − 1/4 = 1/6. Zapisz obliczenia, a potem oceń się według punktacji.",
      "criteria": [
       {
-       "t": "Sprowadziłeś do wspólnego mianownika i odjąłeś: 5/12 − 3/12 = 2/12.",
+       "t": "Sprowadzono do wspólnego mianownika i odjęto: 5/12 − 3/12 = 2/12.",
        "pts": 1
       },
       {
-       "t": "Skróciłeś do 1/6 i zapisałeś wniosek.",
+       "t": "Skrócono do 1/6 i zapisano wniosek.",
        "pts": 1
       }
      ],
@@ -682,15 +682,15 @@ window.TEMAT = {
    "q": "Pan Tomek miał 1 200 zł. 3/8 tej kwoty wydał na rower, a 20% pozostałej kwoty na kask. Ile pieniędzy mu zostało? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wydatek na rower (450 zł) i resztę (750 zł).",
+     "t": "Obliczono wydatek na rower (450 zł) i resztę (750 zł).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wydatek na kask: 20% z 750 zł = 150 zł.",
+     "t": "Obliczono wydatek na kask: 20% z 750 zł = 150 zł.",
      "pts": 1
     },
     {
-     "t": "Podałeś, ile zostało: 600 zł.",
+     "t": "Podano, ile zostało: 600 zł.",
      "pts": 1
     }
    ],
@@ -717,11 +717,11 @@ window.TEMAT = {
    "q": "Na osi liczbowej zaznaczono punkty A = −2 1/2 i B = 4. Punkt C jest środkiem odcinka AB. Oblicz, jaką liczbę oznacza punkt C i jaka jest odległość punktu C od punktu A. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś C = (−2,5 + 4) : 2 = 0,75.",
+     "t": "Obliczono C = (−2,5 + 4) : 2 = 0,75.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś odległość AC = 0,75 − (−2,5) = 3,25 (albo połowę AB = 6,5 : 2).",
+     "t": "Obliczono odległość AC = 0,75 − (−2,5) = 3,25 (albo połowę AB = 6,5 : 2).",
      "pts": 1
     }
    ],
@@ -747,11 +747,11 @@ window.TEMAT = {
    "q": "Ziarnko piasku waży około 6,5 · 10⁻⁵ g. Uzasadnij, że 20 000 takich ziarenek waży mniej niż 2 g.",
    "criteria": [
     {
-     "t": "Zapisałeś obliczenie: 6,5 · 10⁻⁵ · 2 · 10⁴ = 13 · 10⁻¹ = 1,3 g.",
+     "t": "Zapisano obliczenie: 6,5 · 10⁻⁵ · 2 · 10⁴ = 13 · 10⁻¹ = 1,3 g.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś wniosek: 1,3 g < 2 g.",
+     "t": "Zapisano wniosek: 1,3 g < 2 g.",
      "pts": 1
     }
    ],
@@ -1131,11 +1131,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że 1/3 + 1/4 + 1/6 = 3/4.",
    "criteria": [
     {
-     "t": "Sprowadziłeś do wspólnego mianownika: 4/12 + 3/12 + 2/12.",
+     "t": "Sprowadzono do wspólnego mianownika: 4/12 + 3/12 + 2/12.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś 9/12 = 3/4 i zapisałeś wniosek.",
+     "t": "Obliczono 9/12 = 3/4 i zapisano wniosek.",
      "pts": 1
     }
    ],
@@ -1158,15 +1158,15 @@ window.TEMAT = {
    "q": "Cena netto roweru to 1 500 zł. Do ceny doliczono 23% VAT, a potem sklep dał 10% rabatu od ceny z VAT. Ile zapłacono za rower? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś cenę z VAT: 1 500 · 1,23 = 1 845 zł.",
+     "t": "Obliczono cenę z VAT: 1 500 · 1,23 = 1 845 zł.",
      "pts": 1
     },
     {
-     "t": "Zastosowałeś rabat od ceny z VAT: 1 845 · 0,9.",
+     "t": "Zastosowano rabat od ceny z VAT: 1 845 · 0,9.",
      "pts": 1
     },
     {
-     "t": "Podałeś wynik: 1 660,50 zł.",
+     "t": "Podano wynik: 1 660,50 zł.",
      "pts": 1
     }
    ],
@@ -1190,15 +1190,15 @@ window.TEMAT = {
    "q": "Podłogę o wymiarach 240 cm na 180 cm trzeba wyłożyć jednakowymi kwadratowymi płytkami, jak największymi, bez cięcia. Jaki bok ma płytka i ile płytek potrzeba? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zauważyłeś, że bok płytki to NWD(240, 180).",
+     "t": "Zauważono, że bok płytki to NWD(240, 180).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś NWD = 60 cm.",
+     "t": "Obliczono NWD = 60 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę płytek: 4 · 3 = 12.",
+     "t": "Obliczono liczbę płytek: 4 · 3 = 12.",
      "pts": 1
     }
    ],

@@ -9,7 +9,7 @@ window.TEMAT = {
  "rules": [
   "Zadania 1–15 są zamknięte, każde za 1 punkt. W każdym jest dokładnie jedna poprawna odpowiedź.",
   "Zadania 16–21 są otwarte, za 2 albo 3 punkty. Rozwiąż je na kartce i zapisuj obliczenia, tak jak na karcie rozwiązań.",
-  "Po zakończeniu zobaczysz rozwiązania i kryteria jak w zasadach oceniania CKE. Punkty za zadania otwarte przyznajesz sobie sam: uczciwie, tak jak egzaminator.",
+  "Po zakończeniu zobaczysz rozwiązania i kryteria jak w zasadach oceniania CKE. Punkty za zadania otwarte przyznajesz sobie samodzielnie: uczciwie, tak jak egzaminator.",
   "Kalkulator jest niedozwolony, tak jak na egzaminie. Rysunki nie zawsze są w skali: licz z danych, a nie z linijki.",
   "Wynik pokaże się w punktach i procentach, razem z wynikiem według działów i listą tematów do powtórki."
  ],
@@ -228,7 +228,7 @@ window.TEMAT = {
    "why": {
     "A": "Komiksów jest o 5 mniej niż książek, więc książek jest o 5 więcej niż komiksów: 3x + 5.",
     "C": "Książek jest 3x + 5, a nie x + 5.",
-    "D": "Pominąłeś komiksy (3x)."
+    "D": "Pominięto komiksy (3x)."
    },
    "sol": [
     "Albumy: [[x]], komiksy: [[3x]], książki: [[3x + 5]].",
@@ -316,7 +316,7 @@ window.TEMAT = {
    "ok": 3,
    "why": {
     "A": "15 minut to 0,25 h, a nie 0,15 h.",
-    "B": "Pominąłeś 15 minut jazdy.",
+    "B": "Pominięto 15 minut jazdy.",
     "C": "2 h 15 min to 2,25 h, a nie 2,5 h."
    },
    "sol": [
@@ -573,7 +573,7 @@ window.TEMAT = {
    "ok": 2,
    "why": {
     "A": "Bok BC leży wewnątrz figury, więc nie należy do jej obwodu.",
-    "B": "Dodałeś obwody kwadratu i trójkąta. Wspólny bok BC trzeba pominąć, i to dwa razy.",
+    "B": "Dodano obwody kwadratu i trójkąta. Wspólny bok BC trzeba pominąć, i to dwa razy.",
     "D": "Brakuje boku EC. Z twierdzenia Pitagorasa |EC| = 10."
    },
    "sol": [
@@ -638,7 +638,7 @@ window.TEMAT = {
    ],
    "ok": 2,
    "why": {
-    "A": "Przesunąłeś w złą stronę. Z B do C jest 3 w prawo i 4 w górę, więc z A do D też.",
+    "A": "Przesunięto w złą stronę. Z B do C jest 3 w prawo i 4 w górę, więc z A do D też.",
     "B": "Punkt (−4, 3) leży dokładnie nad A, a z B do C jest też 3 w prawo.",
     "D": "Punkt (2, 3) leży nad B. Wierzchołek D ma być naprzeciwko B."
    },
@@ -671,7 +671,7 @@ window.TEMAT = {
    "why": {
     "B": "64 cm³ to objętość, a pytanie dotyczy pola powierzchni.",
     "C": "16 cm² to pole jednej ściany. Sześcian ma 6 ścian.",
-    "D": "Pomnożyłeś krawędź przez 6, a trzeba pole ściany."
+    "D": "Pomnożono krawędź przez 6, a trzeba pole ściany."
    },
    "sol": [
     "Krawędź: [[4]] cm, bo [[4³ = 64]].",
@@ -694,11 +694,11 @@ window.TEMAT = {
    "q": "Suma trzech ułamków jest równa 11/12. Dwa z tych ułamków to 1/4 i 1/3. Uzasadnij, że trzeci ułamek można zapisać w postaci ułamka o liczniku 1. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś poprawne wyrażenie albo równanie prowadzące do trzeciego ułamka, np. 11/12 − (1/4 + 1/3) albo 1/4 + 1/3 + x = 11/12.",
+     "t": "Zapisano poprawne wyrażenie albo równanie prowadzące do trzeciego ułamka, np. 11/12 − (1/4 + 1/3) albo 1/4 + 1/3 + x = 11/12.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś trzeci ułamek (4/12 = 1/3) i zapisałeś wniosek, że ma licznik 1.",
+     "t": "Obliczono trzeci ułamek (4/12 = 1/3) i zapisano wniosek, że ma licznik 1.",
      "pts": 1
     }
    ],
@@ -723,15 +723,15 @@ window.TEMAT = {
    "q": "Adam, Bartek i Czarek zbierają znaczki. Adam ma dwa razy więcej znaczków niż Czarek, a Bartek o 15 znaczków mniej niż Adam. Razem mają 165 znaczków. Ile znaczków ma każdy z chłopców? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś liczby znaczków za pomocą jednej niewiadomej, np. Czarek: c, Adam: 2c, Bartek: 2c − 15.",
+     "t": "Zapisano liczby znaczków za pomocą jednej niewiadomej, np. Czarek: c, Adam: 2c, Bartek: 2c − 15.",
      "pts": 1
     },
     {
-     "t": "Ułożyłeś poprawne równanie, np. c + 2c + (2c − 15) = 165.",
+     "t": "Ułożono poprawne równanie, np. c + 2c + (2c − 15) = 165.",
      "pts": 1
     },
     {
-     "t": "Rozwiązałeś równanie i podałeś wszystkie wyniki: Adam 72, Bartek 57, Czarek 36.",
+     "t": "Rozwiązano równanie i podano wszystkie wyniki: Adam 72, Bartek 57, Czarek 36.",
      "pts": 1
     }
    ],
@@ -816,11 +816,11 @@ window.TEMAT = {
    "q": "W trapezie ABCD podstawy AB i CD są równoległe. Kąt DAB ma miarę 70°, kąt ABC ma miarę 55°, a przekątna AC tworzy z podstawą AB kąt 30° (zobacz rysunek). Oblicz miary kątów ADC, BCD i ACD.",
    "criteria": [
     {
-     "t": "Obliczyłeś poprawnie miary dwóch z trzech kątów.",
+     "t": "Obliczono poprawnie miary dwóch z trzech kątów.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś poprawnie wszystkie trzy kąty: ADC = 110°, BCD = 125°, ACD = 30°.",
+     "t": "Obliczono poprawnie wszystkie trzy kąty: ADC = 110°, BCD = 125°, ACD = 30°.",
      "pts": 1
     }
    ],
@@ -847,11 +847,11 @@ window.TEMAT = {
    "q": "Na planie w skali 1 : 1000 działka ma kształt prostokąta o wymiarach 5 cm na 3 cm. Oblicz pole tej działki w rzeczywistości. Wynik podaj w arach. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś rzeczywiste wymiary działki: 5 · 1 000 = 5 000 cm = 50 m i 3 · 1 000 = 3 000 cm = 30 m.",
+     "t": "Obliczono rzeczywiste wymiary działki: 5 · 1 000 = 5 000 cm = 50 m i 3 · 1 000 = 3 000 cm = 30 m.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole i zamieniłeś jednostki: 50 · 30 = 1 500 m² = 15 arów.",
+     "t": "Obliczono pole i zamieniono jednostki: 50 · 30 = 1 500 m² = 15 arów.",
      "pts": 1
     }
    ],
@@ -946,15 +946,15 @@ window.TEMAT = {
    "q": "Prostokąt ABCD ma boki |AB| = 12 cm i |AD| = 8 cm. Punkt E leży na boku BC, a punkt F na boku CD, przy czym |BE| = 3 cm i |DF| = 4 cm (zobacz rysunek). Oblicz pole trójkąta AEF. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole jednego z trójkątów ABE (18 cm²), ECF (20 cm²) albo ADF (16 cm²).",
+     "t": "Obliczono pole jednego z trójkątów ABE (18 cm²), ECF (20 cm²) albo ADF (16 cm²).",
      "pts": 1
     },
     {
-     "t": "Zapisałeś poprawny sposób: pole prostokąta minus pola trzech trójkątów, np. 96 − 18 − 20 − 16.",
+     "t": "Zapisano poprawny sposób: pole prostokąta minus pola trzech trójkątów, np. 96 − 18 − 20 − 16.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole trójkąta AEF: 42 cm².",
+     "t": "Obliczono pole trójkąta AEF: 42 cm².",
      "pts": 1
     }
    ],
@@ -1067,15 +1067,15 @@ window.TEMAT = {
    "q": "Ostrosłup prawidłowy czworokątny ma krawędź podstawy długości 10 cm i krawędź boczną długości 13 cm (zobacz rysunek). Oblicz pole powierzchni całkowitej tego ostrosłupa. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość ściany bocznej z twierdzenia Pitagorasa: √(13² − 5²) = 12 cm.",
+     "t": "Obliczono wysokość ściany bocznej z twierdzenia Pitagorasa: √(13² − 5²) = 12 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole powierzchni bocznej: 4 · 10 · 12 : 2 = 240 cm².",
+     "t": "Obliczono pole powierzchni bocznej: 4 · 10 · 12 : 2 = 240 cm².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole powierzchni całkowitej: 100 + 240 = 340 cm².",
+     "t": "Obliczono pole powierzchni całkowitej: 100 + 240 = 340 cm².",
      "pts": 1
     }
    ],

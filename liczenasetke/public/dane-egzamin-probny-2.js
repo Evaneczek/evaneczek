@@ -9,7 +9,7 @@ window.TEMAT = {
  "rules": [
   "Zadania 1–14 są zamknięte, każde za 1 punkt. W każdym jest dokładnie jedna poprawna odpowiedź.",
   "Zadania 15–20 są otwarte, za 2 albo 3 punkty. Rozwiąż je na kartce i zapisuj obliczenia, tak jak na karcie rozwiązań.",
-  "Po zakończeniu zobaczysz rozwiązania i kryteria jak w zasadach oceniania CKE. Punkty za zadania otwarte przyznajesz sobie sam: uczciwie, tak jak egzaminator.",
+  "Po zakończeniu zobaczysz rozwiązania i kryteria jak w zasadach oceniania CKE. Punkty za zadania otwarte przyznajesz sobie samodzielnie: uczciwie, tak jak egzaminator.",
   "Kalkulator jest niedozwolony, tak jak na egzaminie. Rysunki nie zawsze są w skali: licz z danych, a nie z linijki.",
   "Wynik pokaże się w punktach i procentach, razem z wynikiem według działów i listą tematów do powtórki."
  ],
@@ -179,7 +179,7 @@ window.TEMAT = {
    "ok": 1,
    "why": {
     "A": "0,3x i 0,1y to kwoty obniżek, a nie ceny po obniżce.",
-    "C": "Zamieniłeś obniżki: bilet jest tańszy o 30%, więc kosztuje 70% ceny.",
+    "C": "Zamieniono obniżki: bilet jest tańszy o 30%, więc kosztuje 70% ceny.",
     "D": "Procent liczysz od każdej ceny osobno, a nie odejmujesz liczby 0,4."
    },
    "sol": [
@@ -247,8 +247,8 @@ window.TEMAT = {
    "ok": 3,
    "why": {
     "A": "27,70 zł to koszt zakupów, a pytanie dotyczy reszty.",
-    "B": "Policzyłeś 3 kg jabłek zamiast 3,5 kg.",
-    "C": "Odjąłeś tylko cenę jabłek, bez gruszek."
+    "B": "Policzono 3 kg jabłek zamiast 3,5 kg.",
+    "C": "Odjęto tylko cenę jabłek, bez gruszek."
    },
    "sol": [
     "Jabłka: [[3,5 · 4,20 = 14,70]] zł. Gruszki: [[2 · 6,50 = 13]] zł.",
@@ -396,7 +396,7 @@ window.TEMAT = {
    ],
    "ok": 0,
    "why": {
-    "B": "Dodałeś tylko 1 godzinę i 35 minut.",
+    "B": "Dodano tylko 1 godzinę i 35 minut.",
     "C": "45 + 35 = 80 minut, czyli 1 godzina i 20 minut, a nie 30 minut.",
     "D": "Za dużo o godzinę: 18 + 2 + 1 = 21, a nie 22."
    },
@@ -641,11 +641,11 @@ window.TEMAT = {
    "q": "W trzech klasach ósmych jest razem 76 uczniów. W klasie 8b jest o 3 uczniów więcej niż w klasie 8a, a w klasie 8c o 2 uczniów mniej niż w klasie 8a. Ilu uczniów jest w klasie 8b? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś poprawne równanie, np. x + (x + 3) + (x − 2) = 76, gdzie x to liczba uczniów klasy 8a.",
+     "t": "Zapisano poprawne równanie, np. x + (x + 3) + (x − 2) = 76, gdzie x to liczba uczniów klasy 8a.",
      "pts": 1
     },
     {
-     "t": "Rozwiązałeś równanie i podałeś liczbę uczniów klasy 8b: 28.",
+     "t": "Rozwiązano równanie i podano liczbę uczniów klasy 8b: 28.",
      "pts": 1
     }
    ],
@@ -670,15 +670,15 @@ window.TEMAT = {
    "q": "Pani Anna przejechała rowerem 18 km w ciągu 45 minut. Czy jadąc dalej z tą samą średnią prędkością, przejedzie następne 40 km w czasie krótszym niż półtorej godziny? Zapisz obliczenia i odpowiedź.",
    "criteria": [
     {
-     "t": "Obliczyłeś prędkość: 18 km w 45 min, czyli 24 km/h (albo 0,4 km/min).",
+     "t": "Obliczono prędkość: 18 km w 45 min, czyli 24 km/h (albo 0,4 km/min).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś drogę przejechaną w 1,5 h (36 km) albo czas potrzebny na 40 km (1 h 40 min, czyli 100 min).",
+     "t": "Obliczono drogę przejechaną w 1,5 h (36 km) albo czas potrzebny na 40 km (1 h 40 min, czyli 100 min).",
      "pts": 1
     },
     {
-     "t": "Zapisałeś poprawny wniosek: nie, bo 36 km < 40 km (albo 100 min > 90 min).",
+     "t": "Zapisano poprawny wniosek: nie, bo 36 km < 40 km (albo 100 min > 90 min).",
      "pts": 1
     }
    ],
@@ -730,15 +730,15 @@ window.TEMAT = {
    "q": "W szkolnych zawodach wzięło udział 150 uczniów. Każdy startował w jednej konkurencji. Dziewcząt było o 10 mniej niż chłopców. W tabeli podano, ilu chłopców i ile dziewcząt startowało w każdej konkurencji, ale jedna liczba jest zakryta. Jaki procent wszystkich uczestników zawodów stanowili uczestnicy skoku w dal? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś liczbę wszystkich chłopców (80) albo wszystkich dziewcząt (70).",
+     "t": "Obliczono liczbę wszystkich chłopców (80) albo wszystkich dziewcząt (70).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś, ile dziewcząt skakało w dal (25), a więc łącznie 45 uczestników skoku w dal.",
+     "t": "Obliczono, ile dziewcząt skakało w dal (25), a więc łącznie 45 uczestników skoku w dal.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś procent: 45 : 150 = 30%.",
+     "t": "Obliczono procent: 45 : 150 = 30%.",
      "pts": 1
     }
    ],
@@ -767,11 +767,11 @@ window.TEMAT = {
    "q": "Graniastosłup prawidłowy czworokątny ma krawędź podstawy a i wysokość 3a. Ostrosłup prawidłowy czworokątny ma taką samą podstawę i wysokość a. Ile razy objętość graniastosłupa jest większa od objętości ostrosłupa? Uzasadnij odpowiedź, zapisując objętości obu brył za pomocą a.",
    "criteria": [
     {
-     "t": "Zapisałeś objętości obu brył za pomocą a: graniastosłup a² · 3a = 3a³, ostrosłup a² · a : 3 = a³/3.",
+     "t": "Zapisano objętości obu brył za pomocą a: graniastosłup a² · 3a = 3a³, ostrosłup a² · a : 3 = a³/3.",
      "pts": 1
     },
     {
-     "t": "Podałeś odpowiedź z uzasadnieniem: 3a³ : (a³/3) = 9, czyli 9 razy.",
+     "t": "Podano odpowiedź z uzasadnieniem: 3a³ : (a³/3) = 9, czyli 9 razy.",
      "pts": 1
     }
    ],
@@ -861,15 +861,15 @@ window.TEMAT = {
    "q": "Trawnik ma kształt trapezu prostokątnego o podstawach 16 m i 10 m. Ramię prostopadłe do podstaw ma długość 8 m (zobacz rysunek). Jedno opakowanie nasion trawy wystarcza na obsianie 30 m² i kosztuje 18,90 zł. Ile trzeba zapłacić za najmniejszą liczbę opakowań potrzebnych do obsiania całego trawnika? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole trawnika: (16 + 10) · 8 : 2 = 104 m².",
+     "t": "Obliczono pole trawnika: (16 + 10) · 8 : 2 = 104 m².",
      "pts": 1
     },
     {
-     "t": "Ustaliłeś, że potrzeba 4 opakowań (3 opakowania wystarczą tylko na 90 m²).",
+     "t": "Ustalono, że potrzeba 4 opakowań (3 opakowania wystarczą tylko na 90 m²).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś koszt: 4 · 18,90 = 75,60 zł.",
+     "t": "Obliczono koszt: 4 · 18,90 = 75,60 zł.",
      "pts": 1
     }
    ],
@@ -950,15 +950,15 @@ window.TEMAT = {
    "q": "Prostokąt ABCD ma boki |AB| = 10 cm i |BC| = 5 cm. Punkt E jest środkiem boku CD (zobacz rysunek). Oblicz obwód trójkąta ABE. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zapisałeś twierdzenie Pitagorasa dla trójkąta ADE albo BCE: |AE|² = 5² + 5².",
+     "t": "Zapisano twierdzenie Pitagorasa dla trójkąta ADE albo BCE: |AE|² = 5² + 5².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś |AE| = |BE| = √50 = 5√2 cm.",
+     "t": "Obliczono |AE| = |BE| = √50 = 5√2 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś obwód: 10 + 10√2 cm.",
+     "t": "Obliczono obwód: 10 + 10√2 cm.",
      "pts": 1
     }
    ],

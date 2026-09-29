@@ -2354,11 +2354,11 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Zauważyłeś, że trójkąt ADC jest równoramienny i obliczyłeś kąt DCA = 35°.",
+     "t": "Zauważono, że trójkąt ADC jest równoramienny i obliczono kąt DCA = 35°.",
      "pts": 1
     },
     {
-     "t": "Zauważyłeś, że kąty CAB i DCA są naprzemianległe, i podałeś wynik 35°.",
+     "t": "Zauważono, że kąty CAB i DCA są naprzemianległe, i podano wynik 35°.",
      "pts": 1
     }
    ],
@@ -2376,11 +2376,11 @@ window.TEMAT = {
     "q": "W trapezie ABCD (AB ∥ CD) boki AD i DC mają równe długości, a kąt ADC ma 124°. Oblicz miarę kąta CAB. Zapisz obliczenia.",
     "criteria": [
      {
-      "t": "Obliczyłeś kąt DCA = 28°.",
+      "t": "Obliczono kąt DCA = 28°.",
       "pts": 1
      },
      {
-      "t": "Podałeś kąt CAB = 28° z uzasadnieniem (kąty naprzemianległe).",
+      "t": "Podano kąt CAB = 28° z uzasadnieniem (kąty naprzemianległe).",
       "pts": 1
      }
     ],
@@ -2444,11 +2444,11 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Zapisałeś AS = SB i CS = SD (S jest środkiem odcinków) oraz że kąty ASC i BSD są równe, bo są wierzchołkowe.",
+     "t": "Zapisano AS = SB i CS = SD (S jest środkiem odcinków) oraz że kąty ASC i BSD są równe, bo są wierzchołkowe.",
      "pts": 1
     },
     {
-     "t": "Podałeś cechę przystawania bkb i wniosek.",
+     "t": "Podano cechę przystawania bkb i wniosek.",
      "pts": 1
     }
    ],
@@ -2467,11 +2467,11 @@ window.TEMAT = {
     "q": "W czworokącie ABCD boki AB i CD są równe i równoległe. Przekątne przecinają się w punkcie S. Uzasadnij, że trójkąty ABS i CDS są przystające.",
     "criteria": [
      {
-      "t": "Zapisałeś AB = CD oraz równości kątów: BAS = DCS i ABS = CDS (naprzemianległe przy AB ∥ CD).",
+      "t": "Zapisano AB = CD oraz równości kątów: BAS = DCS i ABS = CDS (naprzemianległe przy AB ∥ CD).",
       "pts": 1
      },
      {
-      "t": "Podałeś cechę kbk i wniosek.",
+      "t": "Podano cechę kbk i wniosek.",
       "pts": 1
      }
     ],
@@ -2496,11 +2496,11 @@ window.TEMAT = {
    "q": "W trójkącie ABC kąt A ma 60°, a kąt B jest 2 razy większy od kąta C. Oblicz kąty B i C. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Ułożyłeś równanie 60° + 2x + x = 180° (albo równoważne), gdzie x to kąt C.",
+     "t": "Ułożono równanie 60° + 2x + x = 180° (albo równoważne), gdzie x to kąt C.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś C = 40° i B = 80°.",
+     "t": "Obliczono C = 40° i B = 80°.",
      "pts": 1
     }
    ],
@@ -2519,11 +2519,11 @@ window.TEMAT = {
     "q": "W trójkącie ABC kąt C ma 30°, a kąt A jest o 20° większy od kąta B. Oblicz kąty A i B. Zapisz obliczenia.",
     "criteria": [
      {
-      "t": "Ułożyłeś równanie x + x + 20° + 30° = 180° (albo równoważne).",
+      "t": "Ułożono równanie x + x + 20° + 30° = 180° (albo równoważne).",
       "pts": 1
      },
      {
-      "t": "Obliczyłeś B = 65° i A = 85°.",
+      "t": "Obliczono B = 65° i A = 85°.",
       "pts": 1
      }
     ],
@@ -3067,11 +3067,11 @@ window.TEMAT = {
    "q": "W trapezie ABCD (AB ∥ CD) przekątna AC dzieli kąt DAB na dwa równe kąty. Kąt DAB ma 70°. Oblicz miarę kąta ADC. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś DAC = CAB = 35° i zauważyłeś, że DCA = CAB = 35° (kąty naprzemianległe).",
+     "t": "Obliczono DAC = CAB = 35° i zauważono, że DCA = CAB = 35° (kąty naprzemianległe).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś ADC = 180° − 35° − 35° = 110°.",
+     "t": "Obliczono ADC = 180° − 35° − 35° = 110°.",
      "pts": 1
     }
    ],
@@ -3098,11 +3098,11 @@ window.TEMAT = {
    "q": "Punkt S jest środkiem odcinka AB i środkiem odcinka CD. Uzasadnij, że trójkąty ASD i BSC są przystające.",
    "criteria": [
     {
-     "t": "Zapisałeś AS = SB, DS = SC oraz że kąty ASD i BSC są wierzchołkowe, więc równe.",
+     "t": "Zapisano AS = SB, DS = SC oraz że kąty ASD i BSC są wierzchołkowe, więc równe.",
      "pts": 1
     },
     {
-     "t": "Podałeś cechę bkb i wniosek.",
+     "t": "Podano cechę bkb i wniosek.",
      "pts": 1
     }
    ],

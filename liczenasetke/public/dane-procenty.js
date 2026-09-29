@@ -178,7 +178,7 @@ window.TEMAT = {
    "skills": [
     "S3"
    ],
-   "intro": "„Jaki procent klasy to dziewczęta?”, „Jaki procent zadań rozwiązałeś dobrze?”. Porównujesz tu część z całością i wynik podajesz w procentach.",
+   "intro": "„Jaki procent klasy to dziewczęta?”, „Jaki procent zadań jest rozwiązany dobrze?”. Porównujesz tu część z całością i wynik podajesz w procentach.",
    "rule": {
     "t": "Podziel część przez całość i zamień wynik na procent.",
     "f": [
@@ -2796,15 +2796,15 @@ window.TEMAT = {
    "q": "Sklep kupił rower za 1 200 zł i ustalił cenę sprzedaży o 25% wyższą. Później obniżył cenę sprzedaży o 10%. Ile złotych sklep zarobi na sprzedaży tego roweru po obniżce? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś cenę sprzedaży przed obniżką: 1 200 · 1,25 = 1 500 zł.",
+     "t": "Obliczono cenę sprzedaży przed obniżką: 1 200 · 1,25 = 1 500 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś cenę po obniżce: 1 500 · 0,9 = 1 350 zł.",
+     "t": "Obliczono cenę po obniżce: 1 500 · 0,9 = 1 350 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś zarobek: 1 350 − 1 200 = 150 zł.",
+     "t": "Obliczono zarobek: 1 350 − 1 200 = 150 zł.",
      "pts": 1
     }
    ],
@@ -3107,15 +3107,15 @@ window.TEMAT = {
    "q": "Telewizor kosztował 2 400 zł. W listopadzie jego cenę podniesiono o 15%, a w grudniu nową cenę obniżono o 15%. Czy w grudniu telewizor kosztował mniej niż 2 400 zł? Jeśli tak, to o ile złotych? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś cenę w listopadzie: 2 400 · 1,15 = 2 760 zł.",
+     "t": "Obliczono cenę w listopadzie: 2 400 · 1,15 = 2 760 zł.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś cenę w grudniu: 2 760 · 0,85 = 2 346 zł.",
+     "t": "Obliczono cenę w grudniu: 2 760 · 0,85 = 2 346 zł.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś wniosek: taniej o 54 zł.",
+     "t": "Zapisano wniosek: taniej o 54 zł.",
      "pts": 1
     }
    ],
@@ -3142,11 +3142,11 @@ window.TEMAT = {
    "q": "W bibliotece było 800 książek, z czego 20% stanowiły komiksy. Dokupiono 200 komiksów. Jaki procent wszystkich książek stanowią teraz komiksy? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś liczbę komiksów przed (160) i po (360) oraz liczbę wszystkich książek po zakupie (1 000).",
+     "t": "Obliczono liczbę komiksów przed (160) i po (360) oraz liczbę wszystkich książek po zakupie (1 000).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś procent: 360 : 1 000 = 36%.",
+     "t": "Obliczono procent: 360 : 1 000 = 36%.",
      "pts": 1
     }
    ],
@@ -3470,7 +3470,7 @@ window.TEMAT = {
     "<b>Porównanie z początkiem:</b> taniej o [[1 500 − 1 320 = 180 zł]], a [[180 : 1 500 = 0,12 = 12%]]."
    ],
    "answer": "1 650 zł, 1 320 zł, tańszy o 12%.",
-   "tip": "Jeśli wyszło Ci 10%, to znaczy, że odjąłeś procenty (20% − 10%). Tak nie wolno: dwie zmiany liczy się po kolei.",
+   "tip": "Jeśli wyszło Ci 10%, to znaczy, że odjęto procenty (20% − 10%). Tak nie wolno: dwie zmiany liczy się po kolei.",
    "check": [
     "abs(1500*1.1 - 1650) < 1e-9",
     "abs(1650*0.8 - 1320) < 1e-9",
@@ -3516,11 +3516,11 @@ window.TEMAT = {
    "q": "W sklepie A laptop kosztuje 2 500 zł, a w sklepie B 2 400 zł. Sklep A daje rabat 8%, a sklep B rabat 3%. W którym sklepie laptop będzie tańszy i o ile złotych? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś obie ceny po rabacie: w sklepie A 2 300 zł, w sklepie B 2 328 zł.",
+     "t": "Obliczono obie ceny po rabacie: w sklepie A 2 300 zł, w sklepie B 2 328 zł.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś wniosek: taniej w sklepie A, o 28 zł.",
+     "t": "Zapisano wniosek: taniej w sklepie A, o 28 zł.",
      "pts": 1
     }
    ],

@@ -661,7 +661,7 @@ window.TEMAT = {
        "why": [
         [
          12.5,
-         "Dodałeś wymiary. Objętość to iloczyn."
+         "Dodano wymiary. Objętość to iloczyn."
         ]
        ]
       }
@@ -1795,7 +1795,7 @@ window.TEMAT = {
      "why": [
       [
        12,
-       "Dodałeś wymiary. Objętość to iloczyn."
+       "Dodano wymiary. Objętość to iloczyn."
       ]
      ]
     },
@@ -3013,15 +3013,15 @@ window.TEMAT = {
    "q": "Podstawą graniastosłupa prostego jest trójkąt równoramienny, którego dwa kąty mają miarę po 45°, a najdłuższy bok ma długość 6√2 dm. Jeden z boków prostokąta, który jest w tym graniastosłupie ścianą boczną o największej powierzchni, ma długość 4 dm. Oblicz objętość i pole powierzchni całkowitej tego graniastosłupa. (Przykład z podstawy programowej.)",
    "criteria": [
     {
-     "t": "Zauważyłeś, że podstawa to trójkąt prostokątny równoramienny, i obliczyłeś przyprostokątne: 6 dm (bo przeciwprostokątna to a√2), a także ustaliłeś, że wysokość graniastosłupa to 4 dm.",
+     "t": "Zauważono, że podstawa to trójkąt prostokątny równoramienny, i obliczono przyprostokątne: 6 dm (bo przeciwprostokątna to a√2), a także ustalono, że wysokość graniastosłupa to 4 dm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś objętość: Pp = 6 · 6 : 2 = 18 dm², V = 18 · 4 = 72 dm³.",
+     "t": "Obliczono objętość: Pp = 6 · 6 : 2 = 18 dm², V = 18 · 4 = 72 dm³.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole: Pc = 2 · 18 + (6 + 6 + 6√2) · 4 = 84 + 24√2 dm².",
+     "t": "Obliczono pole: Pc = 2 · 18 + (6 + 6 + 6√2) · 4 = 84 + 24√2 dm².",
      "pts": 1
     }
    ],
@@ -3165,15 +3165,15 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Zauważyłeś trójkąt prostokątny AMS i AM = 5 cm.",
+     "t": "Zauważono trójkąt prostokątny AMS i AM = 5 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś MS = √(169 − 25) = 12 cm.",
+     "t": "Obliczono MS = √(169 − 25) = 12 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś objętość: 10 · 20 · 12 : 3 = 800 cm³.",
+     "t": "Obliczono objętość: 10 · 20 · 12 : 3 = 800 cm³.",
      "pts": 1
     }
    ],
@@ -3228,11 +3228,11 @@ window.TEMAT = {
    "q": "Basen ma kształt prostopadłościanu o wymiarach 25 m × 10 m i głębokość 1,6 m. Wodę nalano do 90% pojemności basenu. Ile metrów sześciennych i ile litrów wody jest w basenie? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pojemność basenu: 25 · 10 · 1,6 = 400 m³.",
+     "t": "Obliczono pojemność basenu: 25 · 10 · 1,6 = 400 m³.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś ilość wody: 90% z 400 = 360 m³ = 360 000 l.",
+     "t": "Obliczono ilość wody: 90% z 400 = 360 m³ = 360 000 l.",
      "pts": 1
     }
    ],
@@ -3679,11 +3679,11 @@ window.TEMAT = {
    "q": "Ostrosłup prawidłowy czworokątny ma krawędź podstawy 8 cm i wysokość 3 cm. Oblicz pole powierzchni całkowitej. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wysokość ściany bocznej: √(3² + 4²) = 5 cm.",
+     "t": "Obliczono wysokość ściany bocznej: √(3² + 4²) = 5 cm.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś Pc = 64 + 4 · 8 · 5 : 2 = 144 cm².",
+     "t": "Obliczono Pc = 64 + 4 · 8 · 5 : 2 = 144 cm².",
      "pts": 1
     }
    ],
@@ -3709,11 +3709,11 @@ window.TEMAT = {
    "q": "Karton soku ma kształt prostopadłościanu 6 cm × 4 cm × 10 cm. Ile takich kartonów można całkowicie napełnić 3 litrami soku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś objętość kartonu: 240 cm³ = 0,24 l.",
+     "t": "Obliczono objętość kartonu: 240 cm³ = 0,24 l.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę pełnych kartonów: 3 000 : 240 = 12,5, czyli 12.",
+     "t": "Obliczono liczbę pełnych kartonów: 3 000 : 240 = 12,5, czyli 12.",
      "pts": 1
     }
    ],

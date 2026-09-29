@@ -414,7 +414,7 @@ window.TEMAT = {
        "why": [
         [
          84,
-         "Zapomniałeś podzielić przez 2."
+         "Zapomniano podzielić przez 2."
         ],
         [
          270,
@@ -1401,7 +1401,7 @@ window.TEMAT = {
       ],
       [
        11.5,
-       "Dodałeś tylko dwa boki. Prostokąt ma cztery."
+       "Dodano tylko dwa boki. Prostokąt ma cztery."
       ]
      ]
     }
@@ -1611,7 +1611,7 @@ window.TEMAT = {
    "why": {
     "A": "66 cm² to iloczyn przekątnych bez dzielenia przez 2.",
     "B": "17 to suma przekątnych, a nie pole.",
-    "D": "Podzieliłeś przez 4 zamiast przez 2."
+    "D": "Podzielono przez 4 zamiast przez 2."
    },
    "sol": [
     "[[6 · 11 : 2 = 33]] cm²."
@@ -1634,7 +1634,7 @@ window.TEMAT = {
     "why": {
      "B": "Brak dzielenia przez 2.",
      "C": "To suma przekątnych.",
-     "D": "Podzieliłeś przez 4 zamiast przez 2."
+     "D": "Podzielono przez 4 zamiast przez 2."
     },
     "sol": [
      "[[14 · 9 : 2 = 63]] dm²."
@@ -1662,7 +1662,7 @@ window.TEMAT = {
      "why": [
       [
        84,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ]
      ]
     }
@@ -1686,7 +1686,7 @@ window.TEMAT = {
       "why": [
        [
         72,
-        "Zapomniałeś podzielić przez 2."
+        "Zapomniano podzielić przez 2."
        ]
       ]
      }
@@ -1805,7 +1805,7 @@ window.TEMAT = {
      "why": [
       [
        108,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ],
       [
        462,
@@ -1833,7 +1833,7 @@ window.TEMAT = {
       "why": [
        [
         96,
-        "Zapomniałeś podzielić przez 2."
+        "Zapomniano podzielić przez 2."
        ]
       ]
      }
@@ -2029,7 +2029,7 @@ window.TEMAT = {
       "why": [
        [
         200.96,
-        "Wstawiłeś średnicę zamiast promienia. r = 4 dm."
+        "Wstawiono średnicę zamiast promienia. r = 4 dm."
        ],
        [
         25.12,
@@ -2139,7 +2139,7 @@ window.TEMAT = {
      "why": [
       [
        48,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ],
       [
        30,
@@ -2742,7 +2742,7 @@ window.TEMAT = {
      "why": [
       [
        1017.36,
-       "Wstawiłeś średnicę zamiast promienia."
+       "Wstawiono średnicę zamiast promienia."
       ]
      ]
     }
@@ -2801,15 +2801,15 @@ window.TEMAT = {
    "q": "Ogród ma kształt prostokąta 20 m na 12 m. W środku jest okrągła fontanna o średnicy 4 m, a reszta ogrodu to trawnik. Na 40 m² trawnika potrzeba 1 kg nasion, a nasiona sprzedaje się w paczkach po 1 kg. Ile paczek trzeba kupić? Przyjmij π ≈ 3,14. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole fontanny: r = 2 m, P = 4π ≈ 12,56 m².",
+     "t": "Obliczono pole fontanny: r = 2 m, P = 4π ≈ 12,56 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole trawnika: 240 − 12,56 = 227,44 m².",
+     "t": "Obliczono pole trawnika: 240 − 12,56 = 227,44 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę paczek z zaokrągleniem w górę: 227,44 : 40 ≈ 5,7, czyli 6 paczek.",
+     "t": "Obliczono liczbę paczek z zaokrągleniem w górę: 227,44 : 40 ≈ 5,7, czyli 6 paczek.",
      "pts": 1
     }
    ],
@@ -2830,15 +2830,15 @@ window.TEMAT = {
     "q": "Ogród ma kształt prostokąta 25 m na 16 m. W środku jest okrągły staw o średnicy 6 m, a reszta to trawnik. 1 kg nasion wystarcza na 50 m² trawnika, a nasiona są w paczkach po 1 kg. Ile paczek trzeba kupić? Przyjmij π ≈ 3,14. Zapisz obliczenia.",
     "criteria": [
      {
-      "t": "Obliczyłeś pole stawu: 9π ≈ 28,26 m².",
+      "t": "Obliczono pole stawu: 9π ≈ 28,26 m².",
       "pts": 1
      },
      {
-      "t": "Obliczyłeś pole trawnika: 400 − 28,26 = 371,74 m².",
+      "t": "Obliczono pole trawnika: 400 − 28,26 = 371,74 m².",
       "pts": 1
      },
      {
-      "t": "Podałeś liczbę paczek: 371,74 : 50 ≈ 7,4, czyli 8 paczek.",
+      "t": "Podano liczbę paczek: 371,74 : 50 ≈ 7,4, czyli 8 paczek.",
       "pts": 1
      }
     ],
@@ -2866,11 +2866,11 @@ window.TEMAT = {
    "q": "Przekątne rombu ABCD mają długości AC = 8 dm i BD = 10 dm. Przekątną BD przedłużono do punktu E tak, że odcinek BE jest dwa razy dłuższy od tej przekątnej. Oblicz pole trójkąta CDE. (Zadanie ma dwie odpowiedzi.)",
    "criteria": [
     {
-     "t": "Zauważyłeś, że wysokość trójkąta CDE opuszczona z C na prostą BD ma 4 dm (połowa AC), i obliczyłeś pole w jednym przypadku.",
+     "t": "Zauważono, że wysokość trójkąta CDE opuszczona z C na prostą BD ma 4 dm (połowa AC), i obliczono pole w jednym przypadku.",
      "pts": 1
     },
     {
-     "t": "Rozważyłeś oba położenia punktu E i podałeś obie odpowiedzi: 20 dm² i 60 dm².",
+     "t": "Rozważono oba położenia punktu E i podano obie odpowiedzi: 20 dm² i 60 dm².",
      "pts": 1
     }
    ],
@@ -3008,11 +3008,11 @@ window.TEMAT = {
    },
    "criteria": [
     {
-     "t": "Obliczyłeś promień kół: 40 : 4 = 10 cm i pole czterech kół: 400π ≈ 1 256 cm².",
+     "t": "Obliczono promień kół: 40 : 4 = 10 cm i pole czterech kół: 400π ≈ 1 256 cm².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś odpad: 1 600 − 1 256 = 344 cm².",
+     "t": "Obliczono odpad: 1 600 − 1 256 = 344 cm².",
      "pts": 1
     }
    ],
@@ -3073,7 +3073,7 @@ window.TEMAT = {
       ],
       [
        1,
-       "Zapomniałeś podzielić przez 2."
+       "Zapomniano podzielić przez 2."
       ]
      ]
     }
@@ -3304,7 +3304,7 @@ window.TEMAT = {
    "why": {
     "A": "Brak dzielenia przez 2.",
     "C": "To suma przekątnych.",
-    "D": "Podzieliłeś przez 4 zamiast przez 2."
+    "D": "Podzielono przez 4 zamiast przez 2."
    },
    "sol": [
     "[[12 · 7 : 2 = 42]] cm²."
@@ -3579,11 +3579,11 @@ window.TEMAT = {
    "q": "Kwadrat ABCD ma bok 12 cm. Punkty K, L, M, N leżą na bokach AB, BC, CD, DA i AK = BL = CM = DN = 4 cm. Oblicz pole czworokąta KLMN. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole jednego trójkąta w rogu: 4 · 8 : 2 = 16 cm² (albo wszystkich: 64 cm²).",
+     "t": "Obliczono pole jednego trójkąta w rogu: 4 · 8 : 2 = 16 cm² (albo wszystkich: 64 cm²).",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś pole KLMN: 144 − 64 = 80 cm².",
+     "t": "Obliczono pole KLMN: 144 − 64 = 80 cm².",
      "pts": 1
     }
    ],
@@ -3608,11 +3608,11 @@ window.TEMAT = {
    "q": "Okrągły klomb o średnicy 6 m obsadzono bratkami: 9 sztuk na każdy metr kwadratowy. Ile bratków trzeba kupić? Przyjmij π ≈ 3,14. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś pole klombu: r = 3 m, P = 9π ≈ 28,26 m².",
+     "t": "Obliczono pole klombu: r = 3 m, P = 9π ≈ 28,26 m².",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę bratków z zaokrągleniem w górę: 9 · 28,26 = 254,34, czyli 255.",
+     "t": "Obliczono liczbę bratków z zaokrągleniem w górę: 9 · 28,26 = 254,34, czyli 255.",
      "pts": 1
     }
    ],

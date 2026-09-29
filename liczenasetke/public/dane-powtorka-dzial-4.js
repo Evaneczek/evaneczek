@@ -93,7 +93,7 @@ window.TEMAT = {
      "ok": 0,
      "why": {
       "B": "2/5 to liczby mniejsze od 5 (2 i 4).",
-      "C": "Pominąłeś liczbę x. Liczb jest pięć, a x = 5 · 6 − 20 = 10.",
+      "C": "Pominięto liczbę x. Liczb jest pięć, a x = 5 · 6 − 20 = 10.",
       "D": "Liczby 2 i 4 są mniejsze od 5."
      },
      "sol": [
@@ -539,7 +539,7 @@ window.TEMAT = {
     "why": {
      "B": "72 to kąt, a nie procent.",
      "C": "25% to 90°.",
-     "D": "Podzieliłeś przez 10. Procent: 72 : 360 · 100%."
+     "D": "Podzielono przez 10. Procent: 72 : 360 · 100%."
     },
     "sol": [
      "[[72° : 360° = 0,2 = 20%]]."
@@ -899,7 +899,7 @@ window.TEMAT = {
    "ok": 3,
    "why": {
     "A": "Liczba 7 nie jest dwucyfrowa.",
-    "B": "Pominąłeś 17 albo 97.",
+    "B": "Pominięto 17 albo 97.",
     "C": "90 to wszystkie liczby dwucyfrowe."
    },
    "sol": [
@@ -1296,7 +1296,7 @@ window.TEMAT = {
     ],
     "ok": 2,
     "why": {
-     "A": "Pominąłeś x = 8, które też jest większe od 5.",
+     "A": "Pominięto x = 8, które też jest większe od 5.",
      "B": "4 nie jest większe od 5.",
      "D": "Liczb jest cztery razem z x."
     },
@@ -1348,15 +1348,15 @@ window.TEMAT = {
    "q": "Diagram pokazuje, ile książek przeczytało w wakacje czworo uczniów. Ewa też czytała, ale jej wyniku nie ma na diagramie. Średnia liczba książek przeczytanych przez całą piątkę to 5. Ile książek przeczytała Ewa? O ile procent więcej książek przeczytał Bartek niż Darek? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Odczytałeś wartości 4, 7, 2, 5 i obliczyłeś ich sumę: 18.",
+     "t": "Odczytano wartości 4, 7, 2, 5 i obliczono ich sumę: 18.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś liczbę książek Ewy: 5 · 5 − 18 = 7.",
+     "t": "Obliczono liczbę książek Ewy: 5 · 5 − 18 = 7.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś: (7 − 5) : 5 = 0,4, czyli o 40%.",
+     "t": "Obliczono: (7 − 5) : 5 = 0,4, czyli o 40%.",
      "pts": 1
     }
    ],
@@ -1439,15 +1439,15 @@ window.TEMAT = {
    "q": "Z cyfr 1, 2, 3 i 4 tworzymy wszystkie liczby dwucyfrowe o różnych cyfrach. Losujemy jedną z nich. Oblicz prawdopodobieństwo, że wylosowana liczba jest parzysta i większa od 20. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Wypisałeś 12 liczb: 12, 13, 14, 21, 23, 24, 31, 32, 34, 41, 42, 43.",
+     "t": "Wypisano 12 liczb: 12, 13, 14, 21, 23, 24, 31, 32, 34, 41, 42, 43.",
      "pts": 1
     },
     {
-     "t": "Wskazałeś sprzyjające: 24, 32, 34, 42.",
+     "t": "Wskazano sprzyjające: 24, 32, 34, 42.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś P = 4/12 = 1/3.",
+     "t": "Obliczono P = 4/12 = 1/3.",
      "pts": 1
     }
    ],
@@ -1501,11 +1501,11 @@ window.TEMAT = {
    "q": "Średnia wieku trzech braci to 12 lat. Najstarszy ma 16 lat, a najmłodszy 8 lat. Ile lat ma średni brat? Jaka będzie średnia wieku braci za 3 lata? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś wiek średniego brata: 3 · 12 − 16 − 8 = 12 lat.",
+     "t": "Obliczono wiek średniego brata: 3 · 12 − 16 − 8 = 12 lat.",
      "pts": 1
     },
     {
-     "t": "Podałeś średnią za 3 lata: 15 lat (każdy jest starszy o 3, więc średnia rośnie o 3).",
+     "t": "Podano średnią za 3 lata: 15 lat (każdy jest starszy o 3, więc średnia rośnie o 3).",
      "pts": 1
     }
    ],
@@ -1553,15 +1553,15 @@ window.TEMAT = {
    "q": "W pudełku są kule białe i czarne. Prawdopodobieństwo wylosowania kuli białej jest równe 3/7. Po dołożeniu 4 kul białych prawdopodobieństwo to wzrosło do 7/11. Ile kul było w pudełku na początku? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Zauważyłeś, że liczba kul czarnych się nie zmienia: na początku to 4/7 wszystkich, a potem 4/11 wszystkich.",
+     "t": "Zauważono, że liczba kul czarnych się nie zmienia: na początku to 4/7 wszystkich, a potem 4/11 wszystkich.",
      "pts": 1
     },
     {
-     "t": "Ułożyłeś równanie, np. dla czarnych c: 7c/4 + 4 = 11c/4, albo dla wszystkich n: 4n/7 = 4(n + 4)/11.",
+     "t": "Ułożono równanie, np. dla czarnych c: 7c/4 + 4 = 11c/4, albo dla wszystkich n: 4n/7 = 4(n + 4)/11.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś: 4 czarne, na początku 7 kul (3 białe i 4 czarne).",
+     "t": "Obliczono: 4 czarne, na początku 7 kul (3 białe i 4 czarne).",
      "pts": 1
     }
    ],
@@ -1616,11 +1616,11 @@ window.TEMAT = {
    "q": "Sklep sprzedał w ciągu tygodnia 200 kg owoców: 90 kg jabłek, 50 kg gruszek, 40 kg śliwek, a resztę stanowiły wiśnie. Oblicz, jaki procent sprzedanych owoców stanowił każdy rodzaj, i kąty wycinków diagramu kołowego. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś masę wiśni (20 kg) i procenty: 45%, 25%, 20%, 10%.",
+     "t": "Obliczono masę wiśni (20 kg) i procenty: 45%, 25%, 20%, 10%.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś kąty: 162°, 90°, 72°, 36°.",
+     "t": "Obliczono kąty: 162°, 90°, 72°, 36°.",
      "pts": 1
     }
    ],
@@ -1673,11 +1673,11 @@ window.TEMAT = {
    "q": "Losujemy jedną liczbę spośród liczb od 1 do 100. Oblicz prawdopodobieństwo, że w jej zapisie występuje cyfra 7. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Policzyłeś liczby z cyfrą 7: 7, 17, …, 97 (10 liczb) i 70–79 (10 liczb), z 77 policzoną raz, czyli 19.",
+     "t": "Policzono liczby z cyfrą 7: 7, 17, …, 97 (10 liczb) i 70–79 (10 liczb), z 77 policzoną raz, czyli 19.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś P = 19/100.",
+     "t": "Obliczono P = 19/100.",
      "pts": 1
     }
    ],
@@ -2193,15 +2193,15 @@ window.TEMAT = {
    "q": "Diagram pokazuje, ile punktów zdobyła drużyna w pięciu meczach. Oblicz średnią liczbę punktów na mecz. Ile punktów drużyna musi zdobyć w szóstym meczu, żeby średnia wzrosła o 1? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Odczytałeś wyniki i obliczyłeś sumę: 12 + 18 + 9 + 15 + 21 = 75.",
+     "t": "Odczytano wyniki i obliczono sumę: 12 + 18 + 9 + 15 + 21 = 75.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś średnią: 75 : 5 = 15.",
+     "t": "Obliczono średnią: 75 : 5 = 15.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś wynik szóstego meczu: 6 · 16 − 75 = 21 punktów.",
+     "t": "Obliczono wynik szóstego meczu: 6 · 16 − 75 = 21 punktów.",
      "pts": 1
     }
    ],
@@ -2228,15 +2228,15 @@ window.TEMAT = {
    "q": "Z cyfr 0, 2, 5 i 7 tworzymy wszystkie liczby dwucyfrowe o różnych cyfrach. Losujemy jedną z nich. Oblicz prawdopodobieństwo, że wylosowana liczba jest podzielna przez 5. Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Wypisałeś 9 liczb: 20, 25, 27, 50, 52, 57, 70, 72, 75 (bez zera na początku).",
+     "t": "Wypisano 9 liczb: 20, 25, 27, 50, 52, 57, 70, 72, 75 (bez zera na początku).",
      "pts": 1
     },
     {
-     "t": "Wskazałeś 5 liczb podzielnych przez 5: 20, 25, 50, 70, 75.",
+     "t": "Wskazano 5 liczb podzielnych przez 5: 20, 25, 50, 70, 75.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś P = 5/9.",
+     "t": "Obliczono P = 5/9.",
      "pts": 1
     }
    ],
@@ -2262,11 +2262,11 @@ window.TEMAT = {
    "q": "W pudełku jest 20 kul czerwonych i zielonych. Prawdopodobieństwo wylosowania kuli czerwonej jest równe 3/4. Ile kul zielonych trzeba dołożyć, żeby to prawdopodobieństwo było równe 3/5? Zapisz obliczenia.",
    "criteria": [
     {
-     "t": "Obliczyłeś: 15 kul czerwonych i 5 zielonych.",
+     "t": "Obliczono: 15 kul czerwonych i 5 zielonych.",
      "pts": 1
     },
     {
-     "t": "Obliczyłeś: czerwone to 3/5 wszystkich, więc wszystkich ma być 25; trzeba dołożyć 5 zielonych.",
+     "t": "Obliczono: czerwone to 3/5 wszystkich, więc wszystkich ma być 25; trzeba dołożyć 5 zielonych.",
      "pts": 1
     }
    ],

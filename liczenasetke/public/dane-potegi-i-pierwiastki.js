@@ -1939,11 +1939,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że 2¹⁰ + 2¹⁰ + 2¹¹ = 2¹².",
    "criteria": [
     {
-     "t": "Zapisałeś, że 2¹⁰ + 2¹⁰ = 2 · 2¹⁰ = 2¹¹.",
+     "t": "Zapisano, że 2¹⁰ + 2¹⁰ = 2 · 2¹⁰ = 2¹¹.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś, że 2¹¹ + 2¹¹ = 2 · 2¹¹ = 2¹², i wniosek.",
+     "t": "Zapisano, że 2¹¹ + 2¹¹ = 2 · 2¹¹ = 2¹², i wniosek.",
      "pts": 1
     }
    ],
@@ -1968,11 +1968,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że liczba √50 − √2 jest większa od 5, ale mniejsza od 6.",
    "criteria": [
     {
-     "t": "Uprościłeś: √50 − √2 = 5√2 − √2 = 4√2.",
+     "t": "Uproszczono: √50 − √2 = 5√2 − √2 = 4√2.",
      "pts": 1
     },
     {
-     "t": "Porównałeś: 4√2 = √32, a 25 < 32 < 36, więc 5 < 4√2 < 6, i zapisałeś wniosek.",
+     "t": "Porównano: 4√2 = √32, a 25 < 32 < 36, więc 5 < 4√2 < 6, i zapisano wniosek.",
      "pts": 1
     }
    ],
@@ -2101,11 +2101,11 @@ window.TEMAT = {
    "q": "Trójkąt ma boki długości √12, √27 i √48. Uzasadnij, że jego obwód jest równy 9√3.",
    "criteria": [
     {
-     "t": "Wyłączyłeś czynniki: √12 = 2√3, √27 = 3√3, √48 = 4√3.",
+     "t": "Wyłączono czynniki: √12 = 2√3, √27 = 3√3, √48 = 4√3.",
      "pts": 1
     },
     {
-     "t": "Dodałeś: 2√3 + 3√3 + 4√3 = 9√3 i zapisałeś wniosek.",
+     "t": "Dodano: 2√3 + 3√3 + 4√3 = 9√3 i zapisano wniosek.",
      "pts": 1
     }
    ],
@@ -2411,11 +2411,11 @@ window.TEMAT = {
    "q": "Uzasadnij, że 2²⁰ + 2²⁰ + 2²⁰ + 2²⁰ = 2²².",
    "criteria": [
     {
-     "t": "Zapisałeś sumę czterech składników jako 4 · 2²⁰.",
+     "t": "Zapisano sumę czterech składników jako 4 · 2²⁰.",
      "pts": 1
     },
     {
-     "t": "Zapisałeś 4 · 2²⁰ = 2² · 2²⁰ = 2²² i wniosek.",
+     "t": "Zapisano 4 · 2²⁰ = 2² · 2²⁰ = 2²² i wniosek.",
      "pts": 1
     }
    ],

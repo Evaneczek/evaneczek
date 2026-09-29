@@ -336,7 +336,7 @@ window.TEMAT = {
    "why": {
     "A": "O 1 kg mniej to nie o 1 zł mniej. Najpierw policz cenę 1 kg.",
     "B": "5,50 zł to cena 1 kg, a trzeba 3 kg.",
-    "C": "Pomnożyłeś cenę 4 kg przez 3."
+    "C": "Pomnożono cenę 4 kg przez 3."
    },
    "sol": [
     "1 kg: [[22 : 4 = 5,50]] zł.",
@@ -423,7 +423,7 @@ window.TEMAT = {
    ],
    "ok": 3,
    "why": {
-    "A": "Zapomniałeś podzielić przez 2.",
+    "A": "Zapomniano podzielić przez 2.",
     "B": "Nie mnoży się wszystkich liczb. Pole trapezu to (a + b) · h : 2.",
     "C": "16 to suma 7 + 5 + 4, a nie pole."
    },
@@ -513,7 +513,7 @@ window.TEMAT = {
    "ok": 2,
    "why": {
     "A": "To połowy różnic współrzędnych. Środek to średnie: (−2 + 6) : 2 i (5 + 1) : 2.",
-    "B": "Nie podzieliłeś sum przez 2.",
+    "B": "Nie podzielono sum przez 2.",
     "D": "(−2 − 6) : 2 i (5 − 1) : 2 to połowy różnic, a współrzędne trzeba dodać."
    },
    "sol": [
@@ -544,7 +544,7 @@ window.TEMAT = {
    "why": {
     "B": "10 to suma wymiarów, a objętość to ich iloczyn.",
     "C": "62 to pole powierzchni (w cm²), a nie objętość.",
-    "D": "Pomnożyłeś tylko dwa wymiary. Objętość: 2 · 3 · 5."
+    "D": "Pomnożono tylko dwa wymiary. Objętość: 2 · 3 · 5."
    },
    "sol": [
     "[[V = 2 · 3 · 5 = 30]] cm³."
