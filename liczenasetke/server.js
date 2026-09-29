@@ -26,6 +26,7 @@ const GOOGLE_TOKENINFO = ENV.GOOGLE_TOKENINFO || "https://oauth2.googleapis.com/
 const RESEND_KEY = ENV.RESEND_API_KEY || "";
 const RESEND_API = ENV.RESEND_API || "https://api.resend.com";
 const MAIL_FROM = ENV.MAIL_FROM || "Liczę na Setkę <kontakt@liczenasetke.pl>";
+const REPLY_TO = ENV.REPLY_TO || "liczenasetke@gmail.com";   // odpowiedzi rodziców na nasze maile trafiają do skrzynki supportu
 // dostęp „Do dnia egzaminu”: do końca 11 maja 2027 r. czasu polskiego
 const EXAM_END = Date.parse(ENV.EXAM_END || "2027-05-11T23:59:59+02:00");
 const FREE = new Set(["dane-procenty.js"]);          // darmowy temat
@@ -174,7 +175,7 @@ async function sendMail(to, subject, html) {
   if (!RESEND_KEY) { log("[e-mail bez wysyłki]", to, subject); return true; }
   const r = await fetch(RESEND_API + "/emails", {
     method: "POST", headers: { Authorization: "Bearer " + RESEND_KEY, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: MAIL_FROM, to: [to], subject, html })
+    body: JSON.stringify({ from: MAIL_FROM, to: [to], reply_to: REPLY_TO, subject, html })
   });
   if (!r.ok) log("błąd wysyłki e-mail", r.status, await r.text());
   return r.ok;
