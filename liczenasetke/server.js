@@ -55,7 +55,13 @@ CREATE TABLE IF NOT EXISTS payments (
   id INTEGER PRIMARY KEY, user_id INTEGER, kind TEXT, stripe_id TEXT, amount INTEGER, at INTEGER NOT NULL);
 `);
 const q = sql => db.prepare(sql);
-try { db.exec("ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0"); } catch (e) { /* kolumna już jest */ }
+for (const sql of ["ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0", "ALTER TABLE users ADD COLUMN weekly_opt INTEGER DEFAULT 1",
+  "ALTER TABLE users ADD COLUMN marketing INTEGER DEFAULT 0", "ALTER TABLE magic ADD COLUMN code_hash TEXT", "ALTER TABLE magic ADD COLUMN tries INTEGER DEFAULT 0",
+  "CREATE TABLE IF NOT EXISTS claims (cs TEXT PRIMARY KEY, at INTEGER NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS weekly_snap (student_id INTEGER PRIMARY KEY, data TEXT NOT NULL, at INTEGER NOT NULL)"])
+  try { db.exec(sql); } catch (e) { /* już jest */ }
+const CONTACT = ENV.CONTACT_EMAIL || "kontakt@liczenasetke.pl";
+const META_PIXEL_ID = ENV.META_PIXEL_ID || "";
 
 // ---------- narzędzia ----------
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
@@ -83,6 +89,14 @@ function limited(key, max, ms) {
   arr.push(t); hits.set(key, arr);
   return arr.length > max;
 }
+
+// ---------- program kursu z public/program.js (tytuły tematów w mailach) ----------
+let TOPICS = [];
+try {
+  const src = fs.readFileSync(path.join(PUBLIC, "program.js"), "utf8");
+  const prog = JSON.parse(src.slice(src.indexOf("["), src.lastIndexOf("]") + 1));
+  TOPICS = prog.flatMap(d => d.topics.map(t => ({ ...t, dzial: d.label })));
+} catch (e) { log("nie udało się wczytać programu kursu:", e.message); }
 
 // ---------- konta ----------
 function userByEmail(email) { return q("SELECT * FROM users WHERE email = ?").get(email.toLowerCase()); }
@@ -212,7 +226,8 @@ function applySubscription(sub, userId) {
 // a sekret webhooka zapisuje w bazie. Ceny i sekret można też podać ręcznie w zmiennych.
 const LOOKUP = { exam: "lns_exam_199", monthly: "lns_monthly_49" };
 const EVENTS = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "customer.subscription.created",
-  "customer.subscription.updated", "customer.subscription.deleted", "charge.refunded"];
+  "customer.subscription.updated", "customer.subscription.deleted", "charge.refunded", "checkout.session.expired"];
+const EVENTS_V = "2";
 const setting = k => { const r = q("SELECT value FROM settings WHERE key = ?").get(k); return r ? r.value : ""; };
 const setSetting = (k, v) => q("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(k, v);
 async function stripeSetup() {
@@ -260,24 +275,45 @@ async function stripeSetup() {
   try {
     const list = await stripe("GET", "/v1/webhook_endpoints?limit=100");
     const mine = (list.data || []).filter(w => w.url === url);
-    if (saved && mine.length) { STRIPE_WH = saved; return; }
+    if (saved && mine.length) {
+      STRIPE_WH = saved;
+      if (setting("wh_events_" + mode) !== EVENTS_V) {
+        await stripe("POST", "/v1/webhook_endpoints/" + mine[0].id, { enabled_events: Object.fromEntries(EVENTS.map((e, i) => [i, e])) });
+        setSetting("wh_events_" + mode, EVENTS_V); log("Stripe: zaktualizowano zdarzenia webhooka");
+      }
+      return;
+    }
     for (const w of mine) await stripe("DELETE", "/v1/webhook_endpoints/" + w.id);   // sekretu starego nie da się odczytać
     const wh = await stripe("POST", "/v1/webhook_endpoints", { url, enabled_events: Object.fromEntries(EVENTS.map((e, i) => [i, e])),
       description: "Liczę na Setkę: dostęp po płatności" });
-    setSetting(key, wh.secret); STRIPE_WH = wh.secret;
+    setSetting(key, wh.secret); STRIPE_WH = wh.secret; setSetting("wh_events_" + mode, EVENTS_V);
     log("Stripe: utworzono webhook", wh.id);
   } catch (e) { log("Stripe: nie udało się utworzyć webhooka:", e.message); }
 }
 
+function userForSession(s) {
+  const userId = Number(s.client_reference_id || (s.metadata && s.metadata.user_id)) || 0;
+  let u = userId ? q("SELECT * FROM users WHERE id = ?").get(userId) : null;
+  const email = (s.customer_details && s.customer_details.email) || s.customer_email;
+  if (!u && validEmail(email || "")) u = ensureUser(email);     // zakup bez logowania: konto zakłada się samo
+  return u;
+}
 async function onCheckoutDone(s) {
-  const userId = Number(s.client_reference_id || (s.metadata && s.metadata.user_id));
-  const u = q("SELECT * FROM users WHERE id = ?").get(userId);
-  if (!u) { log("płatność bez konta", s.id); return; }
+  let u = userForSession(s);
+  if (!u) { log("płatność bez konta i bez e-maila", s.id); return; }
+  const isNew = u.created_at > now() - 10 * 60000;
+  if (s.consent && s.consent.promotions === "opt_in") q("UPDATE users SET marketing = 1 WHERE id = ?").run(u.id);
+  const hadSub = u.sub_id && ["active", "trialing", "past_due"].includes(u.sub_status) && !u.sub_cancel_at_end;
   if (s.customer) q("UPDATE users SET stripe_customer = ? WHERE id = ?").run(s.customer, u.id);
   if (s.mode === "payment") {
     if (s.payment_status !== "paid") return;   // płatność odroczona: czekamy na async_payment_succeeded
     q("UPDATE users SET exam_until = ?, revoked_at = NULL WHERE id = ?").run(EXAM_END, u.id);
     q("INSERT INTO payments (user_id, kind, stripe_id, amount, at) VALUES (?, 'exam', ?, ?, ?)").run(u.id, s.payment_intent || s.id, s.amount_total || 0, now());
+    // przejście z planu miesięcznego na „do egzaminu”: subskrypcja kończy się z opłaconym miesiącem, bez kolejnych płatności
+    if (hadSub) try {
+      const sub = await stripe("POST", "/v1/subscriptions/" + u.sub_id, { cancel_at_period_end: true });
+      applySubscription(sub, u.id); log("przejście na plan do egzaminu, subskrypcja wygaśnie", u.id);
+    } catch (e) { log("nie udało się wyłączyć subskrypcji po przejściu:", e.message); }
   } else if (s.mode === "subscription" && s.subscription) {
     const sub = typeof s.subscription === "object" ? s.subscription : await stripe("GET", "/v1/subscriptions/" + s.subscription);
     applySubscription(sub, u.id);
@@ -287,10 +323,33 @@ async function onCheckoutDone(s) {
   await sendMail(u.email, "Dostęp do kursu Liczę na Setkę jest aktywny", mailWrap(`
     <h2 style="margin:0 0 12px">Dziękujemy! Dostęp jest aktywny.</h2>
     <p>Plan: <b>${plan}</b>.</p>
+    ${isNew ? `<p>Konto założyliśmy na ten adres e-mail. Logujesz się bez hasła: przyciskiem „Kontynuuj z Google” (jeśli to adres Google) albo kodem wysłanym na ten adres.</p>` : ""}
+    ${hadSub && s.mode === "payment" ? `<p>Twoja subskrypcja miesięczna wyłączy się sama na koniec opłaconego miesiąca. Kolejnych płatności już nie będzie.</p>` : ""}
     <p>Dziecko może zacząć od testu startowego: pokaże, od którego tematu zacząć. Login i PIN dla dziecka ustawisz w panelu rodzica.</p>
     <p><a href="${BASE_URL}/konto.html" style="display:inline-block;background:#ffc233;color:#16181d;border:2px solid #16181d;border-radius:10px;padding:10px 18px;font-weight:bold;text-decoration:none">Przejdź do panelu rodzica</a></p>
-    <p>Masz 14 dni od zakupu na zwrot pieniędzy bez podawania przyczyny: wystarczy odpowiedzieć na tę wiadomość.
+    <p>Masz 14 dni od zakupu na zwrot pieniędzy bez podawania przyczyny: wystarczy odpowiedzieć na tę wiadomość albo napisać na ${CONTACT}.
     Regulamin kursu: <a href="${BASE_URL}/regulamin.html">${BASE_URL}/regulamin.html</a>.</p>`));
+}
+// porzucona płatność: jedno przypomnienie, tylko za zgodą na wiadomości (zaznaczoną w płatności albo wcześniej)
+async function onCheckoutExpired(o) {
+  const email = ((o.customer_details && o.customer_details.email) || o.customer_email || "").toLowerCase();
+  let u = Number(o.client_reference_id) ? q("SELECT * FROM users WHERE id = ?").get(Number(o.client_reference_id)) : (email ? userByEmail(email) : null);
+  const to = (u && u.email) || email;
+  const consent = (o.consent && o.consent.promotions === "opt_in") || (u && u.marketing);
+  if (!to || !validEmail(to) || !consent) return;
+  if (u && access(u).active) return;
+  const key = "rem_" + to;
+  if (Number(setting(key) || 0) > now() - 14 * DAY) return;
+  setSetting(key, String(now()));
+  const back = (o.after_expiration && o.after_expiration.recovery && o.after_expiration.recovery.url) || BASE_URL + "/cennik.html";
+  await sendMail(to, "Płatność za kurs czeka na dokończenie", mailWrap(`
+    <h2 style="margin:0 0 12px">Zostało tylko dokończyć płatność</h2>
+    <p>Zaczęliście zakup kursu matematyki do egzaminu ósmoklasisty, ale płatność nie została dokończona. Nic nie zostało pobrane.</p>
+    <p><a href="${back}" style="display:inline-block;background:#ffc233;color:#16181d;border:2px solid #16181d;border-radius:10px;padding:10px 18px;font-weight:bold;text-decoration:none">Dokończ zakup</a></p>
+    <p>Pełny dostęp: 20 tematów, test startowy, 2 egzaminy próbne i panel rodzica. Po zakupie masz 14 dni na zwrot pieniędzy bez podawania przyczyny.</p>
+    <p>Masz pytanie? Odpowiedz na tę wiadomość albo napisz na ${CONTACT}.</p>
+    <p style="color:#5e5a51;font-size:13px">To jedyne przypomnienie. Dostajesz je, bo przy płatności była zaznaczona zgoda na wiadomości od nas.</p>`));
+  log("przypomnienie o płatności wysłane");
 }
 async function onStripeEvent(ev) {
   const o = ev.data && ev.data.object;
@@ -303,6 +362,7 @@ async function onStripeEvent(ev) {
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
       applySubscription(o, Number(o.metadata && o.metadata.user_id) || null); break;
+    case "checkout.session.expired": await onCheckoutExpired(o); break;
     case "charge.refunded": {
       // zwrot (gwarancja 14 dni): odbieramy dostęp; subskrypcję trzeba też anulować w panelu Stripe
       if (o.amount_refunded < o.amount) break;
@@ -379,7 +439,7 @@ async function api(req, res, url) {
   if (m !== "GET" && !sameOrigin(req)) return json(res, 403, { error: "Niedozwolone źródło żądania" });
 
   if (p === "/api/config" && m === "GET")
-    return json(res, 200, { googleClientId: GOOGLE_ID, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
+    return json(res, 200, { googleClientId: GOOGLE_ID, metaPixelId: META_PIXEL_ID, contact: CONTACT, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
       stripeMode: STRIPE_KEY ? (/_live_/.test(STRIPE_KEY) ? "live" : "test") : null, email: !!RESEND_KEY,
       branding: setting("branding") || null, brandingError: setting("branding_error") || null, checkoutError: setting("checkout_error") || null, portal: !!setting("portal_" + (/_live_/.test(STRIPE_KEY) ? "live" : "test")) });
 
@@ -391,7 +451,7 @@ async function api(req, res, url) {
       role: s.role, email: s.role === "parent" ? s.user.email : undefined,
       student: s.role === "student" ? st.find(x => x.id === s.student_id) : undefined,
       students: s.role === "parent" ? st : undefined, learner: s.learner,
-      access: access(s.user), progressAt: pr ? pr.updated_at : 0
+      access: access(s.user), progressAt: pr ? pr.updated_at : 0, weekly: s.role === "parent" ? !!s.user.weekly_opt : undefined
     });
   }
 
@@ -413,15 +473,29 @@ async function api(req, res, url) {
     const b = await jsonBody(req), email = String(b.email || "").trim().toLowerCase();
     if (!validEmail(email)) return json(res, 400, { error: "Wpisz poprawny adres e-mail." });
     if (limited("e:" + email, 5, 3600000) || limited("ei:" + ip(req), 20, 3600000)) return json(res, 429, { error: "Wysłaliśmy już kilka linków. Sprawdź skrzynkę (także folder Oferty i Spam) albo spróbuj za godzinę." });
-    const t = token();
-    q("INSERT INTO magic (token_hash, email, next, expires) VALUES (?, ?, ?, ?)").run(sha(t), email, safeNext(b.next), now() + 30 * 60000);
+    const t = token(), code = String(crypto.randomInt(0, 1000000)).padStart(6, "0");
+    q("INSERT INTO magic (token_hash, email, next, expires, code_hash) VALUES (?, ?, ?, ?, ?)").run(sha(t), email, safeNext(b.next), now() + 30 * 60000, sha(email + ":" + code));
     const link = `${BASE_URL}/api/auth/link?t=${t}`;
-    const sent = await sendMail(email, "Twój link do logowania w kursie Liczę na Setkę", mailWrap(`
-      <h2 style="margin:0 0 12px">Zaloguj się jednym kliknięciem</h2>
+    const sent = await sendMail(email, `Kod logowania: ${code} · Liczę na Setkę`, mailWrap(`
+      <h2 style="margin:0 0 12px">Twój kod do logowania</h2>
+      <p style="font-size:34px;font-weight:bold;letter-spacing:8px;background:#fff0c7;border:2px solid #16181d;border-radius:12px;padding:10px 18px;display:inline-block;margin:4px 0">${code}</p>
+      <p>Wpisz ten kod na stronie logowania. Możesz też kliknąć przycisk poniżej (zaloguje Cię w przeglądarce, w której otworzy się link):</p>
       <p><a href="${link}" style="display:inline-block;background:#ffc233;color:#16181d;border:2px solid #16181d;border-radius:10px;padding:10px 18px;font-weight:bold;text-decoration:none">Zaloguj się do kursu</a></p>
-      <p>Link działa przez 30 minut i tylko raz. Jeśli nie prosisz o logowanie, po prostu zignoruj tę wiadomość.</p>`));
+      <p>Kod i link działają przez 30 minut. Jeśli nie prosisz o logowanie, po prostu zignoruj tę wiadomość.</p>`));
     if (!sent) return json(res, 502, { error: "Nie udało się wysłać wiadomości. Spróbuj ponownie za chwilę." });
-    return json(res, 200, DEV ? { ok: true, devLink: link } : { ok: true });
+    return json(res, 200, DEV ? { ok: true, devLink: link, devCode: code } : { ok: true });
+  }
+  if (p === "/api/auth/code" && m === "POST") {
+    const b = await jsonBody(req), email = String(b.email || "").trim().toLowerCase(), code = String(b.code || "").replace(/\D/g, "");
+    if (limited("c:" + ip(req), 30, 900000)) return json(res, 429, { error: "Za dużo prób. Spróbuj za kilka minut." });
+    const row = q("SELECT * FROM magic WHERE email = ? AND used = 0 AND expires > ? AND code_hash IS NOT NULL ORDER BY expires DESC LIMIT 1").get(email, now());
+    if (!row) return json(res, 401, { error: "Kod wygasł. Wyślij nowy." });
+    if (row.tries >= 5) return json(res, 429, { error: "Za dużo błędnych prób. Wyślij nowy kod." });
+    if (row.code_hash !== sha(email + ":" + code)) { q("UPDATE magic SET tries = tries + 1 WHERE token_hash = ?").run(row.token_hash); return json(res, 401, { error: "Nieprawidłowy kod. Sprawdź go w mailu." }); }
+    q("UPDATE magic SET used = 1 WHERE token_hash = ?").run(row.token_hash);
+    const u = ensureUser(email);
+    startSession(res, u.id, "parent");
+    return json(res, 200, { ok: true });
   }
   if (p === "/api/auth/link" && m === "GET") {
     const t = url.searchParams.get("t") || "";
@@ -441,6 +515,80 @@ async function api(req, res, url) {
     return json(res, 200, { ok: true });
   }
   if (p === "/api/auth/logout" && m === "POST") { endSession(req, res); return json(res, 200, { ok: true }); }
+
+  // --- płatności ---
+  // płatność działa także bez logowania: Stripe pyta o e-mail, a konto zakłada się samo po płatności
+  if (p === "/api/checkout" && m === "POST") {
+    const s = session(req);
+    if (s && s.role !== "parent") return json(res, 403, { error: "Dostęp kupuje rodzic. Zaloguj się na konto rodzica." });
+    const b = await jsonBody(req), plan = b.plan === "monthly" ? "monthly" : "exam";
+    if (!STRIPE_KEY || !PRICE[plan]) return json(res, 503, { error: "Płatności nie są jeszcze włączone." });
+    if (limited("co:" + ip(req), 30, 3600000)) return json(res, 429, { error: "Za dużo prób. Spróbuj za chwilę." });
+    const acc = s ? access(s.user) : { active: false };
+    if (acc.active && !(acc.plan === "monthly" && plan === "exam")) return json(res, 409, { error: "Masz już aktywny dostęp.", url: "/konto.html" });
+    const body = {
+      mode: plan === "exam" ? "payment" : "subscription",
+      line_items: { 0: { price: PRICE[plan], quantity: 1 } },
+      success_url: `${BASE_URL}/konto.html?platnosc=ok&plan=${plan}&cs={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${BASE_URL}/cennik.html?platnosc=anulowana`,
+      client_reference_id: s ? String(s.user.id) : undefined,
+      metadata: { user_id: s ? String(s.user.id) : undefined, plan },
+      expires_at: Math.floor(now() / 1000) + 3 * 3600,
+      after_expiration: { recovery: { enabled: true, allow_promotion_codes: false } },
+      locale: "pl",
+      custom_text: { submit: { message: "Dostęp włączy się od razu po płatności. Masz 14 dni na zwrot pieniędzy bez podawania przyczyny (regulamin: liczenasetke.pl/regulamin.html)." } }
+    };
+    if (s && s.user.stripe_customer) body.customer = s.user.stripe_customer; else if (s) body.customer_email = s.user.email;
+    if (plan === "exam" && !(s && s.user.stripe_customer)) body.customer_creation = "always";
+    const meta = { metadata: { user_id: s ? String(s.user.id) : undefined } };
+    if (plan === "exam") body.payment_intent_data = meta; else body.subscription_data = meta;
+    // zgoda na wiadomości (np. jedno przypomnienie o niedokończonej płatności); regulamin: gdy jest ustawiony w Stripe
+    body.consent_collection = { promotions: "auto", terms_of_service: STRIPE_TOS ? "required" : undefined };
+    // „Managed Payments” (dodatkowe 3,5% prowizji) bywa domyślnie włączone na koncie: wyłączamy je dla naszych płatności
+    if (setting("mp_param") !== "brak") body.managed_payments = { enabled: false };
+    // wygląd strony płatności: logo, żółte przyciski, kremowe tło (jeśli Stripe odrzuci, płatność otwiera się w standardowym wyglądzie)
+    const brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
+      display_name: "Liczę na Setkę", background_color: "#fbf6ea", button_color: "#ffc233", border_style: "rounded", font_family: "nunito",
+      logo: { type: "url", url: BASE_URL + "/logo-stripe.png" }, icon: { type: "url", url: BASE_URL + "/ikona-512.png" } } } : {};
+    try {
+      let cs;
+      try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
+      catch (e) {
+        if (/managed_payments/.test(e.message) && /unknown parameter/i.test(e.message)) {
+          // starsza wersja API nie zna tego parametru: próbujemy bez niego
+          setSetting("mp_param", "brak"); delete body.managed_payments;
+          try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); return json(res, 200, { url: cs.url }); }
+          catch (e2) { e = e2; }
+        }
+        if (!brand.branding_settings) throw e;
+        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak"); setSetting("branding_error", e.message.slice(0, 300));
+        cs = await stripe("POST", "/v1/checkout/sessions", body);
+      }
+      return json(res, 200, { url: cs.url });
+    } catch (e) { log(e.message); setSetting("checkout_error", e.message.slice(0, 300)); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
+  }
+  // powrót z płatności bez logowania: logujemy rodzica na konto założone z e-maila podanego w Stripe
+  if (p === "/api/checkout/claim" && m === "POST") {
+    const b = await jsonBody(req), cs = String(b.cs || "");
+    if (!/^cs_[A-Za-z0-9_]+$/.test(cs)) return json(res, 400, { error: "zły identyfikator" });
+    if (limited("cl:" + ip(req), 20, 3600000)) return json(res, 429, { error: "Za dużo prób." });
+    if (q("SELECT 1 FROM claims WHERE cs = ?").get(cs)) return json(res, 409, { error: "Ta płatność była już użyta do logowania. Zaloguj się przez Google albo kodem z maila." });
+    let o; try { o = await stripe("GET", "/v1/checkout/sessions/" + cs); } catch (e) { return json(res, 404, { error: "Nie znaleziono płatności." }); }
+    if (o.status !== "complete" || o.created * 1000 < now() - 3 * 3600000) return json(res, 400, { error: "Płatność nie jest zakończona." });
+    const u = userForSession(o);
+    if (!u) return json(res, 400, { error: "Brak adresu e-mail w płatności." });
+    q("INSERT INTO claims (cs, at) VALUES (?, ?)").run(cs, now());
+    startSession(res, u.id, "parent");
+    return json(res, 200, { ok: true });
+  }
+  // wypis z cotygodniowego podsumowania jednym kliknięciem z maila
+  if (p === "/api/weekly/off" && m === "GET") {
+    const uid = Number(url.searchParams.get("u")), t = url.searchParams.get("t") || "";
+    if (!uid || t !== unsubToken(uid)) return send(res, 400, "Nieprawidłowy link.", "text/plain; charset=utf-8");
+    q("UPDATE users SET weekly_opt = 0 WHERE id = ?").run(uid);
+    return send(res, 302, "", "text/plain", { Location: "/konto.html?podsumowanie=wylaczone" });
+  }
+  if (p === "/api/dev/weekly" && m === "POST" && DEV) { const n = await sendWeekly(true); return json(res, 200, { sent: n }); }
 
   // wszystko dalej wymaga zalogowania
   const s = session(req);
@@ -500,49 +648,6 @@ async function api(req, res, url) {
     }
   }
 
-  // --- płatności ---
-  if (p === "/api/checkout" && m === "POST") {
-    const b = await jsonBody(req), plan = b.plan === "monthly" ? "monthly" : "exam";
-    if (!STRIPE_KEY || !PRICE[plan]) return json(res, 503, { error: "Płatności nie są jeszcze włączone." });
-    if (access(s.user).active) return json(res, 409, { error: "Masz już aktywny dostęp.", url: "/konto.html" });
-    const body = {
-      mode: plan === "exam" ? "payment" : "subscription",
-      line_items: { 0: { price: PRICE[plan], quantity: 1 } },
-      success_url: `${BASE_URL}/konto.html?platnosc=ok`,
-      cancel_url: `${BASE_URL}/cennik.html?platnosc=anulowana`,
-      client_reference_id: String(s.user.id),
-      metadata: { user_id: String(s.user.id), plan },
-      locale: "pl",
-      custom_text: { submit: { message: "Dostęp włączy się od razu po płatności. Masz 14 dni na zwrot pieniędzy bez podawania przyczyny (regulamin: liczenasetke.pl/regulamin.html)." } }
-    };
-    if (s.user.stripe_customer) body.customer = s.user.stripe_customer; else body.customer_email = s.user.email;
-    if (plan === "exam" && !s.user.stripe_customer) body.customer_creation = "always";
-    if (plan === "exam") body.payment_intent_data = { metadata: { user_id: String(s.user.id) } };
-    else body.subscription_data = { metadata: { user_id: String(s.user.id) } };
-    if (STRIPE_TOS) body.consent_collection = { terms_of_service: "required" };
-    // „Managed Payments” (dodatkowe 3,5% prowizji) bywa domyślnie włączone na koncie: wyłączamy je dla naszych płatności
-    if (setting("mp_param") !== "brak") body.managed_payments = { enabled: false };
-    // wygląd strony płatności: logo, żółte przyciski, kremowe tło (jeśli Stripe odrzuci, płatność otwiera się w standardowym wyglądzie)
-    const brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
-      display_name: "Liczę na Setkę", background_color: "#fbf6ea", button_color: "#ffc233", border_style: "rounded", font_family: "nunito",
-      logo: { type: "url", url: BASE_URL + "/logo-stripe.png" }, icon: { type: "url", url: BASE_URL + "/ikona-512.png" } } } : {};
-    try {
-      let cs;
-      try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
-      catch (e) {
-        if (/managed_payments/.test(e.message) && /unknown parameter/i.test(e.message)) {
-          // starsza wersja API nie zna tego parametru: próbujemy bez niego
-          setSetting("mp_param", "brak"); delete body.managed_payments;
-          try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); return json(res, 200, { url: cs.url }); }
-          catch (e2) { e = e2; }
-        }
-        if (!brand.branding_settings) throw e;
-        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak"); setSetting("branding_error", e.message.slice(0, 300));
-        cs = await stripe("POST", "/v1/checkout/sessions", body);
-      }
-      return json(res, 200, { url: cs.url });
-    } catch (e) { log(e.message); setSetting("checkout_error", e.message.slice(0, 300)); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
-  }
   if (p === "/api/portal" && m === "POST") {
     if (!s.user.stripe_customer) return json(res, 400, { error: "Brak subskrypcji do zarządzania." });
     try {
@@ -552,6 +657,11 @@ async function api(req, res, url) {
     } catch (e) { log(e.message); return json(res, 502, { error: "Nie udało się otworzyć ustawień subskrypcji." }); }
   }
 
+  if (p === "/api/account" && m === "PATCH") {
+    const b = await jsonBody(req);
+    if (typeof b.weekly === "boolean") q("UPDATE users SET weekly_opt = ? WHERE id = ?").run(b.weekly ? 1 : 0, s.user.id);
+    return json(res, 200, { ok: true });
+  }
   // --- usunięcie konta (RODO) ---
   if (p === "/api/account" && m === "DELETE") {
     const b = await jsonBody(req);
@@ -585,6 +695,62 @@ const server = http.createServer(async (req, res) => {
     if (!res.headersSent) json(res, 500, { error: "Coś poszło nie tak. Spróbuj ponownie." });
   }
 });
+
+// ---------- cotygodniowe podsumowanie nauki (niedziela wieczorem) ----------
+function secret() {
+  let v = ENV.APP_SECRET || setting("app_secret");
+  if (!v) { v = crypto.randomBytes(32).toString("hex"); setSetting("app_secret", v); }
+  return v;
+}
+const unsubToken = uid => crypto.createHmac("sha256", secret()).update("weekly:" + uid).digest("hex").slice(0, 32);
+function scores(data) {
+  const t = (data && data.t) || {}, out = {};
+  for (const x of TOPICS) {
+    const S = t[x.slug]; if (!S) continue;
+    const max = (S.meta && S.meta.testMax) || x.pts, sc = S.test && S.test.done ? S.test.score : S.lastScore;
+    if (sc != null) out[x.slug] = { score: sc, max, title: x.title };
+  }
+  return out;
+}
+function weeklyHtml(u) {
+  const weekAgo = warsawDay(now() - 6 * DAY);
+  const parts = students(u.id).map(st => {
+    const row = q("SELECT data FROM progress WHERE student_id = ?").get(st.id);
+    const data = row ? JSON.parse(row.data) : null, sc = scores(data);
+    const snapRow = q("SELECT data FROM weekly_snap WHERE student_id = ?").get(st.id), snap = snapRow ? JSON.parse(snapRow.data) : {};
+    q("INSERT INTO weekly_snap (student_id, data, at) VALUES (?, ?, ?) ON CONFLICT(student_id) DO UPDATE SET data = excluded.data, at = excluded.at").run(st.id, JSON.stringify(sc), now());
+    const days = q("SELECT COUNT(*) AS n FROM activity WHERE student_id = ? AND day >= ?").get(st.id, weekAgo).n;
+    const fresh = Object.entries(sc).filter(([k, v]) => !snap[k] || snap[k].score !== v.score);
+    const weak = Object.values(sc).filter(v => v.score / v.max < 0.8).sort((a, b) => a.score / a.max - b.score / b.max).slice(0, 3);
+    const name = esc(st.name || "Twoje dziecko");
+    return `<div style="border:2px solid #16181d;border-radius:14px;padding:14px 16px;margin:12px 0;background:#fffdf8">
+      <p style="margin:0 0 6px;font-size:18px"><b>${name}</b></p>
+      <p style="margin:0 0 8px">${days ? `Nauka w tym tygodniu: <b>${days} ${days === 1 ? "dzień" : "dni"}</b>.` : "W tym tygodniu nie było nauki. Wystarczą 2–3 krótkie sesje w tygodniu, żeby zdążyć przed egzaminem."}</p>
+      ${fresh.length ? `<p style="margin:0 0 4px"><b>Nowe wyniki testów:</b></p><ul style="margin:0 0 8px;padding-left:20px">${fresh.map(([, v]) => `<li>${esc(v.title)}: <b>${v.score} / ${v.max} pkt</b></li>`).join("")}</ul>` : ""}
+      ${weak.length ? `<p style="margin:0 0 4px"><b>Warto powtórzyć:</b> ${weak.map(v => esc(v.title)).join(", ")}.</p>` : ""}
+    </div>`;
+  }).join("");
+  return mailWrap(`<h2 style="margin:0 0 6px">Podsumowanie tygodnia</h2>
+    <p style="margin:0 0 6px">Oto, jak minął tydzień w kursie Liczę na Setkę.</p>${parts}
+    <p><a href="${BASE_URL}/konto.html" style="display:inline-block;background:#ffc233;color:#16181d;border:2px solid #16181d;border-radius:10px;padding:10px 18px;font-weight:bold;text-decoration:none">Zobacz szczegóły w panelu rodzica</a></p>
+    <p style="color:#5e5a51;font-size:13px">Dostajesz to podsumowanie raz w tygodniu jako posiadacz dostępu do kursu. <a href="${BASE_URL}/api/weekly/off?u=${u.id}&t=${unsubToken(u.id)}">Wyłącz podsumowania</a> (możesz je też włączyć i wyłączyć w panelu rodzica).</p>`);
+}
+async function sendWeekly(force) {
+  let n = 0;
+  for (const u of q("SELECT * FROM users WHERE weekly_opt = 1 AND email NOT LIKE 'usuniete-%'").all()) {
+    if (!access(u).active) continue;
+    try { if (await sendMail(u.email, "Podsumowanie tygodnia: nauka matematyki", weeklyHtml(u))) n++; } catch (e) { log("podsumowanie:", e.message); }
+    await new Promise(r => setTimeout(r, force ? 0 : 600));   // limit wysyłki usługi e-mail
+  }
+  log("cotygodniowe podsumowania wysłane:", n);
+  return n;
+}
+setInterval(() => {
+  const d = new Date(), wd = d.toLocaleDateString("en-US", { timeZone: "Europe/Warsaw", weekday: "short" });
+  const hr = Number(d.toLocaleString("en-US", { timeZone: "Europe/Warsaw", hour: "2-digit", hour12: false }));
+  const key = "weekly_" + warsawDay();
+  if (wd === "Sun" && hr >= 18 && !setting(key)) { setSetting(key, "1"); sendWeekly(false); }
+}, 15 * 60000).unref();
 
 // sprzątanie: stare sesje i linki
 setInterval(() => {

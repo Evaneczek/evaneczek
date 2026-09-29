@@ -54,10 +54,16 @@
       <div class="or" id="g-or" hidden><span>albo e-mailem</span></div>
       <form class="form" id="form-email" novalidate>
         <label>E-mail rodzica<input type="email" id="login-email" autocomplete="email" inputmode="email" required placeholder="np. anna@gmail.com"></label>
-        <button class="btn btn-yellow" type="submit">Wyślij link do logowania</button>
-        <small>Bez hasła: wyślemy link, który zaloguje Cię jednym kliknięciem. Konto zakłada się samo przy pierwszym logowaniu.</small>
+        <button class="btn btn-yellow" type="submit">Wyślij kod na e-mail</button>
+        <small>Bez hasła: wyślemy 6-cyfrowy kod (i link). Konto zakłada się samo przy pierwszym logowaniu.</small>
       </form>
-      <small class="terms">Logując się, akceptujesz <a href="regulamin.html" target="_blank">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank">politykę prywatności</a>.</small>
+      <form class="form code-form" id="form-code" novalidate hidden>
+        <p class="code-info" id="code-info"></p>
+        <label>Kod z maila<input type="text" id="login-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" required></label>
+        <button class="btn btn-yellow" type="submit">Zaloguj się</button>
+        <small>Nie ma maila? Zajrzyj do folderów Oferty i Spam. <button type="button" class="linkish" id="code-back">Wpisz inny adres</button></small>
+      </form>
+      <small class="terms">Problem z logowaniem? Napisz: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a><br>Logując się, akceptujesz <a href="regulamin.html" target="_blank">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank">politykę prywatności</a>.</small>
     </div>
 
     <form class="form" id="form-student" role="tabpanel" aria-labelledby="tab-student" novalidate hidden>
@@ -115,7 +121,7 @@
         sc.src = "https://accounts.google.com/gsi/client"; sc.async = true;
         sc.onload = () => {
           google.accounts.id.initialize({ client_id: cfg.googleClientId, ux_mode: "popup", callback: async r => {
-            try { await M8.api("/api/auth/google", { method: "POST", body: { credential: r.credential } }); afterLogin(); }
+            try { await M8.api("/api/auth/google", { method: "POST", body: { credential: r.credential } }); M8.track("Lead"); afterLogin(); }
             catch (e) { say(e.message, "err"); }
           } });
           $("g-box").hidden = false; $("g-or").hidden = false;
@@ -134,11 +140,21 @@
       btn.disabled = true;
       try {
         const r = await M8.api("/api/auth/email", { method: "POST", body: { email, next } });
-        say(`Wysłaliśmy link na <b>${email.replace(/</g, "&lt;")}</b>. Otwórz wiadomość i kliknij „Zaloguj się do kursu”. Nie widzisz jej? Zajrzyj do folderów Oferty i Spam.` +
-          (r.devLink ? `<br><a id="dev-link" href="${r.devLink}">[tryb testowy] otwórz link</a>` : ""), "ok");
+        msg.hidden = true;
+        $("form-email").hidden = true; $("form-code").hidden = false;
+        $("code-info").innerHTML = `Wysłaliśmy kod na <b>${email.replace(/</g, "&lt;")}</b>. Wpisz go poniżej (albo kliknij przycisk w mailu).` +
+          (r.devLink ? `<br><a id="dev-link" href="${r.devLink}">[tryb testowy] link</a> · kod <span id="dev-code">${r.devCode}</span>` : "");
+        $("login-code").focus();
       } catch (err) { say(err.message, "err"); }
       btn.disabled = false;
     });
+    $("form-code").addEventListener("submit", async e => {
+      e.preventDefault();
+      try { await M8.api("/api/auth/code", { method: "POST", body: { email: $("login-email").value.trim(), code: $("login-code").value.trim() } }); M8.track("Lead"); afterLogin(); }
+      catch (err) { say(err.message, "err"); }
+    });
+    $("login-code").addEventListener("input", e => { const v = e.target.value.replace(/\D/g, ""); e.target.value = v; if (v.length === 6) $("form-code").requestSubmit(); });
+    $("code-back").addEventListener("click", () => { $("form-code").hidden = true; $("form-email").hidden = false; msg.hidden = true; });
     $("form-student").addEventListener("submit", async e => {
       e.preventDefault();
       if (!M8.online) return;

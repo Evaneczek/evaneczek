@@ -78,7 +78,7 @@
               </ul>
             </div>
           </div>
-          <div class="bottom">© 2026 Liczę na Setkę (liczenasetke.pl) · Egzamin ósmoklasisty z matematyki: 11 maja 2027</div>
+          <div class="bottom">© 2026 Liczę na Setkę (liczenasetke.pl) · Kontakt: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a> · Egzamin ósmoklasisty z matematyki: 11 maja 2027</div>
         </div>
       </footer>`;
   }
@@ -226,9 +226,10 @@
   M8.buy = async (plan, btn) => {
     const me = await M8.ready;
     if (!me) { alert("Płatności działają na stronie liczenasetke.pl. To jest podgląd strony."); return; }
-    if (!me.role) { location.href = "logowanie.html?next=kup-" + plan; return; }
-    if (me.role !== "parent") { alert("Dostęp kupuje rodzic. Zaloguj się na konto rodzica."); return; }
-    if (me.access && me.access.active) { location.href = "konto.html"; return; }
+    // bez logowania też można kupić: Stripe zapyta o e-mail, a konto założy się samo
+    if (me.role === "student") { alert("Dostęp kupuje rodzic. Zaloguj się na konto rodzica."); return; }
+    if (me.access && me.access.active && !(me.access.plan === "monthly" && plan === "exam")) { location.href = "konto.html"; return; }
+    M8.track("InitiateCheckout", { value: plan === "exam" ? 199 : 49, currency: "PLN" });
     const label = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Otwieram płatność…"; }
     try { const r = await M8.api("/api/checkout", { method: "POST", body: { plan } }); location.href = r.url; }
@@ -281,7 +282,7 @@
 
   // ---------- Zgoda na cookies marketingowe i Piksel Meta ----------
   // Okienko pokazuje się dopiero, gdy wpiszemy numer Piksela. Bez numeru strona nie używa cookies marketingowych.
-  const META_PIXEL_ID = "";
+  let META_PIXEL_ID = "";   // numer Piksela przychodzi z serwera (zmienna META_PIXEL_ID w Railway)
   const CKEY = "matma8-cookies";
   const getConsent = () => { try { return localStorage.getItem(CKEY); } catch (e) { return null; } };
   const setConsent = v => { try { localStorage.setItem(CKEY, v); } catch (e) {} };
@@ -305,7 +306,16 @@
     });
     document.body.appendChild(bar);
   }
-  if (META_PIXEL_ID) { const c = getConsent(); if (c === "yes") loadPixel(); else if (c !== "no") cookieBanner(); }
+  M8.track = (ev, params) => { try { if (window.fbq) window.fbq("track", ev, params || {}); } catch (e) {} };
+  M8.config = (async () => {
+    try { const r = await fetch("/api/config", { credentials: "same-origin" }); if (r.ok && (r.headers.get("content-type") || "").includes("json")) return await r.json(); } catch (e) {}
+    return {};
+  })();
+  M8.config.then(cfg => {
+    META_PIXEL_ID = cfg.metaPixelId || "";
+    if (cfg.contact) document.querySelectorAll("[data-contact]").forEach(a => { a.href = "mailto:" + cfg.contact; a.textContent = cfg.contact; });
+    if (META_PIXEL_ID) { const c = getConsent(); if (c === "yes") loadPixel(); else if (c !== "no") cookieBanner(); }
+  });
   document.querySelectorAll("[data-cookie-settings]").forEach(b => b.addEventListener("click", () => {
     if (META_PIXEL_ID) cookieBanner();
     else b.replaceWith(Object.assign(document.createElement("span"), { textContent: "teraz strona nie używa cookies marketingowych, więc nie ma czego ustawiać" }));

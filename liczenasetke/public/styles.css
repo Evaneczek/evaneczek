@@ -2088,3 +2088,14 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
 .acc-guide dd { margin: 2px 0 0; color: var(--muted); }
 .acc-guide code { font-family: var(--mono); background: var(--paper); border: 1.5px solid var(--line); border-radius: 6px; padding: 0 5px; color: var(--ink); }
 .kid-pin small { color: var(--muted); font-weight: 600; }
+.site-footer .bottom a { color: #fff; }
+.code-form .code-info { font-weight: 700; }
+.code-form input#login-code { font-family: var(--mono); font-size: 26px; letter-spacing: 8px; text-align: center; }
+.linkish { background: none; border: 0; padding: 0; font: inherit; font-weight: 800; text-decoration: underline; cursor: pointer; color: var(--ink); }
+.acc-upgrade { background: var(--yellow-soft); }
+.acc-toggle { display: flex; gap: 12px; align-items: flex-start; cursor: pointer; }
+.acc-toggle input { width: 22px; height: 22px; margin-top: 2px; accent-color: var(--green); flex: none; }
+.acc-toggle b { display: block; color: var(--ink); }
+.acc-toggle span { color: var(--muted); font-size: 15px; }
+.acc-help { font-size: 15px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+.acc-help a { color: var(--ink); font-weight: 800; }

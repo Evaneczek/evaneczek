@@ -155,7 +155,11 @@
             : a.cancelAtEnd ? `Plan „Miesięcznie”: subskrypcja wyłączona, dostęp do <b>${date(a.until)}</b>.`
             : `Plan „Miesięcznie”: następna płatność <b>${date(a.until)}</b>. Możesz zrezygnować w każdej chwili.`}</p>
           <div class="btn-row"><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a>
-          ${a.plan === "monthly" && a.canManage ? `<button class="btn btn-ghost" type="button" id="portal">Zarządzaj subskrypcją</button>` : ""}</div></div>`;
+          ${a.plan === "monthly" && a.canManage ? `<button class="btn btn-ghost" type="button" id="portal">Zarządzaj subskrypcją</button>` : ""}</div></div>
+          ${a.plan === "monthly" ? `<div class="acc-card box acc-upgrade"><div class="pp-label">Wygodniej i taniej do egzaminu</div>
+            <h2>Przejdź na plan „Do dnia egzaminu”</h2>
+            <p>Płacisz raz <b>199 zł</b> i dostęp zostaje do 11 maja 2027. Obecna subskrypcja wyłączy się sama na koniec opłaconego miesiąca, więc kolejnych płatności po 49 zł już nie będzie.</p>
+            <div class="btn-row"><button class="btn btn-yellow" type="button" data-buy="exam">Przechodzę na plan do egzaminu</button></div></div>` : ""}`;
       } else {
         accHtml = `<div class="acc-card box"><div class="pp-label">Dostęp do kursu</div>
           <h2>${paid ? "Dziękujemy! Włączamy dostęp…" : "Odblokuj cały kurs"}</h2>
@@ -193,6 +197,11 @@
             <dt>Dziecko zapomniało PIN-u</dt><dd>Kliknij <b>„Ustaw nowy PIN”</b>. Stary przestanie działać, a nowy od razu zobaczysz na ekranie. Postępy zostają.</dd>
           </dl></details>`;
       acc.innerHTML = accHtml + steps + `<h2 class="acc-h">Postępy dziecka</h2><div id="kids" class="acc-kids"></div>` + guide + `
+        <div class="acc-card box acc-settings">
+          <label class="acc-toggle"><input type="checkbox" id="weekly" ${me.weekly ? "checked" : ""}><span><b>Podsumowanie tygodnia na e-mail</b>W niedzielę wieczorem: ile dni dziecko się uczyło, nowe wyniki testów i co warto powtórzyć.</span></label>
+          ${QS.get("podsumowanie") === "wylaczone" ? `<p class="kid-note">Podsumowania zostały wyłączone. Możesz je tu włączyć ponownie.</p>` : ""}
+          <p class="acc-help">Pytanie albo problem? Napisz: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a>. Odpowiadamy w dni robocze.</p>
+        </div>
         <details class="acc-danger"><summary>Usuń konto</summary>
           <p>Usuniemy konto, loginy dzieci i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję w „Zarządzaj subskrypcją”." : ""}</p>
           <label>Wpisz <b>USUŃ</b>, aby potwierdzić <input type="text" id="del-confirm" autocomplete="off"></label>
@@ -203,6 +212,10 @@
         if (days < 7) return; const v = 199 / days;
         el.textContent = v < 1 ? `Mniej niż 1 zł dziennie (ok. ${Math.ceil(v * 100)} gr)` : `Ok. ${v.toFixed(2).replace(".", ",")} zł dziennie`; el.hidden = false;
       });
+      $("weekly").addEventListener("change", async e => {
+        try { await M8.api("/api/account", { method: "PATCH", body: { weekly: e.target.checked } }); } catch (err) { alert(err.message); e.target.checked = !e.target.checked; }
+      });
+      M8.config.then(c => { if (c.contact) acc.querySelectorAll("[data-contact]").forEach(x => { x.href = "mailto:" + c.contact; x.textContent = c.contact; }); });
       const portal = $("portal");
       if (portal) portal.addEventListener("click", async () => { try { location.href = (await M8.api("/api/portal", { method: "POST" })).url; } catch (e) { alert(e.message); } });
       $("del-acc").addEventListener("click", async () => {
@@ -218,11 +231,26 @@
         const t = setInterval(async () => {
           n++;
           const m2 = await M8.api("/api/me").catch(() => null);
-          if ((m2 && m2.access && m2.access.active) || n > 15) { clearInterval(t); location.replace("konto.html" + (m2 && m2.access && m2.access.active ? "" : "?platnosc=czeka")); }
+          if ((m2 && m2.access && m2.access.active) || n > 15) { clearInterval(t); if (m2 && m2.access && m2.access.active) trackPurchase(); location.replace("konto.html" + (m2 && m2.access && m2.access.active ? "" : "?platnosc=czeka")); }
         }, 2000);
       }
     }
-    M8.ready.then(render);
+    const QS = new URLSearchParams(location.search);
+    function trackPurchase() {
+      const k = "m8-purchase-" + (QS.get("cs") || "x");
+      if (sessionStorage.getItem(k)) return;
+      sessionStorage.setItem(k, "1");
+      M8.track("Purchase", { value: QS.get("plan") === "monthly" ? 49 : 199, currency: "PLN" });
+    }
+    M8.ready.then(async me => {
+      // wracamy z płatności Stripe bez logowania: logujemy na konto założone z e-maila z płatności
+      if (me && !me.role && QS.get("platnosc") === "ok" && QS.get("cs")) {
+        try { await M8.api("/api/checkout/claim", { method: "POST", body: { cs: QS.get("cs") } }); me = await M8.api("/api/me"); M8.me = me; await M8.syncProgress(me); }
+        catch (e) { lead.innerHTML = esc(e.message) + ' <a href="logowanie.html">Zaloguj się →</a>'; return; }
+      }
+      if (me && me.access && me.access.active && QS.get("platnosc") === "ok") trackPurchase();
+      render(me);
+    });
   })();
 </script>
 </body>
