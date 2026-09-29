@@ -216,7 +216,7 @@ const setting = k => { const r = q("SELECT value FROM settings WHERE key = ?").g
 const setSetting = (k, v) => q("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(k, v);
 async function stripeSetup() {
   if (!STRIPE_KEY) return;
-  const mode = STRIPE_KEY.startsWith("sk_live") ? "live" : "test";
+  const mode = /_live_/.test(STRIPE_KEY) ? "live" : "test";
   try {
     const found = await stripe("GET", "/v1/prices?active=true&lookup_keys[]=" + LOOKUP.exam + "&lookup_keys[]=" + LOOKUP.monthly);
     for (const pr of found.data || []) for (const k of Object.keys(LOOKUP)) if (pr.lookup_key === LOOKUP[k] && !PRICE[k]) PRICE[k] = pr.id;
@@ -234,6 +234,17 @@ async function stripeSetup() {
       log("Stripe: utworzono cenę 49 zł/mies.", PRICE.monthly);
     }
   } catch (e) { log("Stripe: nie udało się przygotować cen:", e.message); }
+  // portal klienta: rezygnacja z subskrypcji na koniec opłaconego okresu, historia płatności, zmiana karty
+  if (BASE_URL.startsWith("https://")) {
+    const pk = "portal_" + mode;
+    if (!setting(pk)) try {
+      const pc = await stripe("POST", "/v1/billing_portal/configurations", {
+        business_profile: { headline: "Liczę na Setkę: zarządzaj subskrypcją kursu", privacy_policy_url: BASE_URL + "/polityka-prywatnosci.html", terms_of_service_url: BASE_URL + "/regulamin.html" },
+        default_return_url: BASE_URL + "/konto.html",
+        features: { subscription_cancel: { enabled: true, mode: "at_period_end" }, invoice_history: { enabled: true }, payment_method_update: { enabled: true } } });
+      setSetting(pk, pc.id); log("Stripe: portal klienta skonfigurowany", pc.id);
+    } catch (e) { log("Stripe: portal klienta:", e.message); setSetting("portal_error", e.message); }
+  }
   if (ENV.STRIPE_WEBHOOK_SECRET || !BASE_URL.startsWith("https://")) return;
   const url = BASE_URL + "/api/stripe/webhook", key = "wh_" + mode + "_" + url;
   const saved = setting(key);
@@ -360,7 +371,8 @@ async function api(req, res, url) {
 
   if (p === "/api/config" && m === "GET")
     return json(res, 200, { googleClientId: GOOGLE_ID, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
-      stripeMode: STRIPE_KEY ? (STRIPE_KEY.startsWith("sk_live") ? "live" : "test") : null, email: !!RESEND_KEY });
+      stripeMode: STRIPE_KEY ? (/_live_/.test(STRIPE_KEY) ? "live" : "test") : null, email: !!RESEND_KEY,
+      branding: setting("branding") || null, portal: !!setting("portal_" + (/_live_/.test(STRIPE_KEY) ? "live" : "test")) });
 
   if (p === "/api/me" && m === "GET") {
     const s = session(req);
@@ -499,15 +511,26 @@ async function api(req, res, url) {
     if (plan === "exam") body.payment_intent_data = { metadata: { user_id: String(s.user.id) } };
     else body.subscription_data = { metadata: { user_id: String(s.user.id) } };
     if (STRIPE_TOS) body.consent_collection = { terms_of_service: "required" };
+    // wygląd strony płatności: logo, żółte przyciski, kremowe tło (jeśli Stripe odrzuci, płatność otwiera się w standardowym wyglądzie)
+    const brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
+      display_name: "Liczę na Setkę", background_color: "#fbf6ea", button_color: "#ffc233", border_style: "rounded", font_family: "nunito",
+      logo: { type: "url", url: BASE_URL + "/logo-stripe.png" }, icon: { type: "url", url: BASE_URL + "/ikona-512.png" } } } : {};
     try {
-      const cs = await stripe("POST", "/v1/checkout/sessions", body);
+      let cs;
+      try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
+      catch (e) {
+        if (!brand.branding_settings) throw e;
+        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak");
+        cs = await stripe("POST", "/v1/checkout/sessions", body);
+      }
       return json(res, 200, { url: cs.url });
     } catch (e) { log(e.message); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
   }
   if (p === "/api/portal" && m === "POST") {
     if (!s.user.stripe_customer) return json(res, 400, { error: "Brak subskrypcji do zarządzania." });
     try {
-      const ps = await stripe("POST", "/v1/billing_portal/sessions", { customer: s.user.stripe_customer, return_url: `${BASE_URL}/konto.html`, locale: "pl" });
+      const pc = setting("portal_" + (/_live_/.test(STRIPE_KEY) ? "live" : "test"));
+      const ps = await stripe("POST", "/v1/billing_portal/sessions", { customer: s.user.stripe_customer, return_url: `${BASE_URL}/konto.html`, locale: "pl", configuration: pc || undefined });
       return json(res, 200, { url: ps.url });
     } catch (e) { log(e.message); return json(res, 502, { error: "Nie udało się otworzyć ustawień subskrypcji." }); }
   }
