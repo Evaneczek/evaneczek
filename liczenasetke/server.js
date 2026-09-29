@@ -219,16 +219,24 @@ async function stripeSetup() {
   const mode = /_live_/.test(STRIPE_KEY) ? "live" : "test";
   try {
     const found = await stripe("GET", "/v1/prices?active=true&lookup_keys[]=" + LOOKUP.exam + "&lookup_keys[]=" + LOOKUP.monthly);
-    for (const pr of found.data || []) for (const k of Object.keys(LOOKUP)) if (pr.lookup_key === LOOKUP[k] && !PRICE[k]) PRICE[k] = pr.id;
-    const img = BASE_URL.startsWith("https://") ? { 0: BASE_URL + "/og-image.png" } : undefined;
+    const PROD = {};
+    for (const pr of found.data || []) for (const k of Object.keys(LOOKUP)) if (pr.lookup_key === LOOKUP[k]) { if (!PRICE[k]) PRICE[k] = pr.id; PROD[k] = typeof pr.product === "object" ? pr.product.id : pr.product; }
+    const IMGS = { exam: "/produkt-egzamin.png", monthly: "/produkt-miesiecznie.png" };
+    const img = k => BASE_URL.startsWith("https://") ? { 0: BASE_URL + IMGS[k] } : undefined;
+    // obrazki produktów na stronie płatności (aktualizowane raz na wersję obrazków)
+    const IMG_V = "2";
+    if (setting("prodimg_" + mode) !== IMG_V && BASE_URL.startsWith("https://")) {
+      for (const k of Object.keys(PROD)) await stripe("POST", "/v1/products/" + PROD[k], { images: img(k) }).catch(e => log("Stripe: obrazek produktu:", e.message));
+      if (Object.keys(PROD).length) setSetting("prodimg_" + mode, IMG_V);
+    }
     if (!PRICE.exam) {
-      const prod = await stripe("POST", "/v1/products", { name: "Kurs do dnia egzaminu", images: img,
+      const prod = await stripe("POST", "/v1/products", { name: "Kurs do dnia egzaminu", images: img("exam"),
         description: "Dostęp do całego kursu matematyki do egzaminu ósmoklasisty do 11 maja 2027 r. Jedna płatność, nic się nie odnawia." });
       PRICE.exam = (await stripe("POST", "/v1/prices", { product: prod.id, currency: "pln", unit_amount: 19900, lookup_key: LOOKUP.exam })).id;
       log("Stripe: utworzono cenę 199 zł", PRICE.exam);
     }
     if (!PRICE.monthly) {
-      const prod = await stripe("POST", "/v1/products", { name: "Kurs miesięcznie", images: img,
+      const prod = await stripe("POST", "/v1/products", { name: "Kurs miesięcznie", images: img("monthly"),
         description: "Dostęp do całego kursu matematyki do egzaminu ósmoklasisty. Płatność co miesiąc, rezygnacja w każdej chwili." });
       PRICE.monthly = (await stripe("POST", "/v1/prices", { product: prod.id, currency: "pln", unit_amount: 4900, recurring: { interval: "month" }, lookup_key: LOOKUP.monthly })).id;
       log("Stripe: utworzono cenę 49 zł/mies.", PRICE.monthly);
