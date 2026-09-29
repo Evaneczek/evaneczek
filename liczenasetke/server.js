@@ -17,7 +17,7 @@ const DB_PATH = ENV.DB_PATH || path.join(__dirname, "dane.db");
 const SECURE = BASE_URL.startsWith("https://");
 const DEV = ENV.DEV === "1";                        // tylko do testów: link logujący wraca w odpowiedzi
 const STRIPE_KEY = ENV.STRIPE_SECRET_KEY || "";
-const STRIPE_WH = ENV.STRIPE_WEBHOOK_SECRET || "";
+let STRIPE_WH = ENV.STRIPE_WEBHOOK_SECRET || "";
 const PRICE = { exam: ENV.STRIPE_PRICE_EXAM || "", monthly: ENV.STRIPE_PRICE_MONTHLY || "" };
 const STRIPE_API = ENV.STRIPE_API || "https://api.stripe.com";
 const STRIPE_TOS = ENV.STRIPE_TOS === "1";          // zgoda na regulamin w Stripe Checkout (wymaga adresu regulaminu w ustawieniach Stripe)
@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS magic (
 CREATE TABLE IF NOT EXISTS progress (student_id INTEGER PRIMARY KEY, data TEXT NOT NULL, updated_at INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS activity (student_id INTEGER NOT NULL, day TEXT NOT NULL, PRIMARY KEY (student_id, day));
 CREATE TABLE IF NOT EXISTS stripe_events (id TEXT PRIMARY KEY, at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS payments (
   id INTEGER PRIMARY KEY, user_id INTEGER, kind TEXT, stripe_id TEXT, amount INTEGER, at INTEGER NOT NULL);
 `);
@@ -205,6 +206,49 @@ function applySubscription(sub, userId) {
   q("UPDATE users SET sub_id = ?, sub_status = ?, sub_period_end = ?, sub_cancel_at_end = ?, stripe_customer = COALESCE(stripe_customer, ?), revoked_at = NULL WHERE id = ?")
     .run(sub.id, sub.status, periodEnd(sub), sub.cancel_at_period_end ? 1 : 0, sub.customer, u.id);
 }
+// ---------- Stripe: automatyczna konfiguracja ----------
+// Wystarczy STRIPE_SECRET_KEY: serwer sam tworzy produkty z cenami (199 zł, 49 zł/mies.) i webhook,
+// a sekret webhooka zapisuje w bazie. Ceny i sekret można też podać ręcznie w zmiennych.
+const LOOKUP = { exam: "lns_exam_199", monthly: "lns_monthly_49" };
+const EVENTS = ["checkout.session.completed", "checkout.session.async_payment_succeeded", "customer.subscription.created",
+  "customer.subscription.updated", "customer.subscription.deleted", "charge.refunded"];
+const setting = k => { const r = q("SELECT value FROM settings WHERE key = ?").get(k); return r ? r.value : ""; };
+const setSetting = (k, v) => q("INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value").run(k, v);
+async function stripeSetup() {
+  if (!STRIPE_KEY) return;
+  const mode = STRIPE_KEY.startsWith("sk_live") ? "live" : "test";
+  try {
+    const found = await stripe("GET", "/v1/prices?active=true&lookup_keys[]=" + LOOKUP.exam + "&lookup_keys[]=" + LOOKUP.monthly);
+    for (const pr of found.data || []) for (const k of Object.keys(LOOKUP)) if (pr.lookup_key === LOOKUP[k] && !PRICE[k]) PRICE[k] = pr.id;
+    const img = BASE_URL.startsWith("https://") ? { 0: BASE_URL + "/og-image.png" } : undefined;
+    if (!PRICE.exam) {
+      const prod = await stripe("POST", "/v1/products", { name: "Kurs do dnia egzaminu", images: img,
+        description: "Dostęp do całego kursu matematyki do egzaminu ósmoklasisty do 11 maja 2027 r. Jedna płatność, nic się nie odnawia." });
+      PRICE.exam = (await stripe("POST", "/v1/prices", { product: prod.id, currency: "pln", unit_amount: 19900, lookup_key: LOOKUP.exam })).id;
+      log("Stripe: utworzono cenę 199 zł", PRICE.exam);
+    }
+    if (!PRICE.monthly) {
+      const prod = await stripe("POST", "/v1/products", { name: "Kurs miesięcznie", images: img,
+        description: "Dostęp do całego kursu matematyki do egzaminu ósmoklasisty. Płatność co miesiąc, rezygnacja w każdej chwili." });
+      PRICE.monthly = (await stripe("POST", "/v1/prices", { product: prod.id, currency: "pln", unit_amount: 4900, recurring: { interval: "month" }, lookup_key: LOOKUP.monthly })).id;
+      log("Stripe: utworzono cenę 49 zł/mies.", PRICE.monthly);
+    }
+  } catch (e) { log("Stripe: nie udało się przygotować cen:", e.message); }
+  if (ENV.STRIPE_WEBHOOK_SECRET || !BASE_URL.startsWith("https://")) return;
+  const url = BASE_URL + "/api/stripe/webhook", key = "wh_" + mode + "_" + url;
+  const saved = setting(key);
+  try {
+    const list = await stripe("GET", "/v1/webhook_endpoints?limit=100");
+    const mine = (list.data || []).filter(w => w.url === url);
+    if (saved && mine.length) { STRIPE_WH = saved; return; }
+    for (const w of mine) await stripe("DELETE", "/v1/webhook_endpoints/" + w.id);   // sekretu starego nie da się odczytać
+    const wh = await stripe("POST", "/v1/webhook_endpoints", { url, enabled_events: Object.fromEntries(EVENTS.map((e, i) => [i, e])),
+      description: "Liczę na Setkę: dostęp po płatności" });
+    setSetting(key, wh.secret); STRIPE_WH = wh.secret;
+    log("Stripe: utworzono webhook", wh.id);
+  } catch (e) { log("Stripe: nie udało się utworzyć webhooka:", e.message); }
+}
+
 async function onCheckoutDone(s) {
   const userId = Number(s.client_reference_id || (s.metadata && s.metadata.user_id));
   const u = q("SELECT * FROM users WHERE id = ?").get(userId);
@@ -315,7 +359,8 @@ async function api(req, res, url) {
   if (m !== "GET" && !sameOrigin(req)) return json(res, 403, { error: "Niedozwolone źródło żądania" });
 
   if (p === "/api/config" && m === "GET")
-    return json(res, 200, { googleClientId: GOOGLE_ID, payments: !!(STRIPE_KEY && PRICE.exam), email: true });
+    return json(res, 200, { googleClientId: GOOGLE_ID, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
+      stripeMode: STRIPE_KEY ? (STRIPE_KEY.startsWith("sk_live") ? "live" : "test") : null, email: !!RESEND_KEY });
 
   if (p === "/api/me" && m === "GET") {
     const s = session(req);
@@ -507,5 +552,6 @@ setInterval(() => {
   q("DELETE FROM magic WHERE expires < ?").run(now() - DAY);
 }, 3600000).unref();
 
+stripeSetup();
 server.listen(PORT, () => log(`Serwer działa: ${BASE_URL} (port ${PORT}, pliki: ${PUBLIC}, baza: ${DB_PATH})`));
 module.exports = { server };
