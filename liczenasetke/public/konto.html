@@ -46,7 +46,7 @@
 
 <div id="site-footer"></div>
 <script src="program.js?v=c9b76ec773"></script>
-<script src="app.js?v=0df7d9bb4b"></script>
+<script src="app.js?v=00d18e5fc4"></script>
 <script>
   (function () {
     const M8 = window.M8, $ = id => document.getElementById(id);
@@ -288,7 +288,13 @@
         const t = setInterval(async () => {
           n++;
           const m2 = await M8.api("/api/me").catch(() => null);
-          if ((m2 && m2.access && m2.access.active) || n > 15) { clearInterval(t); if (m2 && m2.access && m2.access.active) trackPurchase(); location.replace("konto.html" + (m2 && m2.access && m2.access.active ? "" : "?platnosc=czeka")); }
+          if ((m2 && m2.access && m2.access.active) || n > 15) {
+            clearInterval(t);
+            const ok = m2 && m2.access && m2.access.active;
+            if (ok) trackPurchase();
+            // chwila na wysłanie zdarzenia zakupu do Meta przed przeładowaniem strony
+            setTimeout(() => location.replace("konto.html" + (ok ? "" : "?platnosc=czeka")), ok && window.fbq ? 1500 : 0);
+          }
         }, 2000);
       }
     }

@@ -295,6 +295,7 @@
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = "2.0"; n.queue = []; t = b.createElement(e); t.async = !0; t.src = v;
       s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s); }(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
     window.fbq("init", META_PIXEL_ID); window.fbq("track", "PageView");
+    pending.splice(0).forEach(([ev, params]) => window.fbq("track", ev, params));
   }
   function cookieBanner() {
     if (document.querySelector(".cookie-bar")) return;
@@ -308,7 +309,11 @@
     });
     document.body.appendChild(bar);
   }
-  M8.track = (ev, params) => { try { if (window.fbq) window.fbq("track", ev, params || {}); } catch (e) {} };
+  // zdarzenia sprzed wczytania piksela czekają w kolejce; bez zgody na cookies nic nie jest wysyłane
+  const pending = [];
+  M8.track = (ev, params) => {
+    try { if (window.fbq) window.fbq("track", ev, params || {}); else if (getConsent() !== "no") pending.push([ev, params || {}]); } catch (e) {}
+  };
   M8.config = (async () => {
     try { const r = await fetch("/api/config", { credentials: "same-origin" }); if (r.ok && (r.headers.get("content-type") || "").includes("json")) return await r.json(); } catch (e) {}
     return {};

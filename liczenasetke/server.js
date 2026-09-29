@@ -64,7 +64,7 @@ for (const sql of ["ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0"
   "CREATE TABLE IF NOT EXISTS reviews (id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL, student_id INTEGER, rating INTEGER NOT NULL, who TEXT, name TEXT, city TEXT, text TEXT NOT NULL, consent INTEGER DEFAULT 0, at INTEGER NOT NULL)"])
   try { db.exec(sql); } catch (e) { /* już jest */ }
 const CONTACT = ENV.CONTACT_EMAIL || "kontakt@liczenasetke.pl";
-const META_PIXEL_ID = ENV.META_PIXEL_ID || "";
+const META_PIXEL_ID = ENV.META_PIXEL_ID || "1051003501090987";   // numer Piksela Meta jest publiczny (widać go w kodzie każdej strony z pikselem)
 
 // ---------- narzędzia ----------
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
