@@ -372,7 +372,7 @@ async function api(req, res, url) {
   if (p === "/api/config" && m === "GET")
     return json(res, 200, { googleClientId: GOOGLE_ID, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
       stripeMode: STRIPE_KEY ? (/_live_/.test(STRIPE_KEY) ? "live" : "test") : null, email: !!RESEND_KEY,
-      branding: setting("branding") || null, portal: !!setting("portal_" + (/_live_/.test(STRIPE_KEY) ? "live" : "test")) });
+      branding: setting("branding") || null, brandingError: setting("branding_error") || null, checkoutError: setting("checkout_error") || null, portal: !!setting("portal_" + (/_live_/.test(STRIPE_KEY) ? "live" : "test")) });
 
   if (p === "/api/me" && m === "GET") {
     const s = session(req);
@@ -520,11 +520,11 @@ async function api(req, res, url) {
       try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
       catch (e) {
         if (!brand.branding_settings) throw e;
-        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak");
+        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak"); setSetting("branding_error", e.message.slice(0, 300));
         cs = await stripe("POST", "/v1/checkout/sessions", body);
       }
       return json(res, 200, { url: cs.url });
-    } catch (e) { log(e.message); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
+    } catch (e) { log(e.message); setSetting("checkout_error", e.message.slice(0, 300)); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
   }
   if (p === "/api/portal" && m === "POST") {
     if (!s.user.stripe_customer) return json(res, 400, { error: "Brak subskrypcji do zarządzania." });
@@ -575,6 +575,8 @@ setInterval(() => {
   q("DELETE FROM magic WHERE expires < ?").run(now() - DAY);
 }, 3600000).unref();
 
+// po każdym wdrożeniu jeszcze raz próbujemy wyglądu płatności (mógł zostać poprawiony)
+try { q("DELETE FROM settings WHERE key IN ('branding', 'checkout_error')").run(); } catch (e) {}
 stripeSetup();
 server.listen(PORT, () => log(`Serwer działa: ${BASE_URL} (port ${PORT}, pliki: ${PUBLIC}, baza: ${DB_PATH})`));
 module.exports = { server };
