@@ -15,7 +15,7 @@ Wszystko najpierw w **trybie testowym** (przełącznik „Test mode”).
 1. **Produkty** (Product catalog → Add product):
    - „Kurs do dnia egzaminu”: cena **199 PLN, One-off (jednorazowo)**. Skopiuj **ID ceny** (zaczyna się od `price_…`) → to będzie `STRIPE_PRICE_EXAM`.
    - „Kurs miesięcznie”: cena **49 PLN, Recurring, Monthly**. ID ceny → `STRIPE_PRICE_MONTHLY`.
-2. **Metody płatności** (Settings → Payment methods): włącz **BLIK**, **Przelewy24**, karty, Apple Pay i Google Pay. (BLIK i Przelewy24 działają przy planie jednorazowym; subskrypcję opłaca się kartą, Apple Pay lub Google Pay).
+2. **Metody płatności** (Settings → Payment methods): włącz **BLIK**, karty, Apple Pay i Google Pay (Przelewy24 Stripe nie obsługuje dla tego rodzaju działalności). BLIK działa przy planie jednorazowym; subskrypcję opłaca się kartą, Apple Pay lub Google Pay.
 3. **Portal klienta** (Settings → Billing → Customer portal): włącz „Cancel subscriptions” (anulowanie na koniec okresu) i zapisz. Z portalu rodzic sam wyłącza subskrypcję.
 4. **Dane publiczne** (Settings → Business → Public details): nazwa „Liczę na Setkę”, e-mail kontaktowy, adres strony, a w polu **Terms of service** adres `https://liczenasetke.pl/regulamin.html`. Po uzupełnieniu możesz ustawić zmienną `STRIPE_TOS=1`, wtedy w płatności pojawi się pole „akceptuję regulamin”.
 5. **Potwierdzenia e-mail** (Settings → Customer emails): włącz „Successful payments”, żeby klient dostawał paragon od Stripe.

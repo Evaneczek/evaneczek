@@ -47,8 +47,11 @@
     </div>
 
     <div class="form" id="form-parent" role="tabpanel" aria-labelledby="tab-parent">
-      <div id="g-btn" class="g-btn" hidden></div>
-      <div class="or" id="g-or" hidden><span>albo</span></div>
+      <div class="g-box" id="g-box" hidden>
+        <div class="g-lead"><b>Najszybciej: jedno kliknięcie</b><span>Bez hasła i bez czekania na e-mail</span></div>
+        <div id="g-btn" class="g-btn"></div>
+      </div>
+      <div class="or" id="g-or" hidden><span>albo e-mailem</span></div>
       <form class="form" id="form-email" novalidate>
         <label>E-mail rodzica<input type="email" id="login-email" autocomplete="email" inputmode="email" required placeholder="np. anna@gmail.com"></label>
         <button class="btn btn-yellow" type="submit">Wyślij link do logowania</button>
@@ -115,8 +118,10 @@
             try { await M8.api("/api/auth/google", { method: "POST", body: { credential: r.credential } }); afterLogin(); }
             catch (e) { say(e.message, "err"); }
           } });
-          const box = $("g-btn"); box.hidden = false; $("g-or").hidden = false;
-          google.accounts.id.renderButton(box, { theme: "outline", size: "large", text: "continue_with", shape: "pill", locale: "pl", width: Math.min(box.clientWidth || 360, 400) });
+          $("g-box").hidden = false; $("g-or").hidden = false;
+          const box = $("g-btn");
+          google.accounts.id.renderButton(box, { theme: "filled_blue", size: "large", text: "continue_with", shape: "pill", logo_alignment: "left", locale: "pl", width: Math.max(240, Math.min(box.clientWidth || 360, 400)) });
+          if (!me.role) google.accounts.id.prompt();   // okienko „Kontynuuj jako…” w rogu ekranu
         };
         document.head.appendChild(sc);
       }

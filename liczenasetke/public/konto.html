@@ -150,27 +150,42 @@
           ${a.plan === "monthly" && a.canManage ? `<button class="btn btn-ghost" type="button" id="portal">Zarządzaj subskrypcją</button>` : ""}</div></div>`;
       } else {
         accHtml = `<div class="acc-card box"><div class="pp-label">Dostęp do kursu</div>
-          <h2>${paid ? "Dziękujemy! Włączamy dostęp…" : "Dostęp nie jest jeszcze aktywny"}</h2>
+          <h2>${paid ? "Dziękujemy! Włączamy dostęp…" : "Odblokuj cały kurs"}</h2>
           <p>${paid ? "Płatność przeszła. Dostęp włączy się w ciągu kilku sekund, ta strona odświeży się sama."
             : new URLSearchParams(location.search).get("platnosc") === "czeka" ? "Płatność została przyjęta, ale dostęp jeszcze się nie włączył. Odśwież tę stronę za minutę. Jeśli to nie pomoże, napisz do nas: włączymy dostęp ręcznie."
-            : "Temat „Procenty” jest za darmo. Pełny kurs z testem startowym i egzaminami próbnymi otworzy się po zakupie."}</p>
-          ${paid ? "" : `<div class="btn-row"><button class="btn btn-yellow" type="button" data-buy="exam">Do egzaminu: 199 zł jednorazowo</button><button class="btn" type="button" data-buy="monthly">Miesięcznie: 49 zł</button></div>
-          <p class="kid-note">14 dni na zwrot pieniędzy bez podawania przyczyny.</p>`}</div>`;
+            : "Temat „Procenty” masz za darmo. Z pełnym dostępem dziecko dostaje:"}</p>
+          ${paid ? "" : `<ul class="acc-benefits">
+            <li><span><b>Wszystkie 20 tematów</b>: od liczb i ułamków po bryły i prawdopodobieństwo</span></li>
+            <li><span><b>Test startowy</b>, który pokazuje, od którego tematu zacząć</span></li>
+            <li><span><b>2 pełne egzaminy próbne</b> z wynikiem i listą tematów do powtórki</span></li>
+            <li><span><b>Ponad 1000 zadań</b> z rozwiązaniem krok po kroku</span></li>
+            <li><span><b>Wyniki i dni nauki dziecka</b> w tym panelu</span></li>
+          </ul>
+          <div class="acc-plans">
+            <div class="acc-plan featured"><span class="pill yellow ribbon">Bez subskrypcji</span><b>Do dnia egzaminu</b>
+              <div class="acc-price">199 zł <small>jednorazowo</small></div><p class="per-day" data-perday="199" hidden></p>
+              <p>Dostęp do 11 maja 2027. Bez subskrypcji, nic się samo nie odnawia.</p>
+              <button class="btn btn-yellow" type="button" data-buy="exam">Wybieram do egzaminu</button></div>
+            <div class="acc-plan"><b>Miesięcznie</b>
+              <div class="acc-price">49 zł <small>/ miesiąc</small></div>
+              <p>Rezygnujesz jednym kliknięciem, dostęp zostaje do końca opłaconego miesiąca.</p>
+              <button class="btn" type="button" data-buy="monthly">Wybieram miesięcznie</button></div>
+          </div>
+          <p class="guarantee"><span class="g-ico" aria-hidden="true">✓</span><span><b>14 dni na zwrot pieniędzy.</b> Jeśli kurs Wam nie podpasuje, zwrócimy całą kwotę bez podawania przyczyny.</span></p>`}</div>`;
       }
-      acc.innerHTML = accHtml + `<h2 class="acc-h">Dzieci i ich postępy</h2><div id="kids" class="acc-kids"></div>
-        <div class="btn-row"><button class="btn btn-small btn-ghost" type="button" id="add-kid">+ Dodaj login dla kolejnego dziecka</button></div>
+      acc.innerHTML = accHtml + `<h2 class="acc-h">Postępy dziecka</h2><div id="kids" class="acc-kids"></div>
         <details class="acc-danger"><summary>Usuń konto</summary>
           <p>Usuniemy konto, loginy dzieci i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję w „Zarządzaj subskrypcją”." : ""}</p>
           <label>Wpisz <b>USUŃ</b>, aby potwierdzić <input type="text" id="del-confirm" autocomplete="off"></label>
           <button class="btn btn-small" type="button" id="del-acc">Usuń konto na zawsze</button></details>`;
       acc.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => M8.buy(b.dataset.buy, b)));
+      acc.querySelectorAll("[data-perday]").forEach(el => {
+        const days = Math.ceil((new Date("2027-05-11T09:00:00+02:00") - new Date()) / 864e5);
+        if (days < 7) return; const v = 199 / days;
+        el.textContent = v < 1 ? `Mniej niż 1 zł dziennie (ok. ${Math.ceil(v * 100)} gr)` : `Ok. ${v.toFixed(2).replace(".", ",")} zł dziennie`; el.hidden = false;
+      });
       const portal = $("portal");
       if (portal) portal.addEventListener("click", async () => { try { location.href = (await M8.api("/api/portal", { method: "POST" })).url; } catch (e) { alert(e.message); } });
-      $("add-kid").addEventListener("click", async () => {
-        const n = prompt("Imię dziecka (do loginu i powitania w kursie):", "");
-        if (n == null) return;
-        try { await M8.api("/api/students", { method: "POST", body: { name: n } }); location.reload(); } catch (e) { alert(e.message); }
-      });
       $("del-acc").addEventListener("click", async () => {
         try { await M8.api("/api/account", { method: "DELETE", body: { confirm: $("del-confirm").value.trim() } });
           try { localStorage.removeItem("matma8-v3"); } catch (e) {} location.href = "./"; }

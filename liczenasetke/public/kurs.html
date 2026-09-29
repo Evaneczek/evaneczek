@@ -82,8 +82,12 @@
     window.M8.ready.then(me => {
       if (!me) return;
       const on = me.access && me.access.active;
-      host.querySelectorAll(".topic.ready .st").forEach(st => {
-        st.innerHTML = on ? "Wejdź →" : `${lock} Pełna wersja · po zakupie →`;
+      host.querySelectorAll(".topic.ready").forEach(a => {
+        const st = a.querySelector(".st");
+        if (on) { st.innerHTML = "Wejdź →"; return; }
+        a.classList.add("locked-t");
+        a.href = "cennik.html";
+        st.innerHTML = `${lock} Po zakupie · zobacz ceny →`;
       });
     });
 

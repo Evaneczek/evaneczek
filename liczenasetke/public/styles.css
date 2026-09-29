@@ -2046,3 +2046,31 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
 .acc-danger label { display: grid; gap: 6px; font-weight: 700; max-width: 320px; }
 .acc-danger input { border: 2px solid var(--ink); border-radius: 10px; padding: 8px 10px; font: inherit; }
 @media (max-width: 720px) { .kid-grid { grid-template-columns: minmax(0, 1fr); } .kid-actions { margin-left: 0; } }
+
+/* Program kursu bez dostępu: płatne tematy przyciemnione, prowadzą do cennika */
+.topic.locked-t { opacity: .62; filter: grayscale(.35); }
+.topic.locked-t:hover { opacity: .85; filter: none; }
+.topic.locked-t .st { color: var(--muted); }
+
+/* Panel: korzyści i plany przed zakupem */
+.acc-benefits { list-style: none; padding: 0; margin: 4px 0 6px; display: grid; gap: 8px; }
+.acc-benefits li { display: flex; gap: 10px; font-size: 16px; color: var(--ink); }
+.acc-benefits li::before { content: "✓"; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 13px; border: 2px solid var(--ink); }
+.acc-plans { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+.acc-plan { position: relative; border: 2px solid var(--ink); border-radius: 14px; padding: 18px 18px 16px; display: grid; gap: 6px; align-content: start; background: var(--card); }
+.acc-plan.featured { box-shadow: 5px 5px 0 var(--ink); background: var(--yellow-soft); }
+.acc-plan > b { font-family: var(--display); font-size: 20px; }
+.acc-plan .ribbon { position: absolute; top: -13px; right: 12px; }
+.acc-price { font-family: var(--display); font-weight: 800; font-size: 36px; line-height: 1.1; }
+.acc-price small { font-family: var(--mono); font-size: 12px; color: var(--muted); font-weight: 700; }
+.acc-plan p { font-size: 14.5px; }
+.acc-plan .btn { margin-top: 6px; justify-content: center; }
+.acc-card .guarantee { margin-top: 6px; max-width: none; }
+@media (max-width: 640px) { .acc-plans { grid-template-columns: 1fr; } .acc-plan.featured { order: -1; } }
+
+/* Logowanie: Google na pierwszym planie */
+.g-box { background: var(--yellow-soft); border: 2px solid var(--ink); border-radius: 14px; padding: 14px 14px 16px; display: grid; gap: 10px; box-shadow: 4px 4px 0 var(--ink); }
+.g-lead { text-align: center; display: grid; gap: 2px; }
+.g-lead b { font-family: var(--display); font-size: 19px; }
+.g-lead span { font-size: 14px; color: var(--muted); font-weight: 700; }
+.g-box .g-btn { min-height: 44px; }
