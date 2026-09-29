@@ -487,6 +487,10 @@ async function api(req, res, url) {
 
 const server = http.createServer(async (req, res) => {
   try {
+    // jeden adres strony: www i adres techniczny Railway przekierowują na BASE_URL (poza webhookiem Stripe)
+    const host = (req.headers.host || "").toLowerCase(), want = new URL(BASE_URL).host;
+    if (SECURE && host && host !== want && !req.url.startsWith("/api/stripe/") && (host === "www." + want || host.endsWith(".up.railway.app")))
+      return send(res, 301, "", "text/plain", { Location: BASE_URL + req.url });
     const url = new URL(req.url, BASE_URL);
     if (url.pathname.startsWith("/api/")) return await api(req, res, url);
     if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "Metoda niedozwolona", "text/plain; charset=utf-8");
