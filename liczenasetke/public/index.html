@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Liczę na Setkę">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Liczę na Setkę · matematyka do egzaminu ósmoklasisty">
+<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:url" content="https://liczenasetke.pl/">
+<meta property="og:image" content="https://liczenasetke.pl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Liczę na Setkę: egzamin ósmoklasisty z matematyki bez korepetycji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica.">
+<title>Liczę na Setkę · matematyka do egzaminu ósmoklasisty</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="site-header" data-page="home"></div>
+
+<main>
+  <!-- 1. Obietnica + dowód w działaniu (zadanie do kliknięcia) + kontrola rodzica + jedno główne działanie -->
+  <section class="lp-hero grid-paper">
+    <div class="container">
+      <div>
+        <span class="countdown" data-countdown-wrap><b data-countdown>—</b>do egzaminu z matematyki</span>
+        <h1>Twoje dziecko gotowe na egzamin z&nbsp;matematyki. <span class="nowrap"><span class="hl">Bez korepetycji.</span></span></h1>
+        <p class="lp-sub m-hide">Kurs online prowadzi je przez cały materiał krok po kroku: krótkie lekcje, zadania jak na egzaminie sprawdzane od razu i rozwiązania wytłumaczone zwykłym językiem. Ty niczego nie musisz tłumaczyć, a postępy widzisz w panelu rodzica.</p>
+        <p class="lp-sub m-only-b">Krótkie lekcje i zadania sprawdzane od razu. Ty niczego nie tłumaczysz, a wyniki widzisz w panelu rodzica.</p>
+        <div class="lp-cta">
+          <a class="btn btn-yellow btn-shine" href="kurs.html?lekcja=przykladowa">Wypróbuj darmową lekcję</a>
+          <a class="text-link" href="cennik.html">Zobacz plany i ceny</a>
+          <button class="share-kid m-only-b" type="button" data-share-kid><span aria-hidden="true">↗</span> Wyślij darmową lekcję dziecku</button>
+        </div>
+        <ul class="lp-trust">
+          <li><span><b>199&nbsp;zł za cały kurs</b>, tyle co ok. 3&nbsp;godziny korepetycji</span></li>
+          <li><span>Temat „Procenty” za darmo, bez zakładania konta</span></li>
+          <li><span>Zgodne z wymaganiami CKE na egzamin 2027</span></li>
+          <li><span>14 dni na zwrot pieniędzy, bez podawania przyczyny</span></li>
+        </ul>
+      </div>
+
+      <div class="lp-visual2">
+        <div class="try-card idle" id="try-card" aria-label="Przykładowe zadanie z kursu do rozwiązania">
+          <div class="try-head"><b>Rozwiąż zadanie z kursu</b><span>PROCENTY</span></div>
+          <div class="try-body">
+            <p class="task-q">Po obniżce o 25% telefon kosztuje 600 zł. Ile kosztował przed obniżką?</p>
+            <div class="opts" role="radiogroup" aria-label="Odpowiedzi" id="try-opts">
+              <button class="opt" type="button" role="radio" aria-checked="false" data-k="A"><span class="l">A</span>450 zł</button>
+              <button class="opt" type="button" role="radio" aria-checked="false" data-k="B"><span class="l">B</span>750 zł</button>
+              <button class="opt" type="button" role="radio" aria-checked="false" data-k="C"><span class="l">C</span>800 zł</button>
+              <button class="opt" type="button" role="radio" aria-checked="false" data-k="D"><span class="l">D</span>2 400 zł</button>
+            </div>
+            <div class="try-fb" id="try-fb" aria-live="polite" hidden></div>
+            <div class="sol-wrap" id="try-sol" hidden>
+              <div class="btn-row"><button class="btn btn-small sol-btn" type="button" id="try-sol-btn" aria-expanded="false">Pokaż rozwiązanie</button><button class="btn btn-small btn-ghost" type="button" id="try-again">Spróbuj jeszcze raz</button></div>
+              <div class="solution sol-demo" id="try-sol-box" hidden>
+                <div class="sol-title">Rozwiązanie</div>
+                <div class="sol-text">
+                  <p>Najważniejsze: 600 zł to cena <b>po</b> obniżce. Obniżkę o 25% liczono od starej ceny, której nie znamy.</p>
+                  <p>Po obniżce o 25% zostało 75% starej ceny. Czyli 600 zł to 75% starej ceny: <span class="m">0,75 · x = 600</span>.</p>
+                  <p>Szukamy x, więc dzielimy: <span class="m">600 : 0,75 = 800</span>. Sprawdźmy: 25% z 800 zł to 200 zł, a 800 − 200 = 600. Zgadza się!</p>
+                  <p class="sol-answer"><b>Odpowiedź:</b> C, 800 zł.</p>
+                </div>
+                <div class="sol-tip"><b>Rada</b><span>Znasz cenę PO zmianie i szukasz ceny PRZED? Zawsze dzielisz.</span></div>
+              </div>
+            </div>
+            <p class="try-hint" id="try-hint">↑ KLIKNIJ ODPOWIEDŹ, ŻEBY JĄ SPRAWDZIĆ</p>
+          </div>
+        </div>
+
+        <div class="phone m-hide" aria-label="Panel rodzica na telefonie">
+          <div class="phone-screen">
+            <div class="phone-notch" aria-hidden="true"></div>
+            <div class="phone-head"><b>Panel rodzica</b><span>TWOJE DZIECKO</span></div>
+            <div class="phone-child" style="padding:10px 14px 0"><i>O</i>Ola, klasa 8b</div>
+            <div class="pp-mini">
+              <span class="pp-status">Na dobrej drodze</span>
+              <div><div class="pp-label">Uczyła się w tym tygodniu</div>
+                <div class="pp-days" aria-label="Poniedziałek, środa, czwartek i sobota"><span class="on">Pn</span><span>Wt</span><span class="on">Śr</span><span class="on">Cz</span><span>Pt</span><span class="on">So</span><span>Nd</span></div></div>
+              <div><div class="pp-label">Ostatni test</div><p>Procenty: 12 z 14 punktów</p></div>
+              <div class="pp-tip"><div class="pp-label">Warto powtórzyć</div><p>Gdy cena zmienia się dwa razy, np. podwyżka, a potem obniżka</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- 1a. Egzamin w liczbach: dane ogólnopolskie CKE, wyraźnie oddzielone od informacji o kursie -->
+  <section class="exam-facts" id="egzamin-w-liczbach" aria-labelledby="ef-h">
+    <div class="container ef-grid">
+      <div class="ef-copy">
+        <div class="ef-eyebrow">Egzamin ósmoklasisty 2026 w liczbach · dane dla całej Polski</div>
+        <h2 id="ef-h">Z matematyki ósmoklasiści tracą najwięcej punktów</h2>
+        <p>W maju 2026 średni wynik z matematyki wyniósł 55%, najmniej ze wszystkich przedmiotów. A to właśnie matematyka daje do 35 punktów w rekrutacji do szkoły średniej.</p>
+      </div>
+      <figure class="ef-chart" role="img" aria-label="Średnie wyniki egzaminu ósmoklasisty 2026 w Polsce: język angielski 73%, język polski 65%, matematyka 55%">
+        <figcaption>Średni wynik w Polsce, egzamin ósmoklasisty 2026</figcaption>
+        <div class="ef-row"><span>Język angielski</span><div class="ef-bar"><i style="--v:73"></i></div><b data-count="73" data-suffix="%">73%</b></div>
+        <div class="ef-row"><span>Język polski</span><div class="ef-bar"><i style="--v:65"></i></div><b data-count="65" data-suffix="%">65%</b></div>
+        <div class="ef-row math"><span>Matematyka</span><div class="ef-bar"><i style="--v:55"></i></div><b data-count="55" data-suffix="%">55%</b></div>
+        <p class="ef-src">Źródło: CKE, wstępne wyniki egzaminu ósmoklasisty 2026 (lipiec 2026)</p>
+      </figure>
+    </div>
+    <div class="container ef-facts m-hide">
+      <div class="ef-fact"><b>do <span data-count="35">35</span> pkt</b><span>w rekrutacji do szkoły średniej daje sam wynik z matematyki (na 200 możliwych)</span></div>
+      <div class="ef-fact"><b>+3,5 pkt</b><span>w rekrutacji za każde 10% więcej na egzaminie z matematyki</span></div>
+      <div class="ef-fact"><b><span data-count="125">125</span> minut</b><span>trwa egzamin z matematyki 11 maja 2027. Dlatego ćwiczymy też tempo: testy na czas po każdym temacie</span></div>
+    </div>
+  </section>
+
+
+  <!-- 2. Co oferujemy: krótko, cztery karty z małymi podglądami. Pełna prezentacja z animacjami jest na stronie „Jak to działa”. -->
+  <section class="offer2" id="co-oferujemy">
+    <div class="container">
+      <div class="o2-top">
+        <div class="o2-lead">
+          <div class="eyebrow">Co oferujemy</div>
+          <h2>Cały egzamin z matematyki w jednym kursie</h2>
+          <p class="o2-big">Każdy dział, który będzie na egzaminie, ma tu <mark>lekcje, zadania z rozwiązaniami i test</mark>.</p>
+          <p class="m-hide">Wszystko ułożone po kolei i w tym samym prostym układzie. Dziecko nie musi niczego szukać, a Ty wiesz, że żaden temat z egzaminu nie został pominięty.</p>
+        </div>
+        <div class="o2-scope" id="o2-scope" aria-label="Zakres kursu: każdy dział ma lekcje, zadania i test">
+          <div class="sc-head" aria-hidden="true"><span>Zakres egzaminu</span><span>Lekcje</span><span>Zadania</span><span>Test</span></div>
+          <div class="sc-row"><div class="sc-name"><small>Dział 1</small><b>Liczby i działania</b></div><i>✓</i><i>✓</i><i>✓</i></div>
+          <div class="sc-row"><div class="sc-name"><small>Dział 2</small><b>Algebra</b></div><i>✓</i><i>✓</i><i>✓</i></div>
+          <div class="sc-row"><div class="sc-name"><small>Dział 3</small><b>Geometria</b></div><i>✓</i><i>✓</i><i>✓</i></div>
+          <div class="sc-row"><div class="sc-name"><small>Dział 4</small><b>Dane i prawdopodobieństwo</b></div><i>✓</i><i>✓</i><i>✓</i></div>
+          <div class="sc-row sc-end"><div class="sc-name"><small>Na koniec</small><b>2 egzaminy próbne</b></div><i class="wide">Pełny arkusz · 125 min</i></div>
+        </div>
+      </div>
+      <h3 class="o2-sub">W każdym temacie ten sam prosty układ</h3>
+      <div class="o2-grid">
+        <article class="o2-card c-blue">
+          <div class="o2-vis" aria-hidden="true">
+            <div class="o2-lesson">
+              <span class="o2-step"><em>Krok 1</em>Płacisz 85% ceny</span>
+              <span class="o2-step"><em>Krok 2</em>240 · 0,85 = 204</span>
+              <span class="o2-ok">✓ Kurtka kosztuje 204 zł</span>
+            </div>
+          </div>
+          <h3>Krótkie lekcje</h3>
+          <p>Zasada, przykład krok po kroku i podobne zadanie do zrobienia samemu.</p>
+        </article>
+        <article class="o2-card c-yellow">
+          <div class="o2-vis" aria-hidden="true">
+            <div class="o2-quiz">
+              <div class="o2-abcd"><span>A 6%</span><span class="ok">B 15%</span><span class="bad">C 13%</span><span>D 115%</span></div>
+              <div class="o2-fb">Poprawna to B. Rozwiązanie →</div>
+            </div>
+          </div>
+          <h3>Zadania jak na egzaminie</h3>
+          <p>Sprawdzane od razu. Przy błędzie wyjaśnienie i rozwiązanie zwykłym językiem.</p>
+        </article>
+        <article class="o2-card c-green">
+          <div class="o2-vis" aria-hidden="true">
+            <div class="o2-score"><div><b data-count="13">13</b><span>z 14 pkt</span></div><i>Zaliczone ✓</i></div>
+          </div>
+          <h3>Testy i egzaminy próbne</h3>
+          <p>Test na czas po każdym temacie i dwa pełne egzaminy próbne przed majem.</p>
+        </article>
+        <article class="o2-card c-red">
+          <div class="o2-vis" aria-hidden="true">
+            <div class="o2-parent">
+              <div class="o2-days"><span class="on">Pn</span><span>Wt</span><span class="on">Śr</span><span class="on">Cz</span><span>Pt</span><span class="on">So</span><span>Nd</span></div>
+              <div class="o2-note">Ostatni test: <b>13 z 14 pkt</b></div>
+            </div>
+          </div>
+          <h3>Panel rodzica</h3>
+          <p>Widzisz, kiedy dziecko się uczyło i jak poszedł test. Bez sprawdzania zeszytu.</p>
+        </article>
+      </div>
+      <ul class="o2-extras m-hide">
+        <li>Powtórki z nowymi liczbami</li>
+        <li>Nauka we własnym tempie</li>
+        <li>Telefon, tablet i komputer</li>
+      </ul>
+      <div class="offer-cta o2-cta"><a class="btn btn-yellow" href="kurs.html?lekcja=przykladowa">Wypróbuj darmową lekcję</a><a class="text-link" href="jak-to-dziala.html#tak-wyglada-nauka">Zobacz, jak to działa w praktyce →</a></div>
+    </div>
+  </section>
+
+  <!-- 2a. Egzamin próbny: co dostaje rodzic po arkuszu (przykładowy wynik, liczby zgodne z egzaminem nr 1) -->
+  <section class="lp-section res-sec" id="wynik-egzaminu">
+    <div class="container res-grid">
+      <div class="res-copy">
+        <div class="eyebrow">Egzaminy próbne</div>
+        <h2>Po egzaminie próbnym wiesz, co jeszcze powtórzyć</h2>
+        <p>Dwa pełne arkusze na 125 minut, jak w maju. Zaraz po zakończeniu widać wynik w punktach i procentach, wynik w każdym dziale i tematy, na których dziecko straciło punkty, z linkiem do lekcji.</p>
+        <ul class="res-list">
+          <li>Przeliczenie wyniku na punkty w rekrutacji do szkoły średniej</li>
+          <li>Porównanie ze średnim wynikiem w Polsce</li>
+          <li>Na początku kursu test startowy: od którego tematu zacząć</li>
+        </ul>
+      </div>
+      <div class="res-card" aria-label="Przykładowy wynik egzaminu próbnego">
+        <div class="res-head"><span>Egzamin próbny nr&nbsp;1</span><em>przykładowy wynik</em></div>
+        <div class="res-score"><b>21 / 30 pkt</b><span>70%</span></div>
+        <div class="res-rows">
+          <div class="res-row"><span>Liczby i działania</span><i style="--p:87.5%"></i><b>7/8</b></div>
+          <div class="res-row"><span>Algebra</span><i style="--p:75%"></i><b>6/8</b></div>
+          <div class="res-row"><span>Geometria</span><i style="--p:50%"></i><b>6/12</b></div>
+          <div class="res-row"><span>Dane i prawdopodob.</span><i style="--p:100%"></i><b>2/2</b></div>
+        </div>
+        <div class="res-todo"><small>Co powtórzyć przed egzaminem</small>
+          <div><span>Graniastosłupy i ostrosłupy</span><em>−3 pkt · zad. 21</em></div>
+          <div><span>Pola, obwody, koło i okrąg</span><em>−2 pkt · zad. 20</em></div>
+          <div><span>Kąty, trójkąty i czworokąty</span><em>−1 pkt · zad. 18</em></div>
+        </div>
+        <p class="res-foot">W rekrutacji: 70% · 0,35 = <b>24,5 z 35 pkt</b></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Zaufanie: kurs zbudowany na oficjalnych dokumentach CKE -->
+  <section class="lp-section cke-sec grid-paper" id="zgodne-z-cke">
+    <div class="container cke-grid">
+      <div class="cke-copy">
+        <div class="eyebrow">Zgodne z egzaminem</div>
+        <h2>Uczymy dokładnie tego, co będzie na egzaminie</h2>
+        <p class="cke-lead">Kurs opiera się na oficjalnych dokumentach Centralnej Komisji Egzaminacyjnej. Przeanalizowaliśmy je punkt po punkcie.</p>
+        <ol class="cke-list">
+          <li><b>Podstawa programowa z 2024 roku</b><span>Każde wymaganie, które obowiązuje na egzaminie, ma w kursie lekcję, zadania i zadanie w teście.</span></li>
+          <li><b>Arkusze egzaminacyjne z 2025 i 2026 roku</b><span>Zadania mają te same formy co na egzaminie: wybór odpowiedzi, prawda/fałsz i zadania otwarte.</span></li>
+          <li><b>Zasady oceniania CKE</b><span>Zadania otwarte są punktowane jak na egzaminie: punkt za każdy etap rozwiązania.</span></li>
+        </ol>
+      </div>
+      <div class="cke-visual m-hide" aria-hidden="true">
+        <div class="cke-sheet back b2"><span class="cke-tab">Arkusz 2026</span></div>
+        <div class="cke-sheet back b1"><span class="cke-tab">Arkusz 2025</span></div>
+        <div class="cke-sheet front">
+          <small>Matematyka · klasy 4–8</small>
+          <b>Wymagania na egzamin</b>
+          <ul class="cke-req"><li style="--k:0"><i style="--w:88%"></i><em>✓</em></li><li style="--k:1"><i style="--w:70%"></i><em>✓</em></li><li style="--k:2"><i style="--w:82%"></i><em>✓</em></li><li style="--k:3"><i style="--w:62%"></i><em>✓</em></li><li style="--k:4"><i style="--w:92%"></i><em>✓</em></li><li style="--k:5"><i style="--w:76%"></i><em>✓</em></li></ul>
+          <div class="cke-foot"><b>✓</b> = lekcja, zadania i test w kursie</div>
+        </div>
+        <div class="cke-seal"><span>Sprawdzone</span><b>✓</b><span>punkt<br>po punkcie</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2b. Jak powstał kurs: zaufanie przez sposób pracy i prawdziwe liczby (bez nazwisk) -->
+  <section class="lp-section made-sec" id="jak-powstal">
+    <div class="container">
+      <div class="lp-head center">
+        <div class="eyebrow">Jak powstał kurs</div>
+        <h2>Każde zadanie napisane od nowa i sprawdzone</h2>
+        <p>Nie skleiliśmy kursu z zadań znalezionych w internecie. Każde zadanie powstało od zera, na wzór zadań z arkuszy CKE, i ma pełne rozwiązanie krok po kroku.</p>
+      </div>
+      <div class="made-grid">
+        <div class="made-card"><b><span data-count="127">127</span></b><em>krótkich lekcji</em><span>w 20 tematach, od liczb i ułamków po bryły i prawdopodobieństwo</span></div>
+        <div class="made-card"><b>ponad <span data-count="1000">1 000</span></b><em>zadań z rozwiązaniem</em><span>każde wytłumaczone zwykłym językiem, tak jak zrobiłby to dobry korepetytor</span></div>
+        <div class="made-card"><b>ponad <span data-count="2400">2 400</span></b><em>sprawdzonych obliczeń</em><span>komputer przelicza je po każdej zmianie w kursie, żeby w odpowiedziach nie było pomyłek</span></div>
+      </div>
+      <p class="made-note">Kurs jest poprawiany na bieżąco, a każda zmiana od razu trafia do wszystkich uczniów, bez kupowania nowej wersji.</p>
+    </div>
+  </section>
+
+  <!-- 6. Porównanie z alternatywami -->
+  <section class="lp-section alt">
+    <div class="container">
+      <div class="lp-head">
+        <div class="eyebrow">Porównanie</div>
+        <h2>Czym to się różni od korepetycji i filmów?</h2>
+        <p>Korepetycje to często kilkaset złotych miesięcznie. Filmy w internecie są za darmo, ale nikt nie układa ich w całość ani nie sprawdza zadań.</p>
+      </div>
+      <div class="lp-compare-wrap m-hide">
+        <table class="lp-compare">
+          <thead>
+            <tr><th></th><th>Korepetycje</th><th>Filmy i kursy wideo</th><th class="us">Liczę na Setkę</th></tr>
+          </thead>
+          <tbody>
+            <tr><th>Koszt do egzaminu</th><td data-label="Korepetycje">ok. 1&nbsp;500–2&nbsp;500&nbsp;zł</td><td data-label="Filmy i kursy wideo">od 0&nbsp;zł do ok. 1&nbsp;000&nbsp;zł</td><td data-label="Liczę na Setkę" class="us">199&nbsp;zł jednorazowo</td></tr>
+            <tr><th>Cały zakres egzaminu po kolei</th><td data-label="Korepetycje">zależy od nauczyciela</td><td data-label="Filmy i kursy wideo" class="no">trzeba szukać samemu</td><td data-label="Liczę na Setkę" class="us yes">tak, temat po temacie</td></tr>
+            <tr><th>Sprawdzanie zadań</th><td data-label="Korepetycje" class="yes">na lekcji</td><td data-label="Filmy i kursy wideo" class="no">brak</td><td data-label="Liczę na Setkę" class="us yes">od razu, z wyjaśnieniem</td></tr>
+            <tr><th>Rodzic widzi postępy</th><td data-label="Korepetycje">jeśli zapyta</td><td data-label="Filmy i kursy wideo" class="no">nie</td><td data-label="Liczę na Setkę" class="us yes">panel rodzica</td></tr>
+            <tr><th>Nauka we własnym tempie</th><td data-label="Korepetycje" class="no">w ustalonych godzinach</td><td data-label="Filmy i kursy wideo" class="yes">tak</td><td data-label="Liczę na Setkę" class="us yes">tak</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <table class="cmp-mini m-only">
+        <caption class="sr-only">Porównanie: korepetycje, filmy i kursy wideo, Liczę na Setkę</caption>
+        <thead><tr><th></th><th>Korepetycje</th><th>Filmy wideo</th><th class="us">Liczę na Setkę</th></tr></thead>
+        <tbody>
+          <tr><th>Koszt do egzaminu</th><td>1&nbsp;500–<wbr>2&nbsp;500&nbsp;zł</td><td>0–1&nbsp;000&nbsp;zł</td><td class="us"><b>199&nbsp;zł</b></td></tr>
+          <tr><th>Cały zakres po kolei</th><td>zależy</td><td class="cm-n" aria-label="nie">✗</td><td class="us cm-y" aria-label="tak">✓</td></tr>
+          <tr><th>Sprawdzanie zadań</th><td class="cm-y" aria-label="tak">✓</td><td class="cm-n" aria-label="nie">✗</td><td class="us cm-y" aria-label="tak">✓</td></tr>
+          <tr><th>Rodzic widzi postępy</th><td>jeśli zapyta</td><td class="cm-n" aria-label="nie">✗</td><td class="us cm-y" aria-label="tak">✓</td></tr>
+          <tr><th>Własne tempo</th><td class="cm-n" aria-label="nie">✗</td><td class="cm-y" aria-label="tak">✓</td><td class="us cm-y" aria-label="tak">✓</td></tr>
+        </tbody>
+      </table>
+      <p class="lp-note">Korepetycje: 50–80&nbsp;zł za godzinę, raz w tygodniu od października do maja. Ceny korepetycji i kursów różnią się w zależności od miasta i nauczyciela.</p>
+    </div>
+  </section>
+
+  <!-- 7. Co dostajesz + cena (wartość tuż przed ceną) -->
+  <section class="lp-section" id="ceny">
+    <div class="container">
+      <div class="lp-head center">
+        <div class="eyebrow">Cena</div>
+        <h2>Cały kurs, jedna prosta cena</h2>
+      </div>
+      <div class="plans">
+        <div class="plan box">
+          <h3>Miesięcznie</h3>
+          <div class="price">49 zł <small>/ MIESIĄC</small></div>
+          <p class="desc">Rezygnujesz w dowolnej chwili. Dostęp zostaje do końca opłaconego miesiąca.</p>
+          <a class="btn" href="cennik.html" data-buy="monthly">Wybieram miesięcznie</a>
+        </div>
+        <div class="plan box featured">
+          <span class="pill yellow ribbon">Bez subskrypcji</span>
+          <h3>Do dnia egzaminu</h3>
+          <div class="price">199 zł <small>JEDNORAZOWO</small></div>
+          <p class="per-day" data-perday="199" hidden></p>
+          <p class="desc">Jedna płatność, dostęp do 11 maja 2027. Nic się samo nie odnawia.</p>
+          <a class="btn btn-yellow" href="cennik.html" data-buy="exam">Wybieram do egzaminu</a>
+        </div>
+      </div>
+      <p class="guarantee"><span class="g-ico" aria-hidden="true">✓</span><span><b>14 dni na zwrot pieniędzy.</b> Jeśli kurs Wam nie podpasuje, napiszcie w ciągu 14 dni od zakupu, a zwrócimy całą kwotę. Bez podawania przyczyny.</span></p>
+      <p class="plans-note">Dla porównania: 199&nbsp;zł to mniej więcej 3&nbsp;godziny korepetycji z matematyki (zwykle 50–80&nbsp;zł za godzinę).</p>
+    </div>
+  </section>
+
+  <!-- 8. Obawy przed zakupem -->
+  <section class="lp-section alt">
+    <div class="container">
+      <div class="lp-head center">
+        <div class="eyebrow">Pytania rodziców</div>
+        <h2>Zanim zdecydujesz</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Czy mogę sprawdzić kurs przed zakupem?</summary>
+          <p>Tak. Temat „Procenty” jest otwarty w całości, bez zakładania konta: lekcje, ćwiczenia ze sprawdzaniem i test. To ten sam układ, który mają wszystkie tematy.</p>
+        </details>
+        <details>
+          <summary>Czy materiał pasuje do egzaminu w 2027 roku?</summary>
+          <p>Tak. Kurs jest ułożony według podstawy programowej z 2024 roku i wymagań CKE, które obowiązują na egzaminie 11 maja 2027. Zadania są wzorowane na arkuszach z lat 2025 i 2026.</p>
+        </details>
+        <details>
+          <summary>Czy moje dziecko będzie z tego korzystać?</summary>
+          <p>Lekcje są krótkie, zadania sprawdzają się od razu, a postęp widać na pasku. Nie ma terminów ani zaległości: dziecko uczy się we własnym tempie, a kurs pamięta, gdzie skończyło. W panelu zobaczysz, jak mu idzie.</p>
+        </details>
+        <details>
+          <summary>Czy to wystarczy zamiast korepetycji?</summary>
+          <p>Kurs obejmuje cały zakres egzaminu i daje to, co w korepetycjach najważniejsze: cały materiał po kolei, wytłumaczenie i sprawdzanie. Jeśli dziecko ma duże zaległości z wcześniejszych klas, kurs dobrze uzupełnia pracę z nauczycielem.</p>
+        </details>
+        <details>
+          <summary>Ile czasu trzeba na naukę?</summary>
+          <p>Nie ma harmonogramu, więc tempo wybieracie sami. Lekcje są krótkie, a test na koniec tematu trwa 35 minut (sprawdzian działu 60 minut). Kurs ma 20 tematów: zaczynając jesienią, wystarczą mniej więcej 3 tematy w miesiącu, żeby przed majem przerobić wszystko i rozwiązać oba egzaminy próbne.</p>
+        </details>
+        <details>
+          <summary>Zaczynamy późno. Czy zdążymy?</summary>
+          <p>Tak. Cały kurs jest dostępny od razu i nie ma żadnych terminów, więc tempo zależy od Was. Temat, który dziecko już zna, może od razu sprawdzić testem i przejść dalej, a czas zostawić na najtrudniejsze.</p>
+        </details>
+        <details>
+          <summary>Czy muszę znać matematykę, żeby pomóc?</summary>
+          <p>Nie. Kurs sam sprawdza odpowiedzi i tłumaczy błędy. Możesz zajrzeć do panelu rodzica, kiedy chcesz, i zapytać o wynik testu.</p>
+        </details>
+        <details>
+          <summary>A jeśli kurs nam nie podpasuje?</summary>
+          <p>Masz 14 dni od zakupu na zwrot pieniędzy bez podawania przyczyny. Wystarczy e-mail, a zwrócimy całą kwotę.</p>
+        </details>
+        <details>
+          <summary>Jak zrezygnować?</summary>
+          <p>Plan miesięczny wyłączasz w panelu rodzica jednym kliknięciem. Plan „Do dnia egzaminu” to jedna płatność, która nigdy się nie odnawia.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8a. Pasek „Napisz opinię” wróci, gdy będą pierwsze prawdziwe opinie (strona opinie.html zostaje w stopce). -->
+
+  <!-- 9. Zamknięcie z presją czasu -->
+  <section class="lp-final">
+    <div class="container">
+      <h2>Do egzaminu zostało <em data-countdown>—</em>. Zacznijcie w tym tygodniu.</h2>
+      <p>Wynik z matematyki to nawet 35 z 200 punktów w rekrutacji do szkoły średniej. Każdy przerobiony temat to mniej stresu w maju.</p>
+      <div class="lp-final-cta"><a class="btn btn-yellow btn-shine" href="kurs.html?lekcja=przykladowa">Wypróbuj darmową lekcję</a><a class="text-link" href="cennik.html">Zobacz plany i ceny</a></div>
+    </div>
+  </section>
+</main>
+
+<div class="sticky-cta" aria-hidden="true">
+  <a class="btn btn-yellow" href="kurs.html?lekcja=przykladowa" tabindex="-1">Wypróbuj darmową lekcję</a>
+  <span>Cały temat „Procenty” za darmo, bez konta</span>
+</div>
+
+<div id="site-footer"></div>
+<script src="program.js"></script>
+<script src="app.js"></script>
+<script>
+  (function () {
+    // Dni do egzaminu z matematyki: 11 maja 2027, 9:00 czasu polskiego
+    const exam = new Date("2027-05-11T09:00:00+02:00");
+    const days = Math.ceil((exam - new Date()) / 86400000);
+    const label = days === 1 ? "1 dzień" : Math.max(days, 0) + " dni";
+    document.querySelectorAll("[data-countdown]").forEach(n => { n.textContent = label; });
+    if (days <= 0) document.querySelectorAll("[data-countdown-wrap]").forEach(n => { n.hidden = true; });
+
+    // Zadanie do kliknięcia: zła odpowiedź na czerwono, poprawna na zielono, potem rozwiązanie
+    const why = {
+      A: "450 zł to 600 · 0,75. Pomnożono zamiast podzielić.",
+      B: "750 zł to 600 zł + 25% z 600 zł. Ale 25% liczono od starej ceny, a nie od 600 zł.",
+      D: "2 400 zł to 600 : 0,25. Po obniżce o 25% zostaje 75% ceny, więc dzieli się przez 0,75."
+    };
+    const opts = [...document.querySelectorAll("#try-opts .opt")];
+    const fb = document.getElementById("try-fb");
+    const hint = document.getElementById("try-hint");
+    const sol = document.getElementById("try-sol");
+    const solBtn = document.getElementById("try-sol-btn");
+    const solBox = document.getElementById("try-sol-box");
+    let answered = false;
+    opts.forEach(b => b.addEventListener("click", () => {
+      if (answered) return;
+      answered = true;
+      document.getElementById("try-card").classList.remove("idle");
+      const k = b.dataset.k, ok = k === "C";
+      opts.forEach(o => {
+        o.setAttribute("aria-checked", String(o === b));
+        if (o.dataset.k === "C") o.classList.add("is-ok");
+        else if (o === b) o.classList.add("is-bad");
+      });
+      fb.hidden = false;
+      fb.className = "try-fb " + (ok ? "ok" : "bad");
+      fb.innerHTML = ok ? "<b>Dobrze!</b>Po obniżce płacisz 75% ceny, więc 600 : 0,75 = 800 zł."
+                        : "<b>Nie tym razem. Poprawna odpowiedź to C.</b>" + why[k];
+      sol.hidden = false;
+      hint.hidden = true;
+    }));
+    solBtn.addEventListener("click", () => {
+      const open = solBox.hidden;
+      solBox.hidden = !open;
+      solBtn.setAttribute("aria-expanded", String(open));
+      solBtn.textContent = open ? "Ukryj rozwiązanie" : "Pokaż rozwiązanie";
+    });
+    document.getElementById("try-again").addEventListener("click", () => {
+      answered = false;
+      opts.forEach(o => { o.classList.remove("is-ok", "is-bad"); o.setAttribute("aria-checked", "false"); });
+      fb.hidden = true; sol.hidden = true; solBox.hidden = true; hint.hidden = false;
+      solBtn.textContent = "Pokaż rozwiązanie"; solBtn.setAttribute("aria-expanded", "false");
+    });
+  })();
+</script>
+<script>
+  // Zakres w „Co oferujemy”: działy i liczba tematów z programu kursu
+  (function () {
+    const P = window.PROGRAM || [], box = document.getElementById("o2-scope");
+    if (!box || !P.length) return;
+    const tematy = n => n === 1 ? "temat" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? "tematy" : "tematów";
+    const dz = P.filter(d => /^Dział/.test(d.label)), end = P.find(d => /koniec/i.test(d.label));
+    box.innerHTML = '<div class="sc-head" aria-hidden="true"><span>Zakres egzaminu</span><span>Lekcje</span><span>Zadania</span><span>Test</span></div>' +
+      dz.map(d => `<div class="sc-row"><div class="sc-name"><small>${d.label}</small><b>${d.name}</b><em>${d.topics.length} ${tematy(d.topics.length)}</em></div><i>✓</i><i>✓</i><i>✓</i></div>`).join("") +
+      (end ? `<div class="sc-row sc-end"><div class="sc-name"><small>Na koniec</small><b>${end.topics.length} egzaminy próbne</b></div><i class="wide">Pełny arkusz · 125 min</i></div>` : "");
+  })();
+</script>
+<script>
+  // Nagłówek: karta z zadaniem i telefon lekko podążają za myszką
+  (function () {
+    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // ---------- nagłówek: karta z zadaniem i telefon lekko podążają za myszką ----------
+    const hero = document.querySelector(".lp-hero"), vis = document.querySelector(".lp-visual2");
+    if (hero && vis && !calm && window.matchMedia("(pointer: fine)").matches) {
+      hero.addEventListener("pointermove", e => {
+        const r = hero.getBoundingClientRect();
+        vis.style.setProperty("--mx", ((e.clientX - r.left) / r.width - .5).toFixed(3));
+        vis.style.setProperty("--my", ((e.clientY - r.top) / r.height - .5).toFixed(3));
+      });
+      hero.addEventListener("pointerleave", () => { vis.style.setProperty("--mx", 0); vis.style.setProperty("--my", 0); });
+    }
+  })();
+</script>
+</body>
+</html>

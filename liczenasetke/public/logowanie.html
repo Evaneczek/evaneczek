@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Liczę na Setkę">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Zaloguj się · Liczę na Setkę">
+<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:url" content="https://liczenasetke.pl/logowanie.html">
+<meta property="og:image" content="https://liczenasetke.pl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Liczę na Setkę: egzamin ósmoklasisty z matematyki bez korepetycji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zaloguj się · Liczę na Setkę</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-header" data-page="login"></div>
+
+<main class="container auth">
+  <div>
+    <span class="label-pill yellow">Konto rodzica i ucznia</span>
+    <h1>Zaloguj się do kursu <span class="nowrap"><span class="hl">Liczę na Setkę</span></span></h1>
+    <p class="lead">Rodzic zakłada konto i opłaca dostęp. Dziecko loguje się swoim loginem i wraca tam, gdzie skończyło.</p>
+    <ul class="ticks">
+      <li>Logowanie przez Google albo link na e-mail, bez hasła</li>
+      <li>Jedno konto rodzica, osobny login i PIN dla dziecka</li>
+      <li>Postępy zapisują się na każdym urządzeniu</li>
+      <li>Nie prosimy o dane dziecka poza imieniem</li>
+    </ul>
+  </div>
+
+  <div class="auth-card box">
+    <div class="login-note" id="login-note" hidden></div>
+    <div class="auth-tabs" role="tablist" aria-label="Kto się loguje">
+      <button type="button" role="tab" id="tab-parent" aria-selected="true" aria-controls="form-parent">Rodzic</button>
+      <button type="button" role="tab" id="tab-student" aria-selected="false" aria-controls="form-student">Uczeń</button>
+    </div>
+
+    <div class="form" id="form-parent" role="tabpanel" aria-labelledby="tab-parent">
+      <div id="g-btn" class="g-btn" hidden></div>
+      <div class="or" id="g-or" hidden><span>albo</span></div>
+      <form class="form" id="form-email" novalidate>
+        <label>E-mail rodzica<input type="email" id="login-email" autocomplete="email" inputmode="email" required placeholder="np. anna@gmail.com"></label>
+        <button class="btn btn-yellow" type="submit">Wyślij link do logowania</button>
+        <small>Bez hasła: wyślemy link, który zaloguje Cię jednym kliknięciem. Konto zakłada się samo przy pierwszym logowaniu.</small>
+      </form>
+      <small class="terms">Logując się, akceptujesz <a href="regulamin.html" target="_blank">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank">politykę prywatności</a>.</small>
+    </div>
+
+    <form class="form" id="form-student" role="tabpanel" aria-labelledby="tab-student" novalidate hidden>
+      <label>Login ucznia<input type="text" id="st-login" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="np. ola-4821"></label>
+      <label>PIN (6 cyfr)<input type="password" id="st-pin" autocomplete="current-password" inputmode="numeric" pattern="[0-9]*" maxlength="6" required></label>
+      <button class="btn btn-yellow" type="submit">Zaloguj się</button>
+      <small>Login i PIN ustawia rodzic w swoim panelu. Nie pamiętasz PIN-u? Poproś rodzica o nowy.</small>
+    </form>
+
+    <div class="form-msg" id="form-msg" hidden role="status"></div>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<script src="app.js"></script>
+<script>
+  (function () {
+    const M8 = window.M8;
+    const $ = id => document.getElementById(id);
+    const params = new URLSearchParams(location.search);
+    const next = params.get("next") || "";
+    const msg = $("form-msg"), note = $("login-note");
+    const tabs = { parent: $("tab-parent"), student: $("tab-student") };
+    const panes = { parent: $("form-parent"), student: $("form-student") };
+    function show(which) {
+      Object.keys(tabs).forEach(k => { tabs[k].setAttribute("aria-selected", String(k === which)); panes[k].hidden = k !== which; });
+      msg.hidden = true;
+    }
+    tabs.parent.addEventListener("click", () => show("parent"));
+    tabs.student.addEventListener("click", () => show("student"));
+    function say(html, kind) { msg.innerHTML = html; msg.className = "form-msg" + (kind ? " " + kind : ""); msg.hidden = false; }
+
+    if (next === "opinie") { note.textContent = "Zaloguj się, żeby napisać opinię o kursie. Po zalogowaniu wrócisz do formularza."; note.hidden = false; }
+    if (next.startsWith("kup-")) { note.textContent = "Zaloguj się albo załóż konto (zajmie to chwilę), a zaraz potem przejdziesz do płatności."; note.hidden = false; }
+    if (params.get("blad") === "link") say("Ten link do logowania wygasł albo był już użyty. Wpisz e-mail jeszcze raz, a wyślemy nowy.", "err");
+
+    // po zalogowaniu: postępy, potem tam, dokąd rodzic zmierzał
+    async function afterLogin() {
+      say("Zalogowano. Chwileczkę…", "ok");
+      const me = await M8.api("/api/me");
+      M8.me = me;
+      await M8.syncProgress(me);
+      if (next.startsWith("kup-")) return M8.buy(next.slice(4));
+      location.href = next === "opinie" ? "opinie.html" : me.role === "student" ? "kurs.html" : "konto.html";
+    }
+
+    M8.ready.then(async me => {
+      if (!me) { say("To jest podgląd strony. Logowanie działa na liczenasetke.pl. Tutaj możesz przejrzeć przykładową lekcję bez konta.<div class='btn-row' style='margin-top:12px'><a class='btn btn-small btn-ink' href='kurs.html?lekcja=przykladowa'>Otwórz przykładową lekcję</a></div>"); return; }
+      if (params.get("zalogowano") || (me.role && next)) return afterLogin();
+      if (me.role) { say(`To urządzenie jest już zalogowane${me.role === "student" ? " na konto ucznia" : ""}. <a href="${me.role === "student" ? "kurs.html" : "konto.html"}">Przejdź dalej →</a>`, "ok"); }
+      // przycisk Google (Google Identity Services)
+      const cfg = await M8.api("/api/config").catch(() => ({}));
+      if (cfg.googleClientId) {
+        const sc = document.createElement("script");
+        sc.src = "https://accounts.google.com/gsi/client"; sc.async = true;
+        sc.onload = () => {
+          google.accounts.id.initialize({ client_id: cfg.googleClientId, ux_mode: "popup", callback: async r => {
+            try { await M8.api("/api/auth/google", { method: "POST", body: { credential: r.credential } }); afterLogin(); }
+            catch (e) { say(e.message, "err"); }
+          } });
+          const box = $("g-btn"); box.hidden = false; $("g-or").hidden = false;
+          google.accounts.id.renderButton(box, { theme: "outline", size: "large", text: "continue_with", shape: "pill", locale: "pl", width: Math.min(box.clientWidth || 360, 400) });
+        };
+        document.head.appendChild(sc);
+      }
+    });
+
+    $("form-email").addEventListener("submit", async e => {
+      e.preventDefault();
+      const email = $("login-email").value.trim(), btn = e.target.querySelector("button");
+      if (!M8.online) return;
+      btn.disabled = true;
+      try {
+        const r = await M8.api("/api/auth/email", { method: "POST", body: { email, next } });
+        say(`Wysłaliśmy link na <b>${email.replace(/</g, "&lt;")}</b>. Otwórz wiadomość i kliknij „Zaloguj się do kursu”. Nie widzisz jej? Zajrzyj do folderów Oferty i Spam.` +
+          (r.devLink ? `<br><a id="dev-link" href="${r.devLink}">[tryb testowy] otwórz link</a>` : ""), "ok");
+      } catch (err) { say(err.message, "err"); }
+      btn.disabled = false;
+    });
+    $("form-student").addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!M8.online) return;
+      try { await M8.api("/api/auth/student", { method: "POST", body: { login: $("st-login").value.trim(), pin: $("st-pin").value.trim() } }); afterLogin(); }
+      catch (err) { say(err.message, "err"); }
+    });
+  })();
+</script>
+</body>
+</html>

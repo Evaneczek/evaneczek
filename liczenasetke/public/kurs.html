@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Liczę na Setkę">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Program kursu · Liczę na Setkę">
+<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:url" content="https://liczenasetke.pl/kurs.html">
+<meta property="og:image" content="https://liczenasetke.pl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Liczę na Setkę: egzamin ósmoklasisty z matematyki bez korepetycji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Program kursu · Liczę na Setkę</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-header" data-page="kurs"></div>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Ścieżka"><a href="./">Start</a><span class="sep">/</span><span>Program kursu</span></nav>
+      <h1>Cały zakres egzaminu, temat po <span class="hl">temacie</span></h1>
+      <p class="lead">Tematy ułożone według wymagań egzaminacyjnych CKE na 2027 rok, w kolejności, w której najłatwiej je opanować. Każdy temat to trzy kroki: naucz się, ćwicz, sprawdź się.</p>
+      <div class="sample-note" id="sample-note" hidden>
+        <p><b>Przykładowa lekcja to temat „Procenty”.</b> Podświetliliśmy go na żółto w Dziale 1. Kliknij go, żeby wejść bez zakładania konta, i zobacz przy okazji wszystkie tematy kursu.</p>
+        <button class="btn btn-small btn-yellow" type="button" id="sample-show">Pokaż mi ten temat ↓</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="container">
+      <div class="prog" id="prog"></div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script src="program.js"></script>
+<script src="app.js"></script>
+<script>
+  (function () {
+    const lock = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
+    const host = document.getElementById("prog");
+    const diag = (window.M8.state.t["test-startowy"] || {}).diag;
+    host.innerHTML = window.PROGRAM.map(d => {
+      const cards = d.topics.map(t => {
+        if (t.status === "soon") {
+          return `<div class="topic soon"><b>${t.title}</b><p>${t.desc}</p><span class="st">W przygotowaniu</span></div>`;
+        }
+        const p = window.M8.progress(t.slug);
+        // egzamin próbny i test startowy: pasek to wynik arkusza; tematy: nauka, ćwiczenia i test po równo
+        const pct = t.kind ? Math.round((p.score === null ? 0 : p.score / p.testMax) * 100)
+          : Math.round(((p.learnPct / 100) + (p.good / p.practiceTotal) + (p.score === null ? 0 : p.score / p.testMax)) / 3 * 100);
+        const dg = diag && t.slug in diag ? `<span class="diag-tag ${diag[t.slug] ? "ok" : "todo"}">Test startowy: ${diag[t.slug] ? "✓ umie" : "do nauki"}</span>` : "";
+        const bar = `<span class="bar"><i class="${pct ? "" : "zero"}" style="width:${pct}%"></i></span>`;
+        if (t.status === "open") {
+          return `<a class="topic open" id="przykladowa-lekcja" href="${t.slug}.html"><span class="pill yellow ribbon">Przykładowa lekcja</span>
+            <span class="spot-tip" aria-hidden="true">Kliknij tutaj i wypróbuj za darmo</span>
+            <b>${t.title}</b><p>${t.desc}</p>${dg}${bar}<span class="st">Otwarte bez konta · wejdź →</span></a>`;
+        }
+        return `<a class="topic ready" href="${t.slug}.html"><b>${t.title}</b><p>${t.desc}</p>${dg}${bar}
+          <span class="st">${lock} Pełna wersja · podgląd →</span></a>`;
+      }).join("");
+      return `<section class="prog-dzial"><div class="prog-head"><div><div class="eyebrow">${d.label}</div><h2>${d.name}</h2></div>
+        <span>${d.topics.length} ${d.topics.length === 1 ? "temat" : d.topics.length < 5 ? "tematy" : "tematów"}</span></div>
+        <div class="topic-grid">${cards}</div></section>`;
+    }).join("");
+
+    // Na stronie z serwerem: z dostępem tematy są po prostu otwarte, bez dostępu widać, że trzeba kupić
+    window.M8.ready.then(me => {
+      if (!me) return;
+      const on = me.access && me.access.active;
+      host.querySelectorAll(".topic.ready .st").forEach(st => {
+        st.innerHTML = on ? "Wejdź →" : `${lock} Pełna wersja · po zakupie →`;
+      });
+    });
+
+    // Wejście z „Przykładowa lekcja”: strona zostaje na górze, otwarty temat jest podświetlony,
+    // a klikają go samodzielnie (przewija dopiero przycisk, na życzenie)
+    if (new URLSearchParams(location.search).get("lekcja") === "przykladowa") {
+      const tile = document.getElementById("przykladowa-lekcja");
+      const note = document.getElementById("sample-note");
+      if (tile && note) {
+        tile.classList.add("spotlight");
+        note.hidden = false;
+        document.querySelectorAll('.nav a[href$="lekcja=przykladowa"]').forEach(a => a.setAttribute("aria-current", "page"));
+        document.getElementById("sample-show").addEventListener("click", () => {
+          const calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          tile.scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "center" });
+        });
+      }
+    }
+  })();
+</script>
+</body>
+</html>

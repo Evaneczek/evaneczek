@@ -1,0 +1,9 @@
+{
+  "name": "liczenasetke",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Liczę na Setkę: strona, konta, płatności Stripe",
+  "main": "server.js",
+  "scripts": { "start": "node --no-warnings server.js" },
+  "engines": { "node": ">=22.13" }
+}

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Liczę na Setkę">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Napisz opinię · Liczę na Setkę">
+<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:url" content="https://liczenasetke.pl/opinie.html">
+<meta property="og:image" content="https://liczenasetke.pl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Liczę na Setkę: egzamin ósmoklasisty z matematyki bez korepetycji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Napisz opinię · Liczę na Setkę</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-header" data-page="opinie"></div>
+
+<main>
+  <section class="page-hero">
+    <div class="container">
+      <nav class="crumbs" aria-label="Ścieżka"><a href="./">Start</a><span class="sep">/</span><span>Napisz opinię</span></nav>
+      <h1>Napisz opinię o <span class="hl">kursie</span></h1>
+      <p class="lead">Opinię można dodać tylko z konta w kursie, więc każda pochodzi od kogoś, kto naprawdę się z nim uczy. Twoje uwagi pomagają nam też poprawiać lekcje i zadania.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:40px">
+    <div class="container op-wrap">
+      <div>
+        <div class="op-rules box">
+          <h2>Jak sprawdzamy opinie</h2>
+          <ul class="ticks">
+            <li>Opinię dodaje tylko zalogowany rodzic albo uczeń z kontem w kursie</li>
+            <li>Publikujemy opinie dobre i krytyczne, nie wybieramy tylko pochwał</li>
+            <li>Nie płacimy za opinie i nie dajemy za nie rabatów</li>
+            <li>Pokazujemy imię, pierwszą literę nazwiska i miasto, tylko za zgodą autora</li>
+          </ul>
+        </div>
+        <div class="op-empty" id="op-list">
+          <b>Kiedy pokażemy opinie</b>
+          Opinie opublikujemy na stronie, gdy zbierze się ich co najmniej 10. Do tego czasu możesz sam sprawdzić, jak wygląda nauka.
+          <div class="btn-row" style="margin-top:14px"><a class="btn btn-small btn-ink" href="kurs.html?lekcja=przykladowa">Zobacz przykładową lekcję</a></div>
+        </div>
+      </div>
+
+      <div class="op-card box" id="napisz">
+        <h2>Napisz opinię</h2>
+        <form class="op-form" id="op-form" novalidate aria-describedby="op-lock-text">
+          <fieldset>
+            <legend>Twoja ocena</legend>
+            <div class="op-stars" id="op-stars">
+              <label><input type="radio" name="ocena" value="1"><span aria-hidden="true">★</span><b class="sr">1 na 5</b></label>
+              <label><input type="radio" name="ocena" value="2"><span aria-hidden="true">★</span><b class="sr">2 na 5</b></label>
+              <label><input type="radio" name="ocena" value="3"><span aria-hidden="true">★</span><b class="sr">3 na 5</b></label>
+              <label><input type="radio" name="ocena" value="4"><span aria-hidden="true">★</span><b class="sr">4 na 5</b></label>
+              <label><input type="radio" name="ocena" value="5"><span aria-hidden="true">★</span><b class="sr">5 na 5</b></label>
+            </div>
+          </fieldset>
+          <label>Kim jesteś
+            <select id="op-who"><option>Rodzic ucznia 8 klasy</option><option>Rodzic ucznia 7 klasy</option><option>Uczeń (za zgodą rodzica)</option></select>
+          </label>
+          <label>Imię i pierwsza litera nazwiska<input type="text" id="op-name" autocomplete="name" placeholder="np. Anna K."></label>
+          <label>Miasto<input type="text" id="op-city" autocomplete="address-level2"></label>
+          <label>Twoja opinia<textarea id="op-text" placeholder="Co pomogło, co było trudne, co warto poprawić?"></textarea></label>
+          <label class="check"><input type="checkbox" id="op-consent"><span>Zgadzam się na publikację opinii z imieniem, pierwszą literą nazwiska i miastem</span></label>
+          <button class="btn btn-yellow" type="submit">Wyślij opinię</button>
+        </form>
+
+        <div class="op-lock" id="op-lock">
+          <div class="op-lock-in">
+            <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span>
+            <b>Zaloguj się, żeby napisać opinię</b>
+            <p id="op-lock-text">Opinie mogą dodawać tylko osoby z kontem w kursie. Tak dbamy o to, żeby były prawdziwe.</p>
+            <a class="btn btn-yellow" href="logowanie.html?next=opinie">Zaloguj się</a>
+            <a class="text-link" href="cennik.html">Nie masz konta? Zobacz plany</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script src="app.js"></script>
+<script>
+  (function () {
+    // Konta jeszcze nie działają, więc formularz jest zablokowany do czasu zalogowania.
+    const form = document.getElementById("op-form");
+    form.querySelectorAll("input, select, textarea, button").forEach(el => { el.disabled = true; });
+    form.setAttribute("inert", "");
+    const stars = Array.from(document.querySelectorAll("#op-stars label"));
+    stars.forEach((l, i) => l.querySelector("input").addEventListener("change", () => stars.forEach((m, j) => m.classList.toggle("on", j <= i))));
+    form.addEventListener("submit", e => e.preventDefault());
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Liczę na Setkę">
+<meta property="og:locale" content="pl_PL">
+<meta property="og:title" content="Panel rodzica · Liczę na Setkę">
+<meta property="og:description" content="Kurs matematyki do egzaminu ósmoklasisty 2027: cały materiał temat po temacie, zadania jak na egzaminie, rozwiązania wytłumaczone zwykłym językiem i panel rodzica. Temat „Procenty” za darmo, bez zakładania konta.">
+<meta property="og:url" content="https://liczenasetke.pl/konto.html">
+<meta property="og:image" content="https://liczenasetke.pl/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Liczę na Setkę: egzamin ósmoklasisty z matematyki bez korepetycji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Panel rodzica · Liczę na Setkę</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=JetBrains+Mono:wght@500;700&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="site-header" data-page="konto"></div>
+
+<main>
+  <section class="page-hero">
+    <div class="container acc-hero">
+      <div>
+        <nav class="crumbs" aria-label="Ścieżka"><a href="./">Start</a><span class="sep">/</span><span>Moje konto</span></nav>
+        <h1 id="acc-title">Panel rodzica</h1>
+        <p class="lead" id="acc-lead">Ładowanie…</p>
+      </div>
+      <button class="btn btn-small btn-ghost" type="button" id="logout" hidden>Wyloguj się</button>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:26px">
+    <div class="container acc" id="acc"></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script src="program.js"></script>
+<script src="app.js"></script>
+<script>
+  (function () {
+    const M8 = window.M8, $ = id => document.getElementById(id);
+    const acc = $("acc"), lead = $("acc-lead"), title = $("acc-title");
+    const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const date = t => new Date(t).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+    const TOPICS = [];
+    (window.PROGRAM || []).forEach(d => d.topics.forEach(t => TOPICS.push({ ...t, dzial: d.label })));
+
+    $("logout").addEventListener("click", async () => {
+      try { await M8.api("/api/auth/logout", { method: "POST" }); } catch (e) {}
+      try { localStorage.removeItem("matma8-v3"); } catch (e) {}
+      location.href = "./";
+    });
+
+    // wyniki z zapisanych postępów ucznia: testy tematów, test startowy, egzaminy próbne
+    function results(data) {
+      const t = (data && data.t) || {};
+      return TOPICS.map(x => {
+        const S = t[x.slug] || {}, meta = S.meta || {};
+        const max = meta.testMax || x.pts;
+        const score = S.test && S.test.done ? S.test.score : (S.lastScore != null ? S.lastScore : null);
+        const started = !!(S.learned || S.learnPct || Object.keys(S.practice || {}).length || S.test);
+        return { ...x, score, max, started };
+      }).filter(x => x.started || x.score != null);
+    }
+    function daysRow(days, today) {
+      const set = new Set(days), out = [];
+      const base = new Date(today + "T12:00:00");
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(base); d.setDate(base.getDate() - i);
+        const key = d.toLocaleDateString("sv-SE");
+        const lbl = d.toLocaleDateString("pl-PL", { weekday: "short" }).slice(0, 2);
+        out.push(`<span class="${set.has(key) ? "on" : ""}" title="${d.toLocaleDateString("pl-PL")}">${lbl}</span>`);
+      }
+      return out.join("");
+    }
+
+    async function studentCard(st) {
+      const sum = await M8.api(`/api/students/${st.id}/summary`).catch(() => ({ data: null, days: [], today: new Date().toLocaleDateString("sv-SE") }));
+      const res = results(sum.data);
+      const tests = res.filter(r => r.score != null);
+      const learnDays = sum.days.filter(d => d >= new Date(Date.now() - 7 * 864e5).toLocaleDateString("sv-SE")).length;
+      const rows = tests.length ? tests.map(r => {
+        const pct = Math.round(r.score / r.max * 100);
+        return `<li><span>${esc(r.title)}${r.kind ? ` <em>${r.kind === "diag" ? "test startowy" : "egzamin próbny"}</em>` : ""}</span><b class="${pct >= 80 ? "good" : pct >= 55 ? "mid" : "low"}">${r.score} / ${r.max} pkt</b></li>`;
+      }).join("") : `<li class="none">Jeszcze nie ma wyników testów. Pierwszy wynik pojawi się po teście na końcu tematu.</li>`;
+      const inProgress = res.filter(r => r.score == null).map(r => esc(r.title));
+      const name = st.name || "Dziecko";
+      const el = document.createElement("article");
+      el.className = "acc-card box kid";
+      el.innerHTML = `
+        <div class="kid-head"><span class="avatar">${esc(name[0].toUpperCase())}</span>
+          <div><b>${esc(name)}</b><small>Login: <code>${esc(st.login)}</code></small></div>
+          <div class="kid-actions"><button class="btn btn-small" type="button" data-pin>Ustaw nowy PIN</button><button class="text-link" type="button" data-rename>Zmień imię</button></div></div>
+        <div class="kid-pin" hidden></div>
+        <div class="kid-grid">
+          <div><div class="pp-label">Nauka w ostatnich 14 dniach</div><div class="pp-days kid-days">${daysRow(sum.days, sum.today)}</div>
+            <p class="kid-note">${learnDays ? `W tym tygodniu: <b>${learnDays} ${learnDays === 1 ? "dzień" : "dni"}</b> nauki.` : "W tym tygodniu jeszcze bez nauki."}${sum.at ? ` Ostatnio: ${date(sum.at)}.` : ""}</p></div>
+          <div><div class="pp-label">Wyniki testów</div><ul class="kid-tests">${rows}</ul>
+            ${inProgress.length ? `<p class="kid-note">W trakcie: ${inProgress.slice(0, 4).join(", ")}${inProgress.length > 4 ? " i inne" : ""}.</p>` : ""}</div>
+        </div>`;
+      el.querySelector("[data-pin]").addEventListener("click", async () => {
+        if (!confirm("Ustawić nowy PIN? Stary przestanie działać, a dziecko zostanie wylogowane na swoich urządzeniach.")) return;
+        try {
+          const r = await M8.api(`/api/students/${st.id}/pin`, { method: "POST" });
+          const box = el.querySelector(".kid-pin");
+          box.innerHTML = `Dane do logowania dziecka (zakładka <b>Uczeń</b> na stronie logowania):<div class="pin-show"><span>Login: <code>${esc(r.login)}</code></span><span>PIN: <code>${esc(r.pin)}</code></span></div><small>Zapisz PIN teraz: ze względów bezpieczeństwa nie pokażemy go ponownie.</small>`;
+          box.hidden = false;
+        } catch (e) { alert(e.message); }
+      });
+      el.querySelector("[data-rename]").addEventListener("click", async () => {
+        const n = prompt("Imię dziecka (do powitania w kursie):", st.name || "");
+        if (n == null) return;
+        try { await M8.api(`/api/students/${st.id}`, { method: "PATCH", body: { name: n } }); location.reload(); } catch (e) { alert(e.message); }
+      });
+      return el;
+    }
+
+    async function render(me) {
+      if (!me) { lead.innerHTML = 'To jest podgląd strony. Panel rodzica działa na liczenasetke.pl. <a href="dla-rodzica.html">Zobacz, jak wygląda panel rodzica →</a>'; return; }
+      if (!me.role) { location.href = "logowanie.html"; return; }
+      $("logout").hidden = false;
+      if (me.role === "student") {
+        title.textContent = "Konto ucznia";
+        lead.innerHTML = `Zalogowano jako <b>${esc(me.student && me.student.login)}</b>.`;
+        acc.innerHTML = `<div class="acc-card box"><h2>Czas na naukę</h2><p>Postępy zapisują się na koncie, więc możesz się uczyć na każdym urządzeniu.</p>
+          <div class="btn-row"><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a></div></div>`;
+        return;
+      }
+      lead.innerHTML = `Zalogowano jako <b>${esc(me.email)}</b>.`;
+      const a = me.access || {};
+      const paid = new URLSearchParams(location.search).get("platnosc") === "ok";
+      let accHtml;
+      if (a.active) {
+        accHtml = `<div class="acc-card box acc-ok"><div class="pp-label">Dostęp do kursu</div>
+          <h2>✓ Dostęp aktywny</h2>
+          <p>${a.plan === "exam" ? `Plan „Do dnia egzaminu”: dostęp do <b>${date(a.until)}</b>. Nic się samo nie odnawia.`
+            : a.cancelAtEnd ? `Plan „Miesięcznie”: subskrypcja wyłączona, dostęp do <b>${date(a.until)}</b>.`
+            : `Plan „Miesięcznie”: następna płatność <b>${date(a.until)}</b>. Możesz zrezygnować w każdej chwili.`}</p>
+          <div class="btn-row"><a class="btn btn-yellow" href="kurs.html">Przejdź do kursu →</a>
+          ${a.plan === "monthly" && a.canManage ? `<button class="btn btn-ghost" type="button" id="portal">Zarządzaj subskrypcją</button>` : ""}</div></div>`;
+      } else {
+        accHtml = `<div class="acc-card box"><div class="pp-label">Dostęp do kursu</div>
+          <h2>${paid ? "Dziękujemy! Włączamy dostęp…" : "Dostęp nie jest jeszcze aktywny"}</h2>
+          <p>${paid ? "Płatność przeszła. Dostęp włączy się w ciągu kilku sekund, ta strona odświeży się sama."
+            : new URLSearchParams(location.search).get("platnosc") === "czeka" ? "Płatność została przyjęta, ale dostęp jeszcze się nie włączył. Odśwież tę stronę za minutę. Jeśli to nie pomoże, napisz do nas: włączymy dostęp ręcznie."
+            : "Temat „Procenty” jest za darmo. Pełny kurs z testem startowym i egzaminami próbnymi otworzy się po zakupie."}</p>
+          ${paid ? "" : `<div class="btn-row"><button class="btn btn-yellow" type="button" data-buy="exam">Do egzaminu: 199 zł jednorazowo</button><button class="btn" type="button" data-buy="monthly">Miesięcznie: 49 zł</button></div>
+          <p class="kid-note">14 dni na zwrot pieniędzy bez podawania przyczyny.</p>`}</div>`;
+      }
+      acc.innerHTML = accHtml + `<h2 class="acc-h">Dzieci i ich postępy</h2><div id="kids" class="acc-kids"></div>
+        <div class="btn-row"><button class="btn btn-small btn-ghost" type="button" id="add-kid">+ Dodaj login dla kolejnego dziecka</button></div>
+        <details class="acc-danger"><summary>Usuń konto</summary>
+          <p>Usuniemy konto, loginy dzieci i wszystkie postępy. Dane o płatnościach zostają tylko tak długo, jak wymagają tego przepisy podatkowe.${a.plan === "monthly" && !a.cancelAtEnd ? " Najpierw wyłącz subskrypcję w „Zarządzaj subskrypcją”." : ""}</p>
+          <label>Wpisz <b>USUŃ</b>, aby potwierdzić <input type="text" id="del-confirm" autocomplete="off"></label>
+          <button class="btn btn-small" type="button" id="del-acc">Usuń konto na zawsze</button></details>`;
+      acc.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", () => M8.buy(b.dataset.buy, b)));
+      const portal = $("portal");
+      if (portal) portal.addEventListener("click", async () => { try { location.href = (await M8.api("/api/portal", { method: "POST" })).url; } catch (e) { alert(e.message); } });
+      $("add-kid").addEventListener("click", async () => {
+        const n = prompt("Imię dziecka (do loginu i powitania w kursie):", "");
+        if (n == null) return;
+        try { await M8.api("/api/students", { method: "POST", body: { name: n } }); location.reload(); } catch (e) { alert(e.message); }
+      });
+      $("del-acc").addEventListener("click", async () => {
+        try { await M8.api("/api/account", { method: "DELETE", body: { confirm: $("del-confirm").value.trim() } });
+          try { localStorage.removeItem("matma8-v3"); } catch (e) {} location.href = "./"; }
+        catch (e) { alert(e.message); }
+      });
+      const kids = $("kids");
+      for (const st of me.students || []) kids.appendChild(await studentCard(st));
+      if (!a.active && paid) {
+        // webhook Stripe dochodzi zwykle po kilku sekundach
+        let n = 0;
+        const t = setInterval(async () => {
+          n++;
+          const m2 = await M8.api("/api/me").catch(() => null);
+          if ((m2 && m2.access && m2.access.active) || n > 15) { clearInterval(t); location.replace("konto.html" + (m2 && m2.access && m2.access.active ? "" : "?platnosc=czeka")); }
+        }, 2000);
+      }
+    }
+    M8.ready.then(render);
+  })();
+</script>
+</body>
+</html>
