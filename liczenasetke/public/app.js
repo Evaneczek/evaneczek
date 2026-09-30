@@ -24,11 +24,37 @@
 
   const LOGO = '<span class="blocks" aria-hidden="true"><i>÷</i><i>%</i><i>=</i></span><span class="brand-name">Liczę na Setkę</span>';
 
+  // Po zakupie strona zamienia się w „Mój kurs”: bez przykładowej lekcji, cennika i informacji sprzedażowych.
+  // Pamiętamy to w przeglądarce, żeby menu nie mrugało przy każdym wejściu (serwer i tak potwierdza dostęp).
+  const ACC = "m8-access";
+  const hasAccess = () => { try { return localStorage.getItem(ACC) === "1"; } catch (e) { return false; } };
+  if (hasAccess()) {
+    document.documentElement.classList.add("has-access");
+    // strona główna i cennik to informacje dla kupujących: po zakupie od razu „Mój kurs”
+    const hp = document.getElementById("site-header");
+    const pg = hp && hp.dataset.page;
+    if (pg === "home" || pg === "cennik") location.replace("kurs.html");
+  }
   function renderHeader(host) {
     const page = host.dataset.page || "";
+    const cur = id => id === page ? ' aria-current="page"' : "";
+    if (hasAccess()) {
+      host.outerHTML = `
+      <header class="site-header" data-page="${page}">
+        <div class="container">
+          <a class="brand" href="kurs.html" aria-label="Liczę na Setkę, mój kurs">${LOGO}</a>
+          <button class="menu-btn" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
+          <nav class="nav" id="main-nav" aria-label="Główne menu">
+            <a href="kurs.html"${cur("kurs")}>Mój kurs</a>
+            <a class="nav-login" href="konto.html"${cur("konto")}>Moje konto</a>
+          </nav>
+        </div>
+      </header>`;
+      return menuToggle();
+    }
     const links = NAV.map(n => `<a href="${n.href}"${n.id === page ? ' aria-current="page"' : ""}>${n.label}</a>`).join("");
     host.outerHTML = `
-      <header class="site-header">
+      <header class="site-header" data-page="${page}">
         <div class="container">
           <a class="brand" href="./" aria-label="Liczę na Setkę, strona główna">${LOGO}</a>
           <button class="menu-btn" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
@@ -39,6 +65,9 @@
           </nav>
         </div>
       </header>`;
+    menuToggle();
+  }
+  function menuToggle() {
     const btn = document.querySelector(".menu-btn");
     const nav = document.getElementById("main-nav");
     btn.addEventListener("click", () => {
@@ -57,7 +86,24 @@
               <a class="brand" href="./">${LOGO}</a>
               <p>Kurs matematyki do egzaminu ósmoklasisty 2027. Zadania są autorskie, a zakres materiału ułożyliśmy na podstawie wymagań egzaminacyjnych CKE.</p>
             </div>
+            ${hasAccess() ? `<div>
+              <h4>Mój kurs</h4>
+              <ul>
+                <li><a href="kurs.html">Wszystkie tematy</a></li>
+                <li><a href="test-startowy.html">Test startowy</a></li>
+                <li><a href="egzamin-probny-1.html">Egzamin próbny 1</a></li>
+                <li><a href="egzamin-probny-2.html">Egzamin próbny 2</a></li>
+                <li><a href="opinie.html">Napisz opinię</a></li>
+              </ul>
+            </div>
             <div>
+              <h4>Konto i pomoc</h4>
+              <ul>
+                <li><a href="konto.html">Moje konto</a></li>
+                <li><a href="regulamin.html">Regulamin</a></li>
+                <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
+              </ul>
+            </div>` : `<div>
               <h4>Kurs</h4>
               <ul>
                 <li><a href="jak-to-dziala.html">Jak to działa</a></li>
@@ -76,7 +122,7 @@
                 <li><a href="regulamin.html">Regulamin</a></li>
                 <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
               </ul>
-            </div>
+            </div>`}
           </div>
           <div class="bottom">© 2026 Liczę na Setkę (liczenasetke.pl) · Kontakt: <a data-contact href="mailto:kontakt@liczenasetke.pl">kontakt@liczenasetke.pl</a> · Egzamin ósmoklasisty z matematyki: 11 maja 2027</div>
         </div>
@@ -212,6 +258,19 @@
     const fl = document.querySelector(".foot-login");
     if (me.role && fl) { fl.textContent = "Moje konto"; fl.href = "konto.html"; }
     if (me.access && me.access.active && cta) { cta.textContent = "Kurs"; cta.href = "kurs.html"; }
+    const acc = !!(me.role && me.access && me.access.active);
+    if (acc !== hasAccess()) {
+      try { acc ? localStorage.setItem(ACC, "1") : localStorage.removeItem(ACC); } catch (e) {}
+      document.documentElement.classList.toggle("has-access", acc);
+      const h = document.querySelector(".site-header"), f = document.querySelector(".site-footer");
+      if (h) renderHeader(h);
+      if (f) renderFooter(f);
+      const fl2 = document.querySelector(".foot-login");
+      if (me.role && fl2) { fl2.textContent = "Moje konto"; fl2.href = "konto.html"; }
+      const l2 = document.querySelector(".nav-login");
+      if (me.role && l2) { l2.textContent = "Moje konto"; l2.href = "konto.html"; }
+      M8.config.then(c => { if (c.contact) document.querySelectorAll("[data-contact]").forEach(a => { a.href = "mailto:" + c.contact; a.textContent = c.contact; }); });
+    }
     if (me.role) {
       const changed = await M8.syncProgress(me);
       // strona z postępami narysowała się ze starych danych: jednorazowe odświeżenie

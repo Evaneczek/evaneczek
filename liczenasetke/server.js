@@ -30,6 +30,8 @@ const REPLY_TO = ENV.REPLY_TO || "liczenasetke@gmail.com";
 const BACKUP_TO = ENV.BACKUP_TO || REPLY_TO;   // dokąd idzie codzienna kopia bazy   // odpowiedzi rodziców na nasze maile trafiają do skrzynki supportu
 // dostęp „Do dnia egzaminu”: do końca 11 maja 2027 r. czasu polskiego
 const EXAM_END = Date.parse(ENV.EXAM_END || "2027-05-11T23:59:59+02:00");
+// konta z darmowym pełnym dostępem do dnia egzaminu (właściciel kursu, testy); lista rozdzielona przecinkami w GIFT_EMAILS
+const GIFT = new Set((ENV.GIFT_EMAILS || "klimczakjanek@gmail.com").split(",").map(e => e.trim().toLowerCase()).filter(Boolean));
 const FREE = new Set(["dane-procenty.js"]);          // darmowy temat
 const SESSION_DAYS = 180;
 const DAY = 86400000;
@@ -133,12 +135,12 @@ function students(userId) { return q("SELECT id, login, name, pin_shown AS pinSh
 function access(u) {
   if (!u) return { active: false };
   const t = now(), rev = u.revoked_at && u.revoked_at > 0;
-  const exam = !rev && u.exam_until && u.exam_until > t;
+  const exam = (!rev && u.exam_until && u.exam_until > t) || (GIFT.has(String(u.email).toLowerCase()) && EXAM_END > t);
   const subOk = !rev && ["active", "trialing", "past_due"].includes(u.sub_status) && (u.sub_period_end || 0) + 3 * DAY > t;
   return {
     active: !!(exam || subOk),
     plan: exam ? "exam" : subOk ? "monthly" : null,
-    until: exam ? u.exam_until : subOk ? u.sub_period_end : null,
+    until: exam ? (u.exam_until && u.exam_until > t ? u.exam_until : EXAM_END) : subOk ? u.sub_period_end : null,
     cancelAtEnd: !!u.sub_cancel_at_end,
     canManage: !!(u.sub_id && u.stripe_customer)
   };

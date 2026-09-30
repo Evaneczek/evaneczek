@@ -22,7 +22,7 @@
 <link rel="preload" href="nunito-latin-ext-9abf3b.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="baloo-2-latin-f5fe33.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="baloo-2-latin-ext-503e7e.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=2e81bfb34a">
+<link rel="stylesheet" href="styles.css?v=7655b5b1dd">
 </head>
 <body>
 <div id="site-header" data-page="kurs"></div>
@@ -49,7 +49,7 @@
 
 <div id="site-footer"></div>
 <script src="program.js?v=c9b76ec773"></script>
-<script src="app.js?v=00d18e5fc4"></script>
+<script src="app.js?v=0db83347ef"></script>
 <script>
   (function () {
     const lock = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
@@ -80,9 +80,20 @@
     }).join("");
 
     // Na stronie z serwerem: z dostępem tematy są po prostu otwarte, bez dostępu widać, że trzeba kupić
+    const myCourse = () => {
+      document.title = "Mój kurs · Liczę na Setkę";
+      document.querySelector(".page-hero h1").innerHTML = 'Mój <span class="hl">kurs</span>';
+      document.querySelector(".page-hero .lead").textContent = "Wszystkie tematy są otwarte. Zacznij od testu startowego: pokaże, od którego tematu zacząć. Potem idź temat po temacie, a przed majem zrób oba egzaminy próbne.";
+      document.querySelector(".page-hero .crumbs").innerHTML = '<span>Mój kurs</span>';
+      const note = document.getElementById("sample-note"); if (note) note.hidden = true;
+      const tile = document.getElementById("przykladowa-lekcja");
+      if (tile) { tile.classList.remove("open", "spotlight"); tile.classList.add("ready"); tile.querySelectorAll(".ribbon, .spot-tip").forEach(e => e.remove()); tile.querySelector(".st").innerHTML = "Wejdź →"; }
+    };
+    if (document.documentElement.classList.contains("has-access")) myCourse();
     window.M8.ready.then(me => {
       if (!me) return;
       const on = me.access && me.access.active;
+      if (on) myCourse();
       host.querySelectorAll(".topic.ready").forEach(a => {
         const st = a.querySelector(".st");
         if (on) { st.innerHTML = "Wejdź →"; return; }
@@ -94,7 +105,7 @@
 
     // Wejście z „Przykładowa lekcja”: strona zostaje na górze, otwarty temat jest podświetlony,
     // a klikają go samodzielnie (przewija dopiero przycisk, na życzenie)
-    if (new URLSearchParams(location.search).get("lekcja") === "przykladowa") {
+    if (new URLSearchParams(location.search).get("lekcja") === "przykladowa" && !document.documentElement.classList.contains("has-access")) {
       const tile = document.getElementById("przykladowa-lekcja");
       const note = document.getElementById("sample-note");
       if (tile && note) {

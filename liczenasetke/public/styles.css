@@ -2427,3 +2427,5 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
 .free-cta { margin-top: 36px; padding: 24px; display: grid; gap: 10px; text-align: left; }
 .free-cta h3 { font-size: 24px; }
 .free-cta p { color: var(--muted); }
+/* po zakupie: bez przycisku reklamowego na dole ekranu */
+.has-access .sticky-cta { display: none !important; }
