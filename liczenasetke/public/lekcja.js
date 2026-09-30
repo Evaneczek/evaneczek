@@ -25,6 +25,22 @@
     return;
   }
   if (!M8 || !T) return;
+  // darmowy temat: krótka informacja u góry i zachęta na dole, tylko dla osób bez pełnego dostępu
+  if (T.slug === "procenty") M8.ready.then(me => {
+    if (me && me.access && me.access.active) return;
+    const host = ["main .workspace .container", "main .section .container"].map(q => document.querySelector(q)).find(Boolean);
+    if (!host) return;
+    const top = document.createElement("div");
+    top.className = "free-note";
+    top.innerHTML = `<b>Darmowa lekcja</b><span>Tak wygląda każdy z 20 tematów kursu. Można zacząć od razu, bez zakładania konta.</span><a href="cennik.html">Zobacz pełny kurs →</a>`;
+    host.prepend(top);
+    const end = document.createElement("div");
+    end.className = "free-cta box";
+    end.innerHTML = `<div class="eyebrow">To był 1 z 20 tematów</div><h3>Cały egzamin z matematyki w jednym kursie</h3>
+      <p>W pełnej wersji: wszystkie tematy z egzaminu, test startowy, 2 egzaminy próbne na czas i panel rodzica. 199 zł do dnia egzaminu, 14 dni na zwrot pieniędzy.</p>
+      <div class="btn-row"><a class="btn btn-yellow" href="cennik.html">Zobacz plany i ceny</a><a class="text-link" href="kurs.html">Program kursu</a></div>`;
+    host.appendChild(end);
+  });
   const S = M8.topic(T.slug);
   S.learnTasks = S.learnTasks || {};
   S.practice = S.practice || {};

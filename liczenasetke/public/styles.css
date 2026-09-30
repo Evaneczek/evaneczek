@@ -839,7 +839,7 @@ table.weeks .num { font-family: var(--mono); }
 .text-link { font-weight: 800; color: var(--ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .text-link:hover { text-decoration-color: var(--yellow); }
 .lp-trust { list-style: none; padding: 0; margin: 28px 0 0; display: flex; flex-wrap: wrap; gap: 8px 22px; color: var(--muted); font-weight: 700; font-size: 15px; }
-.lp-trust li { display: inline-flex; align-items: center; gap: 8px; }
+.lp-trust li { display: inline-flex; align-items: baseline; gap: 8px; }
 .lp-trust li::before { content: "✓"; color: var(--green-ink); font-weight: 800; }
 
 /* Zrzut produktu */
@@ -2417,3 +2417,13 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
 .sol-title { background-color: var(--blue-ink); }
 [role="tab"][aria-current="true"] small { color: var(--ink); }
 .site-footer a[data-contact] { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 620px) { .lp-final .container { padding-block: 56px 60px; } }
+
+/* ---------- Darmowy temat: informacja u góry i zachęta na dole (tylko bez pełnego dostępu) ---------- */
+.free-note { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; background: var(--yellow-soft); border: 2px solid var(--ink); border-radius: 12px; padding: 10px 14px; margin-bottom: 22px; font-size: 15px; }
+.free-note b { font-family: var(--display); font-size: 16px; }
+.free-note span { color: var(--muted); font-weight: 600; flex: 1 1 260px; }
+.free-note a { color: var(--ink); font-weight: 800; white-space: nowrap; }
+.free-cta { margin-top: 36px; padding: 24px; display: grid; gap: 10px; text-align: left; }
+.free-cta h3 { font-size: 24px; }
+.free-cta p { color: var(--muted); }
