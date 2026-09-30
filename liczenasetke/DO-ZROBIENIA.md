@@ -1,6 +1,6 @@
 # Do zrobienia później
 
-- [x] **Piksel Meta:** numer 1051003501090987 wpisany na serwerze; zdarzenia: PageView, Lead (logowanie), InitiateCheckout, Purchase — tylko po zgodzie na cookies.
+- [x] **Piksel Meta:** numer 1601014341758092 wpisany na serwerze; zdarzenia: PageView, Lead (logowanie), InitiateCheckout, Purchase — tylko po zgodzie na cookies.
 - [x] **Poczta:** przekierowanie `kontakt@` → `liczenasetke@gmail.com` w Cloudflare ustawione.
 - [ ] **Dane sprzedawcy** (imię i nazwisko albo nazwa firmy, adres, ewentualnie NIP) dopisać w regulaminie (pkt 1) i polityce prywatności (pkt 1), gdy będą gotowe. Przy sprzedaży przez internet klient musi wiedzieć, kto sprzedaje.
 - [ ] **Dzień startu:** zdjąć blokadę wyszukiwarek. Gotowe do przełączenia jednym poleceniem: `PUBLICZNA=1 python3 pakuj.py` (strony bez noindex, robots.txt z mapą strony `sitemap.xml`; panel rodzica, logowanie i 404 zawsze poza wyszukiwarką). Potem dodać stronę w Google Search Console.
