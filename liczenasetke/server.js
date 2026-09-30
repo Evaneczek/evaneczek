@@ -555,29 +555,41 @@ async function api(req, res, url) {
     const meta = { metadata: { user_id: s ? String(s.user.id) : undefined } };
     if (plan === "exam") body.payment_intent_data = meta; else body.subscription_data = meta;
     // zgoda na wiadomości (np. jedno przypomnienie o niedokończonej płatności); regulamin: gdy jest ustawiony w Stripe
-    body.consent_collection = { promotions: "auto", terms_of_service: STRIPE_TOS ? "required" : undefined };
+    body.consent_collection = { promotions: setting("drop_promotions") ? undefined : "auto", terms_of_service: STRIPE_TOS ? "required" : undefined };
+    if (!body.consent_collection.promotions && !body.consent_collection.terms_of_service) delete body.consent_collection;
     // „Managed Payments” (dodatkowe 3,5% prowizji) bywa domyślnie włączone na koncie: wyłączamy je dla naszych płatności
     if (setting("mp_param") !== "brak") body.managed_payments = { enabled: false };
     // wygląd strony płatności: logo, żółte przyciski, kremowe tło (jeśli Stripe odrzuci, płatność otwiera się w standardowym wyglądzie)
-    const brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
+    let brand = BASE_URL.startsWith("https://") && setting("branding") !== "brak" ? { branding_settings: {
       display_name: "Liczę na Setkę", background_color: "#fbf6ea", button_color: "#ffc233", border_style: "rounded", font_family: "nunito",
       logo: { type: "url", url: BASE_URL + "/logo-stripe.png" }, icon: { type: "url", url: BASE_URL + "/ikona-512.png" } } } : {};
-    try {
-      let cs;
-      try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); }
-      catch (e) {
-        if (/managed_payments/.test(e.message) && /unknown parameter/i.test(e.message)) {
-          // starsza wersja API nie zna tego parametru: próbujemy bez niego
+    // Dodatki (zgoda na wiadomości, wyłączenie Managed Payments, wygląd) są opcjonalne: jeśli Stripe odrzuci któryś z nich,
+    // zapamiętujemy to i próbujemy bez niego, żeby płatność zawsze się otworzyła.
+    let lastErr;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      try {
+        const cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand });
+        if (brand.branding_settings) setSetting("branding", "ok");
+        return json(res, 200, { url: cs.url });
+      } catch (e) {
+        lastErr = e; const msg = e.message || "";
+        log("Stripe: płatność odrzucona, próba bez dodatku:", msg.slice(0, 200));
+        if (/consent_collection/.test(msg) && body.consent_collection && body.consent_collection.promotions) {
+          setSetting("drop_promotions", "1"); delete body.consent_collection.promotions;
+          if (!body.consent_collection.terms_of_service) delete body.consent_collection;
+        } else if (/consent_collection/.test(msg) && body.consent_collection) {
+          delete body.consent_collection;
+        } else if (/managed_payments/.test(msg) && body.managed_payments) {
           setSetting("mp_param", "brak"); delete body.managed_payments;
-          try { cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand }); if (brand.branding_settings) setSetting("branding", "ok"); return json(res, 200, { url: cs.url }); }
-          catch (e2) { e = e2; }
-        }
-        if (!brand.branding_settings) throw e;
-        log("Stripe: wygląd płatności odrzucony:", e.message); setSetting("branding", "brak"); setSetting("branding_error", e.message.slice(0, 300));
-        cs = await stripe("POST", "/v1/checkout/sessions", body);
+        } else if (brand.branding_settings) {
+          setSetting("branding", "brak"); setSetting("branding_error", msg.slice(0, 300)); brand = {};
+        } else if (body.custom_text) {
+          delete body.custom_text;
+        } else break;
       }
-      return json(res, 200, { url: cs.url });
-    } catch (e) { log(e.message); setSetting("checkout_error", e.message.slice(0, 300)); return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." }); }
+    }
+    log(lastErr && lastErr.message); setSetting("checkout_error", String(lastErr && lastErr.message).slice(0, 300));
+    return json(res, 502, { error: "Nie udało się otworzyć płatności. Spróbuj ponownie za chwilę." });
   }
   // powrót z płatności bez logowania: logujemy rodzica na konto założone z e-maila podanego w Stripe
   if (p === "/api/checkout/claim" && m === "POST") {
@@ -820,7 +832,7 @@ setInterval(() => {
 }, 3600000).unref();
 
 // po każdym wdrożeniu jeszcze raz próbujemy wyglądu płatności (mógł zostać poprawiony)
-try { q("DELETE FROM settings WHERE key IN ('branding', 'checkout_error', 'branding_error', 'mp_param')").run(); } catch (e) {}
+try { q("DELETE FROM settings WHERE key IN ('branding', 'checkout_error', 'branding_error', 'mp_param', 'drop_promotions')").run(); } catch (e) {}
 stripeSetup();
 server.listen(PORT, () => log(`Serwer działa: ${BASE_URL} (port ${PORT}, pliki: ${PUBLIC}, baza: ${DB_PATH})`));
 module.exports = { server };
