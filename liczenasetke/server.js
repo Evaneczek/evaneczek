@@ -67,6 +67,17 @@ for (const sql of ["ALTER TABLE students ADD COLUMN pin_shown INTEGER DEFAULT 0"
   try { db.exec(sql); } catch (e) { /* już jest */ }
 const CONTACT = ENV.CONTACT_EMAIL || "kontakt@liczenasetke.pl";
 const META_PIXEL_ID = ENV.META_PIXEL_ID || "1601014341758092";   // numer Piksela Meta jest publiczny (widać go w kodzie każdej strony z pikselem)
+// panel /admin.html: tylko dla tych adresów (lista rozdzielona przecinkami w ADMIN_EMAILS)
+const ADMINS = new Set((ENV.ADMIN_EMAILS || "klimczakjanek@gmail.com,liczenasetke@gmail.com").split(",").map(e => e.trim().toLowerCase()).filter(Boolean));
+// statystyki strony bez cookies: zdarzenia z zanonimizowanym, codziennie zmienianym identyfikatorem odwiedzającego
+for (const sql of [
+  `CREATE TABLE IF NOT EXISTS events (id INTEGER PRIMARY KEY, at INTEGER NOT NULL, day TEXT NOT NULL, visitor TEXT, session_key TEXT, name TEXT NOT NULL,
+    path TEXT, source TEXT, medium TEXT, campaign TEXT, content TEXT, referrer_host TEXT, device TEXT, meta TEXT)`,
+  "CREATE INDEX IF NOT EXISTS ev_day ON events (day)", "CREATE INDEX IF NOT EXISTS ev_name ON events (name, day)",
+  "CREATE INDEX IF NOT EXISTS ev_visitor ON events (visitor)", "CREATE INDEX IF NOT EXISTS ev_session ON events (session_key)",
+  `CREATE TABLE IF NOT EXISTS ad_spend (day TEXT NOT NULL, source TEXT NOT NULL DEFAULT 'meta', campaign TEXT NOT NULL DEFAULT '', content TEXT NOT NULL,
+    spend_pln REAL NOT NULL DEFAULT 0, impressions INTEGER NOT NULL DEFAULT 0, clicks INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (day, source, content))`])
+  try { db.exec(sql); } catch (e) { /* już jest */ }
 
 // ---------- narzędzia ----------
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
@@ -314,6 +325,7 @@ async function onCheckoutDone(s) {
     if (s.payment_status !== "paid") return;   // płatność odroczona: czekamy na async_payment_succeeded
     q("UPDATE users SET exam_until = ?, revoked_at = NULL WHERE id = ?").run(EXAM_END, u.id);
     q("INSERT INTO payments (user_id, kind, stripe_id, amount, at) VALUES (?, 'exam', ?, ?, ?)").run(u.id, s.payment_intent || s.id, s.amount_total || 0, now());
+    stripeMetaEvent("purchase", s, { plan: "exam", kwota: s.amount_total || 0, pi: s.payment_intent || s.id });
     // przejście z planu miesięcznego na „do egzaminu”: subskrypcja kończy się z opłaconym miesiącem, bez kolejnych płatności
     if (hadSub) try {
       const sub = await stripe("POST", "/v1/subscriptions/" + u.sub_id, { cancel_at_period_end: true });
@@ -323,6 +335,7 @@ async function onCheckoutDone(s) {
     const sub = typeof s.subscription === "object" ? s.subscription : await stripe("GET", "/v1/subscriptions/" + s.subscription);
     applySubscription(sub, u.id);
     q("INSERT INTO payments (user_id, kind, stripe_id, amount, at) VALUES (?, 'monthly', ?, ?, ?)").run(u.id, sub.id, s.amount_total || 0, now());
+    stripeMetaEvent("purchase", s, { plan: "monthly", kwota: s.amount_total || 0, pi: sub.id });
   }
   const plan = s.mode === "payment" ? "„Do dnia egzaminu” (dostęp do 11 maja 2027 r.)" : "„Miesięcznie” (odnawiany co miesiąc, rezygnacja w panelu rodzica)";
   await sendMail(u.email, "Dostęp do kursu Liczę na Setkę jest aktywny", mailWrap(`
@@ -337,6 +350,7 @@ async function onCheckoutDone(s) {
 }
 // porzucona płatność: jedno przypomnienie, tylko za zgodą na wiadomości (zaznaczoną w płatności albo wcześniej)
 async function onCheckoutExpired(o) {
+  stripeMetaEvent("checkout_abandoned", o, { plan: (o.metadata && o.metadata.plan) || "" });
   const email = ((o.customer_details && o.customer_details.email) || o.customer_email || "").toLowerCase();
   let u = Number(o.client_reference_id) ? q("SELECT * FROM users WHERE id = ?").get(Number(o.client_reference_id)) : (email ? userByEmail(email) : null);
   const to = (u && u.email) || email;
@@ -370,6 +384,11 @@ async function onStripeEvent(ev) {
     case "checkout.session.expired": await onCheckoutExpired(o); break;
     case "charge.refunded": {
       // zwrot (gwarancja 14 dni): odbieramy dostęp; subskrypcję trzeba też anulować w panelu Stripe
+      { // statystyki: zwrot przypisany do źródła zakupu (po identyfikatorze płatności)
+        const pe = o.payment_intent && q("SELECT * FROM events WHERE name = 'purchase' AND meta LIKE ? ORDER BY at DESC LIMIT 1").get('%"pi":"' + o.payment_intent + '"%');
+        addEvent({ name: "refund", path: "/stripe", session_key: pe && pe.session_key, visitor: pe && pe.visitor, device: pe && pe.device, source: pe && pe.source,
+          medium: pe && pe.medium, campaign: pe && pe.campaign, content: pe && pe.content, meta: { kwota: o.amount_refunded || 0, pi: o.payment_intent || "" } });
+      }
       if (o.amount_refunded < o.amount) break;
       const u = q("SELECT * FROM users WHERE stripe_customer = ?").get(o.customer);
       if (u) { q("UPDATE users SET revoked_at = ?, exam_until = NULL WHERE id = ?").run(now(), u.id); log("zwrot, dostęp wyłączony", u.id); }
@@ -377,6 +396,237 @@ async function onStripeEvent(ev) {
     }
   }
 }
+
+// ---------- statystyki strony (bez cookies, bez danych osobowych) ----------
+// Odwiedzający = skrót z dziennej soli + IP + przeglądarki. Sól zmienia się codziennie i stara jest kasowana,
+// więc z zapisanych danych nie da się odtworzyć ani IP, ani tego, że to ta sama osoba w różne dni.
+const EV_NAMES = new Set(["view", "lesson_start", "lesson_step", "practice_start", "practice_done", "test_start", "test_done",
+  "free_cta_click", "pricing_view", "plan_click", "login", "scroll_50", "scroll_90"]);
+const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|meta-externalagent|monitor|curl|wget|python|axios/i;
+function daySalt(day = warsawDay()) {
+  const k = "salt_" + day;
+  let v = setting(k);
+  if (!v) {
+    v = crypto.randomBytes(16).toString("hex"); setSetting(k, v);
+    q("DELETE FROM settings WHERE key LIKE 'salt_%' AND key < ?").run("salt_" + warsawDay(now() - DAY));   // zostaje tylko dziś i wczoraj
+  }
+  return v;
+}
+const visitorOf = req => sha(daySalt() + "|" + ip(req) + "|" + (req.headers["user-agent"] || "")).slice(0, 24);
+const deviceOf = ua => /iPad|Tablet/i.test(ua) ? "tablet" : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop";
+const clip = (v, n = 80) => (typeof v === "string" ? v : v == null ? "" : String(v)).replace(/[\u0000-\u001f]/g, "").trim().slice(0, n);
+// źródło wejścia: UTM-y mają pierwszeństwo, potem host strony, z której ktoś przyszedł
+function sourceOf(u, refHost) {
+  const src = clip(u.source, 40).toLowerCase();
+  if (src) return { source: src, medium: clip(u.medium, 40).toLowerCase(), campaign: clip(u.campaign), content: clip(u.content) };
+  const h = clip(refHost, 100).toLowerCase(), base = { medium: "", campaign: "", content: "" };
+  if (!h) return { source: "bezpośrednio", ...base };
+  if (/(^|\.)google\./.test(h)) return { source: "google", ...base, medium: "organic" };
+  if (/(^|\.)(bing|duckduckgo|yahoo)\./.test(h)) return { source: h.split(".").slice(-2, -1)[0], ...base, medium: "organic" };
+  if (/facebook|instagram|fb\.com|messenger/.test(h)) return { source: "meta", ...base, medium: "bez-utm" };
+  return { source: h.replace(/^www\./, ""), ...base, medium: "referral" };
+}
+// kto się nie liczy do statystyk: admini i osoby z aktywnym dostępem (kupujący), żeby lejek pokazywał tylko nowych rodziców
+function skipStats(req) { const s = session(req); return !!(s && (ADMINS.has(String(s.user.email).toLowerCase()) || access(s.user).active)); }
+function addEvent(e) {
+  q(`INSERT INTO events (at, day, visitor, session_key, name, path, source, medium, campaign, content, referrer_host, device, meta)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(e.at || now(), warsawDay(e.at || now()), e.visitor || null, e.session_key || null, e.name,
+    e.path || null, e.source || null, e.medium || null, e.campaign || null, e.content || null, e.referrer_host || null, e.device || null,
+    e.meta ? JSON.stringify(e.meta).slice(0, 600) : null);
+}
+function clientEvent(req, b) {
+  const ua = req.headers["user-agent"] || "";
+  if (!EV_NAMES.has(b.name) || BOT.test(ua) || !ua) return;
+  if (limited("ev:" + ip(req), 240, 600000)) return;
+  if (skipStats(req)) return;
+  const u = b.utm && typeof b.utm === "object" ? b.utm : {}, refHost = clip(b.ref, 100);
+  const meta = {};
+  if (b.meta && typeof b.meta === "object") for (const [k, v] of Object.entries(b.meta).slice(0, 6)) if (/^[a-z]{1,12}$/.test(k)) meta[k] = typeof v === "number" ? v : clip(v, 40);
+  addEvent({ name: b.name, path: clip(b.path, 120).split("?")[0], session_key: clip(b.sk, 40) || null, visitor: visitorOf(req), device: deviceOf(ua),
+    referrer_host: refHost, ...sourceOf(u, refHost), meta: Object.keys(meta).length ? meta : null });
+}
+// zdarzenia z płatności (serwer): przypisane do sesji i źródła zapisanych w metadanych płatności Stripe
+function stripeMetaEvent(name, o, extra = {}) {
+  const md = o.metadata || {};
+  addEvent({ name, session_key: md.sk || null, visitor: md.vis || null, device: md.dev || null, source: md.src || null, medium: md.med || null,
+    campaign: md.cmp || null, content: md.cnt || null, path: "/stripe", meta: extra });
+}
+
+// do metadanych płatności: sesja, odwiedzający i źródło wejścia (żeby zakup przypisać do reklamy)
+function statMeta(req, b) {
+  const u = b.utm && typeof b.utm === "object" ? b.utm : {}, src = sourceOf(u, clip(b.ref, 100));
+  return { sk: clip(b.sk, 40) || undefined, vis: visitorOf(req), dev: deviceOf(req.headers["user-agent"] || ""),
+    src: src.source || undefined, med: src.medium || undefined, cmp: src.campaign || undefined, cnt: src.content || undefined };
+}
+// ---------- panel admina: obliczenia ----------
+const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : 0;
+function sessionsIn(from, to, f) {
+  // każda sesja = zestaw zdarzeń z tym samym kluczem sesji; źródło i urządzenie z pierwszego zdarzenia sesji
+  const rows = q("SELECT session_key AS k, visitor, name, path, source, medium, campaign, content, device, meta, at FROM events WHERE day BETWEEN ? AND ? AND session_key IS NOT NULL ORDER BY at").all(from, to);
+  const S = new Map();
+  for (const r of rows) {
+    let s = S.get(r.k);
+    if (!s) { s = { k: r.k, visitor: r.visitor, first: null, ev: [], source: null, medium: null, campaign: null, content: null, device: r.device, paths: [] }; S.set(r.k, s); }
+    if (!s.source && r.source) Object.assign(s, { source: r.source, medium: r.medium, campaign: r.campaign, content: r.content });
+    if (!s.device && r.device) s.device = r.device;
+    if (r.name === "view") { if (!s.first) s.first = r.path; s.paths.push(r.path); }
+    s.ev.push(r);
+  }
+  let list = [...S.values()].filter(s => s.ev.some(e => e.name === "view" || e.path === "/stripe"));
+  if (f.source) list = list.filter(s => (s.source || "bezpośrednio") === f.source);
+  if (f.device) list = list.filter(s => s.device === f.device);
+  for (const s of list) {
+    const has = n => s.ev.some(e => e.name === n);
+    s.flags = { visit: s.ev.some(e => e.name === "view"), lesson: has("lesson_start"), testDone: s.ev.some(e => e.name === "test_done" && /procenty/.test(e.path || "")),
+      pricing: has("pricing_view"), plan: has("plan_click"), checkout: has("checkout_start"), purchase: has("purchase") };
+    s.revenue = s.ev.filter(e => e.name === "purchase").reduce((a, e) => a + (JSON.parse(e.meta || "{}").kwota || 0), 0)
+      - s.ev.filter(e => e.name === "refund").reduce((a, e) => a + (JSON.parse(e.meta || "{}").kwota || 0), 0);
+  }
+  return list;
+}
+function spendIn(from, to) {
+  return q("SELECT source, campaign, content, SUM(spend_pln) AS spend, SUM(impressions) AS imp, SUM(clicks) AS clicks FROM ad_spend WHERE day BETWEEN ? AND ? GROUP BY source, content").all(from, to);
+}
+function tiles(list, spend) {
+  const n = k => list.filter(s => s.flags[k]).length;
+  const visitors = new Set(list.filter(s => s.flags.visit).map(s => s.visitor)).size, purchases = n("purchase"), revenue = list.reduce((a, s) => a + s.revenue, 0) / 100;
+  const sp = spend.reduce((a, r) => a + (r.spend || 0), 0);
+  return { visitors, sessions: n("visit"), lessons: n("lesson"), pricing: n("pricing"), checkouts: n("checkout"), purchases,
+    revenue: Math.round(revenue * 100) / 100, spend: Math.round(sp * 100) / 100, cpa: purchases ? Math.round(sp / purchases * 100) / 100 : null, roas: sp ? Math.round(revenue / sp * 100) / 100 : null };
+}
+const FUNNEL = [["visit", "Wejście na stronę"], ["lesson", "Darmowa lekcja: start"], ["testDone", "Test darmowy ukończony"], ["pricing", "Cennik"],
+  ["plan", "Klik planu"], ["checkout", "Płatność rozpoczęta"], ["purchase", "Zakup"]];
+function funnel(list, steps = FUNNEL) {
+  const out = steps.map(([k, label]) => ({ k, label, n: list.filter(s => s.flags[k]).length }));
+  out.forEach((st, i) => { st.ofStart = pct(st.n, out[0].n); st.ofPrev = i ? pct(st.n, out[i - 1].n) : 100; });
+  // największy spadek liczony tylko tam, gdzie poprzedni krok ma co najmniej 5 osób (inaczej to szum)
+  let worst = null;
+  out.forEach((st, i) => { if (i && out[i - 1].n >= 5) { const drop = 100 - st.ofPrev; if (!worst || drop > worst.drop) worst = { i, drop, from: out[i - 1].label, to: st.label }; } });
+  return { steps: out, worst };
+}
+function adsTable(list, spend) {
+  const key = s => [s.source || "bezpośrednio", s.campaign || "", s.content || ""].join("\u0001");
+  const G = new Map();
+  for (const s of list) {
+    const k = key(s); let g = G.get(k);
+    if (!g) { g = { source: s.source || "bezpośrednio", campaign: s.campaign || "", content: s.content || "", sessions: 0, lesson: 0, pricing: 0, checkout: 0, purchase: 0, revenue: 0, spend: 0, imp: 0, clicks: 0 }; G.set(k, g); }
+    g.sessions += s.flags.visit ? 1 : 0; g.lesson += s.flags.lesson; g.pricing += s.flags.pricing; g.checkout += s.flags.checkout; g.purchase += s.flags.purchase; g.revenue += s.revenue / 100;
+  }
+  for (const r of spend) {   // koszty dopasowane po nazwie reklamy = utm_content
+    let g = [...G.values()].find(x => x.source === r.source && x.content === r.content);
+    if (!g) { g = { source: r.source, campaign: r.campaign || "", content: r.content, sessions: 0, lesson: 0, pricing: 0, checkout: 0, purchase: 0, revenue: 0, spend: 0, imp: 0, clicks: 0 }; G.set(key(g) + "\u0002", g); }
+    g.spend += r.spend || 0; g.imp += r.imp || 0; g.clicks += r.clicks || 0;
+  }
+  return [...G.values()].map(g => ({ ...g, lessonPct: pct(g.lesson, g.sessions), pricingPct: pct(g.pricing, g.sessions), conv: pct(g.purchase, g.sessions),
+    spend: Math.round(g.spend * 100) / 100, revenue: Math.round(g.revenue * 100) / 100, cpa: g.purchase ? Math.round(g.spend / g.purchase * 100) / 100 : null,
+    roas: g.spend ? Math.round(g.revenue / g.spend * 100) / 100 : null })).sort((a, b) => b.sessions - a.sessions || b.spend - a.spend);
+}
+function lessonStats(list) {
+  const L = list.filter(s => s.flags.lesson);
+  const maxStep = s => Math.max(0, ...s.ev.filter(e => e.name === "lesson_step" && /procenty/.test(e.path || "")).map(e => JSON.parse(e.meta || "{}").krok || 0));
+  const reached = {};
+  for (const s of L) { const m = maxStep(s); for (let k = 0; k <= m; k++) reached[k] = (reached[k] || 0) + 1; }
+  // jeden wynik na sesję (ostatni), żeby odświeżenie strony z wynikiem nie liczyło testu drugi raz
+  const tests = list.map(s => s.ev.filter(e => e.name === "test_done" && /procenty/.test(e.path || "")).pop()).filter(Boolean).map(e => JSON.parse(e.meta || "{}"));
+  const has = n => list.filter(s => s.ev.some(e => e.name === n && /procenty/.test(e.path || ""))).length;
+  return { starts: L.length, reached, practiceStart: has("practice_start"), practiceDone: has("practice_done"), testStart: has("test_start"), testDone: tests.length,
+    ctaClicks: list.filter(s => s.ev.some(e => e.name === "free_cta_click")).length,
+    avgScore: tests.length ? Math.round(tests.reduce((a, t) => a + (t.wynik || 0), 0) / tests.length * 10) / 10 : null, testMax: tests.length ? tests[0].max : null };
+}
+function paymentStats(from, to) {
+  const ev = q("SELECT name, at, source, content, meta FROM events WHERE day BETWEEN ? AND ? AND name IN ('checkout_start','purchase','checkout_abandoned','refund') ORDER BY at DESC").all(from, to);
+  const c = n => ev.filter(e => e.name === n).length;
+  const P = ev.filter(e => e.name === "purchase").map(e => ({ at: e.at, source: e.source || "nieznane", content: e.content || "", ...JSON.parse(e.meta || "{}") }));
+  const refunds = ev.filter(e => e.name === "refund").reduce((a, e) => a + (JSON.parse(e.meta || "{}").kwota || 0), 0) / 100;
+  return { started: c("checkout_start"), paid: c("purchase"), abandoned: c("checkout_abandoned"), refunds: c("refund"), refundPln: refunds,
+    exam: P.filter(p => p.plan === "exam").length, monthly: P.filter(p => p.plan === "monthly").length,
+    gross: P.reduce((a, p) => a + (p.kwota || 0), 0) / 100, recent: P.slice(0, 20).map(p => ({ at: p.at, plan: p.plan, kwota: (p.kwota || 0) / 100, source: p.source, content: p.content })) };
+}
+function daily(from, to, f) {
+  const rows = q(`SELECT day, COUNT(DISTINCT CASE WHEN name = 'view' THEN visitor END) AS visitors, SUM(name = 'purchase') AS purchases FROM events
+    WHERE day BETWEEN ? AND ? ${f.source ? "AND COALESCE(source, 'bezpośrednio') = ?" : ""} ${f.device ? "AND device = ?" : ""} GROUP BY day`).all(from, to, ...[f.source, f.device].filter(Boolean));
+  const sp = Object.fromEntries(q("SELECT day, SUM(spend_pln) AS s FROM ad_spend WHERE day BETWEEN ? AND ? GROUP BY day").all(from, to).map(r => [r.day, r.s]));
+  const out = [], byDay = Object.fromEntries(rows.map(r => [r.day, r]));
+  for (let t = Date.parse(from + "T12:00:00Z"); t <= Date.parse(to + "T12:00:00Z") && out.length < 400; t += DAY) {
+    const d = new Date(t).toISOString().slice(0, 10), r = byDay[d] || {};
+    out.push({ day: d, visitors: r.visitors || 0, purchases: r.purchases || 0, spend: Math.round((sp[d] || 0) * 100) / 100 });
+  }
+  return out;
+}
+function pageStats(list) {
+  const views = {}, exits = {};
+  for (const s of list) { s.paths.forEach(p => { views[p] = (views[p] || 0) + 1; }); if (s.paths.length) { const l = s.paths[s.paths.length - 1]; exits[l] = (exits[l] || 0) + 1; } }
+  const top = o => Object.entries(o).sort((a, b) => b[1] - a[1]).slice(0, 12).map(([path, n]) => ({ path, n }));
+  const scroll = {};
+  for (const p of ["/", "/cennik.html"]) {
+    const seen = list.filter(s => s.paths.includes(p)).length;
+    const sc = n => list.filter(s => s.ev.some(e => e.name === n && e.path === p)).length;
+    scroll[p] = { views: seen, s50: pct(sc("scroll_50"), seen), s90: pct(sc("scroll_90"), seen) };
+  }
+  const dev = {};
+  for (const d of ["mobile", "desktop", "tablet"]) { const L = list.filter(s => s.device === d); dev[d] = { sessions: L.length, purchases: L.filter(s => s.flags.purchase).length, conv: pct(L.filter(s => s.flags.purchase).length, L.length), pricing: pct(L.filter(s => s.flags.pricing).length, L.length) }; }
+  return { top: top(views), exits: top(exits), scroll, devices: dev };
+}
+function insights(t, fun, ads, les, pages) {
+  const out = [];
+  if (t.sessions < 100 && t.spend < 80) return ["Za mało danych na wnioski (potrzeba ok. 100 wejść albo 80 zł wydatków na reklamy). Poczekaj kilka dni."];
+  for (const a of ads) if (a.spend >= 80 && a.purchase === 0) out.push(`Reklama „${a.content || a.campaign || a.source}”: 0 zakupów przy wydanych ${a.spend.toFixed(0)} zł. Rozważ wyłączenie albo zmianę kreacji.`);
+  const good = ads.filter(a => a.cpa != null && a.spend >= 50).sort((a, b) => a.cpa - b.cpa)[0];
+  if (good) out.push(`Najtańszy zakup: „${good.content || good.source}”, ${good.cpa.toFixed(0)} zł za zakup. Warto przesunąć tu budżet.`);
+  if (fun.worst) out.push(`Najwięcej osób odpada między krokami „${fun.worst.from}” → „${fun.worst.to}” (${Math.round(fun.worst.drop)}% nie przechodzi dalej).`);
+  const m = pages.devices.mobile, d = pages.devices.desktop;
+  if (m.sessions >= 50 && d.sessions >= 30 && m.conv && d.conv && d.conv / m.conv >= 2) out.push(`Na telefonie konwersja (${m.conv}%) jest ${Math.round(d.conv / m.conv)}× niższa niż na komputerze (${d.conv}%). Sprawdź stronę i płatność na telefonie.`);
+  if (les.starts >= 30) {
+    const ks = Object.keys(les.reached).map(Number).sort((a, b) => a - b);
+    let worst = null;
+    for (let i = 1; i < ks.length; i++) { const drop = 1 - les.reached[ks[i]] / les.reached[ks[i - 1]]; if (!worst || drop > worst.drop) worst = { k: ks[i - 1], drop }; }
+    if (worst && worst.drop >= 0.25) out.push(`W darmowej lekcji najwięcej osób rezygnuje po kroku ${worst.k} (${Math.round(worst.drop * 100)}% nie idzie dalej).`);
+  }
+  if (t.pricing >= 30 && t.checkouts / t.pricing < 0.05) out.push(`Z cennika do płatności przechodzi tylko ${pct(t.checkouts, t.pricing)}% osób. Warto przetestować inny układ cennika.`);
+  return out.length ? out.slice(0, 5) : ["Brak wyraźnych problemów w tym okresie."];
+}
+function adminStats(f) {
+  const today = warsawDay(), from = /^\d{4}-\d{2}-\d{2}$/.test(f.from) ? f.from : warsawDay(now() - 6 * DAY), to = /^\d{4}-\d{2}-\d{2}$/.test(f.to) ? f.to : today;
+  const filt = { source: clip(f.source, 60), device: ["mobile", "desktop", "tablet"].includes(f.device) ? f.device : "" };
+  const list = sessionsIn(from, to, filt);
+  let spend = spendIn(from, to);
+  if (filt.source) spend = spend.filter(r => r.source === filt.source);
+  if (filt.device) spend = [];   // koszty reklam nie mają podziału na urządzenia
+  // poprzedni okres tej samej długości (do porównania na kafelkach)
+  const len = Math.round((Date.parse(to) - Date.parse(from)) / DAY) + 1;
+  const pFrom = new Date(Date.parse(from) - len * DAY).toISOString().slice(0, 10), pTo = new Date(Date.parse(from) - DAY).toISOString().slice(0, 10);
+  const t = tiles(list, spend), prev = tiles(sessionsIn(pFrom, pTo, filt), filt.device ? [] : spendIn(pFrom, pTo).filter(r => !filt.source || r.source === filt.source));
+  const fun = funnel(list), ads = adsTable(list, spend), les = lessonStats(list), pages = pageStats(list);
+  const entryHome = funnel(list.filter(s => s.first === "/" || s.first === "/index.html"), [["visit", "Wejście na stronę główną"], ["pricing", "Cennik"], ["checkout", "Płatność"], ["purchase", "Zakup"]]);
+  const entryLesson = funnel(list.filter(s => /procenty/.test(s.first || "")), [["visit", "Wejście prosto na lekcję"], ["testDone", "Test ukończony"], ["pricing", "Cennik"], ["purchase", "Zakup"]]);
+  const sources = [...new Set(q("SELECT DISTINCT COALESCE(source, 'bezpośrednio') AS s FROM events WHERE day >= ?").all(warsawDay(now() - 400 * DAY)).map(r => r.s))].sort();
+  return { from, to, prevFrom: pFrom, prevTo: pTo, tiles: t, prev, funnel: fun, entryHome, entryLesson, ads, lesson: les, payments: paymentStats(from, to),
+    daily: daily(from, to, filt), pages, insights: insights(t, fun, ads, les, pages), sources, firstDay: (q("SELECT MIN(day) AS d FROM events").get() || {}).d || today };
+}
+// import kosztów z CSV wyeksportowanego z Menedżera reklam (polska albo angielska wersja nagłówków)
+function parseCsv(text) {
+  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) return [];
+  const sep = (lines[0].match(/;/g) || []).length > (lines[0].match(/,/g) || []).length ? ";" : ",";
+  const split = l => { const out = []; let cur = "", qd = false; for (let i = 0; i < l.length; i++) { const ch = l[i];
+    if (ch === '"') { if (qd && l[i + 1] === '"') { cur += '"'; i++; } else qd = !qd; } else if (ch === sep && !qd) { out.push(cur); cur = ""; } else cur += ch; } out.push(cur); return out.map(x => x.trim()); };
+  const head = split(lines[0]).map(h => h.toLowerCase());
+  const col = res => head.findIndex(h => res.some(r => r.test(h)));
+  const iDay = col([/^dzień|^day|początek raportowania|reporting starts|^data|^date/]), iAd = col([/nazwa reklamy|ad name/]), iCamp = col([/nazwa kampanii|campaign name/]);
+  const iSpend = col([/wydana kwota|amount spent|wydatki|spend/]), iImp = col([/^wyświetlenia|^impressions/]), iClk = col([/kliknięcia linku|link clicks|kliknięcia w link/]);
+  if (iDay < 0 || iAd < 0 || iSpend < 0) throw new Error("Nie znaleziono kolumn: dzień, nazwa reklamy, wydana kwota. Eksportuj raport z podziałem na dni i reklamy.");
+  const num = v => Number(String(v || "0").replace(/\s|zł|PLN/gi, "").replace(",", ".")) || 0;
+  return lines.slice(1).map(split).map(r => ({ day: String(r[iDay] || "").slice(0, 10), content: clip(r[iAd]), campaign: iCamp >= 0 ? clip(r[iCamp]) : "",
+    spend: num(r[iSpend]), imp: iImp >= 0 ? Math.round(num(r[iImp])) : 0, clicks: iClk >= 0 ? Math.round(num(r[iClk])) : 0 }))
+    .filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.day) && r.content);
+}
+function saveSpend(rows, source = "meta") {
+  const st = q(`INSERT INTO ad_spend (day, source, campaign, content, spend_pln, impressions, clicks) VALUES (?, ?, ?, ?, ?, ?, ?)
+    ON CONFLICT(day, source, content) DO UPDATE SET campaign = excluded.campaign, spend_pln = excluded.spend_pln, impressions = excluded.impressions, clicks = excluded.clicks`);
+  for (const r of rows) st.run(r.day, clip(source, 40) || "meta", r.campaign || "", r.content, Math.max(0, r.spend), Math.max(0, r.imp || 0), Math.max(0, r.clicks || 0));
+  return rows.length;
+}
+const isAdmin = req => { const s = session(req); return !!(s && s.role === "parent" && ADMINS.has(String(s.user.email).toLowerCase())); };
 
 // ---------- HTTP ----------
 function send(res, status, body, type = "application/json; charset=utf-8", extra = {}) {
@@ -410,6 +660,11 @@ function serveStatic(req, res, pathname, versioned) {
   try { file = path.join(PUBLIC, decodeURIComponent(pathname)); } catch (e) { return send(res, 400, "Zły adres", "text/plain"); }
   if (!file.startsWith(PUBLIC + path.sep)) return send(res, 404, "Nie ma takiej strony", "text/plain; charset=utf-8");
   const base = path.basename(file);
+  // panel admina: dla wszystkich poza adminami wygląda jak nieistniejąca strona
+  if (base === "admin.html") {
+    if (!isAdmin(req)) { const nf = path.join(PUBLIC, "404.html"); return send(res, 404, fs.existsSync(nf) ? fs.readFileSync(nf) : "Nie ma takiej strony", TYPES[".html"]); }
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+  }
   // treść płatnych tematów, testu startowego i egzaminów tylko z aktywnym dostępem
   if (/^dane-.+\.js$/.test(base) && !FREE.has(base)) {
     const s = session(req);
@@ -449,6 +704,37 @@ async function api(req, res, url) {
     return json(res, 200, { ok: true });
   }
   if (m !== "GET" && !sameOrigin(req)) return json(res, 403, { error: "Niedozwolone źródło żądania" });
+
+  // statystyki strony: zdarzenie z przeglądarki (sendBeacon), zawsze 204, żeby nigdy nie spowolnić ani nie zepsuć strony
+  if (p === "/api/e" && m === "POST") {
+    try { const raw = await readBody(req, 2048); clientEvent(req, JSON.parse(raw || "{}")); } catch (e) { /* błędne zdarzenie pomijamy */ }
+    res.writeHead(204, { "Cache-Control": "no-store" }); return res.end();
+  }
+  // panel admina (tylko adresy z ADMIN_EMAILS); dla innych udajemy, że adresu nie ma
+  if (p.startsWith("/api/admin/")) {
+    if (!isAdmin(req)) return json(res, 404, { error: "Nie ma takiego adresu." });
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    if (p === "/api/admin/stats" && m === "GET") return json(res, 200, adminStats(Object.fromEntries(url.searchParams)));
+    if (p === "/api/admin/spend" && m === "GET")
+      return json(res, 200, { rows: q("SELECT * FROM ad_spend ORDER BY day DESC, content LIMIT 500").all() });
+    if (p === "/api/admin/spend" && m === "POST") {
+      let b; try { b = JSON.parse(await readBody(req, 3_000_000) || "{}"); } catch (e) { return json(res, 400, { error: "zły format" }); }
+      try {
+        let rows;
+        if (typeof b.csv === "string") rows = parseCsv(b.csv);
+        else rows = (Array.isArray(b.rows) ? b.rows : []).map(r => ({ day: String(r.day || ""), content: clip(r.content), campaign: clip(r.campaign),
+          spend: Number(String(r.spend || 0).replace(",", ".")) || 0, imp: Number(r.imp) || 0, clicks: Number(r.clicks) || 0 })).filter(r => /^\d{4}-\d{2}-\d{2}$/.test(r.day) && r.content);
+        if (!rows.length) return json(res, 400, { error: "Brak wierszy do zapisania (sprawdź datę i nazwę reklamy)." });
+        return json(res, 200, { ok: true, saved: saveSpend(rows, b.source || "meta") });
+      } catch (e) { return json(res, 400, { error: e.message }); }
+    }
+    if (p === "/api/admin/spend" && m === "DELETE") {
+      const b = await jsonBody(req);
+      q("DELETE FROM ad_spend WHERE day = ? AND content = ? AND source = ?").run(String(b.day || ""), String(b.content || ""), String(b.source || "meta"));
+      return json(res, 200, { ok: true });
+    }
+    return json(res, 404, { error: "Nie ma takiego adresu." });
+  }
 
   if (p === "/api/config" && m === "GET")
     return json(res, 200, { googleClientId: GOOGLE_ID, metaPixelId: META_PIXEL_ID, contact: CONTACT, payments: !!(STRIPE_KEY && PRICE.exam && PRICE.monthly), webhook: !!STRIPE_WH,
@@ -544,7 +830,7 @@ async function api(req, res, url) {
       success_url: `${BASE_URL}/konto.html?platnosc=ok&plan=${plan}&cs={CHECKOUT_SESSION_ID}`,
       cancel_url: `${BASE_URL}/cennik.html?platnosc=anulowana`,
       client_reference_id: s ? String(s.user.id) : undefined,
-      metadata: { user_id: s ? String(s.user.id) : undefined, plan },
+      metadata: { user_id: s ? String(s.user.id) : undefined, plan, ...statMeta(req, b) },
       expires_at: Math.floor(now() / 1000) + 3 * 3600,
       after_expiration: { recovery: { enabled: true, allow_promotion_codes: false } },
       locale: "pl",
@@ -570,6 +856,7 @@ async function api(req, res, url) {
       try {
         const cs = await stripe("POST", "/v1/checkout/sessions", { ...body, ...brand });
         if (brand.branding_settings) setSetting("branding", "ok");
+        if (!skipStats(req)) stripeMetaEvent("checkout_start", { metadata: body.metadata }, { plan });
         return json(res, 200, { url: cs.url });
       } catch (e) {
         lastErr = e; const msg = e.message || "";
@@ -829,6 +1116,7 @@ setInterval(() => {
 setInterval(() => {
   q("DELETE FROM sessions WHERE expires < ?").run(now());
   q("DELETE FROM magic WHERE expires < ?").run(now() - DAY);
+  q("DELETE FROM events WHERE at < ?").run(now() - 400 * DAY);   // statystyki trzymamy ok. 13 miesięcy
 }, 3600000).unref();
 
 // po każdym wdrożeniu jeszcze raz próbujemy wyglądu płatności (mógł zostać poprawiony)

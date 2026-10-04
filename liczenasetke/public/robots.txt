@@ -1,4 +1,5 @@
 User-agent: *
 Disallow: /konto.html
+Disallow: /admin.html
 Disallow: /api/
 Sitemap: https://liczenasetke.pl/sitemap.xml

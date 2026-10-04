@@ -59,6 +59,7 @@ Wszystko najpierw w **trybie testowym** (przełącznik „Test mode”).
 | `GOOGLE_CLIENT_ID` | `….apps.googleusercontent.com` |
 | `RESEND_API_KEY` | `re_…` |
 | `MAIL_FROM` | `Liczę na Setkę <kontakt@liczenasetke.pl>` |
+| `ADMIN_EMAILS` | adresy z dostępem do panelu `/admin.html`, po przecinku (domyślnie `klimczakjanek@gmail.com,liczenasetke@gmail.com`) |
 
 `DB_PATH=/data/dane.db` i port są już ustawione w Dockerfile. **Nie ustawiaj `DEV=1` na produkcji** (to tryb testowy, który pokazuje link logujący na stronie).
 

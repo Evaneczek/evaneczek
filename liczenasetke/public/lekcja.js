@@ -25,6 +25,9 @@
     return;
   }
   if (!M8 || !T) return;
+  // statystyki: kroki darmowego tematu (pozostałe tematy otwierają tylko kupujący, których i tak nie liczymy)
+  const seenStep = new Set();
+  const stat = (name, meta) => { if (T.slug === "procenty" && M8.ev) M8.ev(name, meta); };
   // darmowy temat: krótka informacja u góry i zachęta na dole, tylko dla osób bez pełnego dostępu
   if (T.slug === "procenty") M8.ready.then(me => {
     if (me && me.access && me.access.active) return;
@@ -36,6 +39,7 @@
     host.prepend(top);
     const end = document.createElement("div");
     end.className = "free-cta box";
+    end.addEventListener("click", e => { if (e.target.closest("a[href='cennik.html']")) stat("free_cta_click"); });
     end.innerHTML = `<div class="eyebrow">To był 1 z 20 tematów</div><h3>Cały egzamin z matematyki w jednym kursie</h3>
       <p>W pełnej wersji: wszystkie tematy z egzaminu, test startowy, 2 egzaminy próbne na czas i panel rodzica. 199 zł do dnia egzaminu, 14 dni na zwrot pieniędzy.</p>
       <div class="btn-row"><a class="btn btn-yellow" href="cennik.html">Zobacz plany i ceny</a><a class="text-link" href="kurs.html">Program kursu</a></div>`;
@@ -933,17 +937,20 @@
     function go(k) {
       k = Math.max(0, Math.min(steps.length - 1, k));
       S.lessonIdx = k; M8.save();
+      if (!seenStep.has(k)) { seenStep.add(k); stat("lesson_step", { krok: k }); }
       pane(k);
       panes.forEach((p, j) => { if (p) p.hidden = j !== k; });
       paintNav(k);
       host.scrollIntoView({ block: "start" });
     }
     const start = Math.min(S.lessonIdx || 0, steps.length - 1);
+    seenStep.add(start); stat("lesson_step", { krok: start });
     pane(start); panes.forEach((p, j) => { if (p) p.hidden = j !== start; }); paintNav(start);
     document.addEventListener("m8:checked", () => paintNav(S.lessonIdx || 0));
   }
 
   function initLearn() {
+    stat("lesson_start");
     const lessonHost = document.getElementById("lessons");
     if (T.lessons && lessonHost) {
       document.querySelectorAll(".legacy-learn").forEach(n => { n.hidden = true; });
@@ -973,6 +980,7 @@
   const levelOf = t => t.level || 1;
 
   function initPractice(host) {
+    stat("practice_start");
     const P = T.practice;
     S.variant = S.variant || {};
     let level = Math.min(S.practiceLevel || 1, LEVELS.length);
@@ -1068,6 +1076,7 @@
       paint();
     }
     function showSummary() {
+      stat("practice_done");
       built.forEach(b => { b.card.hidden = true; });
       const wrong = list.map((t, i) => ({ t, i })).filter(({ t }) => { const p = S.practice[t.id]; return !p || !p.checked || p.last === false; });
       const good = list.length - wrong.length;
@@ -1180,7 +1189,7 @@
         <p style="color:var(--muted)">Bez notatek, jak na egzaminie. Obliczenia zapisuj na kartce. Wynik, poprawne odpowiedzi i rozwiązania zobaczysz po zakończeniu.${hasSelf ? " Zadania otwarte ocenisz samodzielnie według punktacji." : ""}</p>`
         : `<h2>${KIND === "exam" ? "Start egzaminu" : "Start testu"}</h2><p style="color:var(--muted)">${T.start_note}</p>`;
       const b = el("button", { class: "btn btn-yellow", type: "button" }, KIND === "exam" ? "Rozpocznij egzamin" : KIND === "diag" ? "Rozpocznij test startowy" : "Rozpocznij test");
-      b.addEventListener("click", () => { S.test = { started: Date.now(), answers: {}, done: false }; M8.save(); run(); });
+      b.addEventListener("click", () => { S.test = { started: Date.now(), answers: {}, done: false }; M8.save(); stat("test_start"); run(); });
       box.appendChild(b);
       if (S.lastScore != null) box.appendChild(el("p", { class: "mono", style: "color:var(--muted);font-size:14px" }, "Ostatni wynik: " + S.lastScore + " / " + TEST_MAX + " pkt"));
       host.appendChild(box);
@@ -1217,6 +1226,7 @@
       const recalc = () => {
         const score = pts.reduce((a, b) => a + b, 0);
         S.test.score = score; S.lastScore = score; M8.save(); M8.paint();
+        if (!seenStep.has("test")) { seenStep.add("test"); stat("test_done", { wynik: score, max: TEST_MAX }); }
         card.update(score);
       };
       T.test.forEach((t, i) => {

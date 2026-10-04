@@ -197,6 +197,42 @@
   };
   window.M8 = M8;
 
+  // ---------- Statystyki strony bez cookies ----------
+  // Klucz sesji i źródło wejścia (UTM, strona, z której ktoś przyszedł) są tylko w sessionStorage tej karty, nie w cookies.
+  // Serwer zapisuje zdarzenie z zanonimizowanym, codziennie zmienianym identyfikatorem; bez adresu IP i bez danych osobowych.
+  M8.stat = (() => {
+    try {
+      let sk = sessionStorage.getItem("m8-sk");
+      if (!sk) { sk = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); sessionStorage.setItem("m8-sk", sk); }
+      let src = JSON.parse(sessionStorage.getItem("m8-src") || "null");
+      if (!src) {
+        const qs = new URLSearchParams(location.search), utm = {};
+        ["source", "medium", "campaign", "content"].forEach(k => { const v = qs.get("utm_" + k); if (v) utm[k] = v.slice(0, 80); });
+        let ref = "";
+        try { const r = document.referrer ? new URL(document.referrer) : null; if (r && r.host !== location.host) ref = r.host; } catch (e) {}
+        src = { utm, ref }; sessionStorage.setItem("m8-src", JSON.stringify(src));
+      }
+      return { sk, utm: src.utm, ref: src.ref };
+    } catch (e) { return { sk: "", utm: {}, ref: "" }; }
+  })();
+  M8.ev = (name, meta) => {
+    try {
+      if (location.protocol === "file:") return;
+      const body = JSON.stringify({ name, path: location.pathname, sk: M8.stat.sk, utm: M8.stat.utm, ref: M8.stat.ref, meta });
+      if (navigator.sendBeacon) navigator.sendBeacon("/api/e", new Blob([body], { type: "application/json" }));
+      else fetch("/api/e", { method: "POST", body, keepalive: true, headers: { "Content-Type": "application/json" } }).catch(() => {});
+    } catch (e) {}
+  };
+  M8.ev("view");
+  if (/cennik\.html$/.test(location.pathname)) M8.ev("pricing_view");
+  if (/^\/(index\.html)?$|cennik\.html$/.test(location.pathname)) {
+    const sent = {};
+    addEventListener("scroll", () => {
+      const h = document.documentElement, k = (h.scrollTop + innerHeight) / h.scrollHeight;
+      [50, 90].forEach(p => { if (!sent[p] && k >= p / 100) { sent[p] = 1; M8.ev("scroll_" + p); } });
+    }, { passive: true });
+  }
+
   const h = document.getElementById("site-header");
   if (h) renderHeader(h);
   const f = document.getElementById("site-footer");
@@ -291,9 +327,10 @@
     if (me.role === "student") { alert("Dostęp kupuje rodzic. Zaloguj się na konto rodzica."); return; }
     if (me.access && me.access.active && !(me.access.plan === "monthly" && plan === "exam")) { location.href = "konto.html"; return; }
     M8.track("InitiateCheckout", { value: plan === "exam" ? 199 : 49, currency: "PLN" });
+    M8.ev("plan_click", { plan });
     const label = btn ? btn.textContent : "";
     if (btn) { btn.disabled = true; btn.textContent = "Otwieram płatność…"; }
-    try { const r = await M8.api("/api/checkout", { method: "POST", body: { plan } }); location.href = r.url; }
+    try { const r = await M8.api("/api/checkout", { method: "POST", body: { plan, sk: M8.stat.sk, utm: M8.stat.utm, ref: M8.stat.ref } }); location.href = r.url; }
     catch (e) { if (e.data && e.data.url) location.href = e.data.url; else alert(e.message); if (btn) { btn.disabled = false; btn.textContent = label; } }
   };
   document.querySelectorAll("[data-buy]").forEach(b => b.addEventListener("click", e => { e.preventDefault(); M8.buy(b.dataset.buy, b); }));
@@ -372,6 +409,7 @@
   const pending = [];
   M8.track = (ev, params) => {
     try { if (window.fbq) window.fbq("track", ev, params || {}); else if (getConsent() !== "no") pending.push([ev, params || {}]); } catch (e) {}
+    if (ev === "Lead") M8.ev("login");
   };
   M8.config = (async () => {
     try { const r = await fetch("/api/config", { credentials: "same-origin" }); if (r.ok && (r.headers.get("content-type") || "").includes("json")) return await r.json(); } catch (e) {}
