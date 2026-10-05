@@ -38,7 +38,8 @@
   function buyerLinks() {
     if (!hasAccess()) return;
     document.querySelectorAll('main a[href="cennik.html"], main a[href^="cennik.html#"], main a[href="procenty-nauka.html"], main a[href="kurs.html?lekcja=przykladowa"]').forEach(a => {
-      if (a.closest(".free-cta, .free-note, .locked")) return;
+      // nawigacja w samym temacie (karty kroków, zakładki Naucz się / Ćwicz / Sprawdź się) prowadzi do lekcji, nie do „Mój kurs”
+      if (a.closest(".free-cta, .free-note, .locked, .step-card, .step-tabs, .crumbs")) return;
       a.href = "kurs.html";
       if (a.classList.contains("btn")) a.textContent = "Przejdź do mojego kursu";
       else if (/cen|plan/i.test(a.textContent)) a.remove();
