@@ -24,17 +24,28 @@
 
   const LOGO = '<span class="blocks" aria-hidden="true"><i>÷</i><i>%</i><i>=</i></span><span class="brand-name">Liczę na Setkę</span>';
 
-  // Po zakupie strona zamienia się w „Mój kurs”: bez przykładowej lekcji, cennika i informacji sprzedażowych.
+  // Po zakupie: w menu „Mój kurs” i „Moje konto” oraz strony informacyjne (bez cennika i przykładowej lekcji).
   // Pamiętamy to w przeglądarce, żeby menu nie mrugało przy każdym wejściu (serwer i tak potwierdza dostęp).
   const ACC = "m8-access";
   const hasAccess = () => { try { return localStorage.getItem(ACC) === "1"; } catch (e) { return false; } };
   if (hasAccess()) {
     document.documentElement.classList.add("has-access");
-    // strona główna i cennik to informacje dla kupujących: po zakupie od razu „Mój kurs”
+    // cennik nie jest już potrzebny: po zakupie od razu „Mój kurs” (pozostałe strony zostają dostępne)
     const hp = document.getElementById("site-header");
-    const pg = hp && hp.dataset.page;
-    if (pg === "home" || pg === "cennik") location.replace("kurs.html");
+    if (hp && hp.dataset.page === "cennik") location.replace("kurs.html");
   }
+  // kupujący: przyciski „wypróbuj / zobacz ceny” na stronach informacyjnych prowadzą do kursu
+  function buyerLinks() {
+    if (!hasAccess()) return;
+    document.querySelectorAll('main a[href="cennik.html"], main a[href^="cennik.html#"], main a[href="procenty-nauka.html"], main a[href="kurs.html?lekcja=przykladowa"]').forEach(a => {
+      if (a.closest(".free-cta, .free-note, .locked")) return;
+      a.href = "kurs.html";
+      if (a.classList.contains("btn")) a.textContent = "Przejdź do mojego kursu";
+      else if (/cen|plan/i.test(a.textContent)) a.remove();
+    });
+  }
+  document.addEventListener("DOMContentLoaded", buyerLinks);
+  if (document.readyState !== "loading") setTimeout(buyerLinks);
   function renderHeader(host) {
     const page = host.dataset.page || "";
     const cur = id => id === page ? ' aria-current="page"' : "";
@@ -42,9 +53,10 @@
       host.outerHTML = `
       <header class="site-header" data-page="${page}">
         <div class="container">
-          <a class="brand" href="kurs.html" aria-label="Liczę na Setkę, mój kurs">${LOGO}</a>
+          <a class="brand" href="./" aria-label="Liczę na Setkę, strona główna">${LOGO}</a>
           <button class="menu-btn" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
           <nav class="nav" id="main-nav" aria-label="Główne menu">
+            ${NAV.filter(n => n.id === "jak" || n.id === "rodzic").map(n => `<a href="${n.href}"${cur(n.id)}>${n.label}</a>`).join("")}
             <a href="kurs.html"${cur("kurs")}>Mój kurs</a>
             <a class="nav-login" href="konto.html"${cur("konto")}>Moje konto</a>
           </nav>
@@ -94,6 +106,14 @@
                 <li><a href="egzamin-probny-1.html">Egzamin próbny 1</a></li>
                 <li><a href="egzamin-probny-2.html">Egzamin próbny 2</a></li>
                 <li><a href="opinie.html">Napisz opinię</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4>O kursie</h4>
+              <ul>
+                <li><a href="./">Strona główna</a></li>
+                <li><a href="jak-to-dziala.html">Jak to działa</a></li>
+                <li><a href="dla-rodzica.html">Panel rodzica</a></li>
               </ul>
             </div>
             <div>
@@ -301,6 +321,7 @@
       const h = document.querySelector(".site-header"), f = document.querySelector(".site-footer");
       if (h) renderHeader(h);
       if (f) renderFooter(f);
+      buyerLinks();
       const fl2 = document.querySelector(".foot-login");
       if (me.role && fl2) { fl2.textContent = "Moje konto"; fl2.href = "konto.html"; }
       const l2 = document.querySelector(".nav-login");
