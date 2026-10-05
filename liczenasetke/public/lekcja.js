@@ -28,23 +28,72 @@
   // statystyki: kroki darmowego tematu (pozostałe tematy otwierają tylko kupujący, których i tak nie liczymy)
   const seenStep = new Set();
   const stat = (name, meta) => { if (T.slug === "procenty" && M8.ev) M8.ev(name, meta); };
-  // darmowy temat: krótka informacja u góry i zachęta na dole, tylko dla osób bez pełnego dostępu
-  if (T.slug === "procenty") M8.ready.then(me => {
-    if (me && me.access && me.access.active) return;
-    const host = ["main .workspace .container", "main .section .container"].map(q => document.querySelector(q)).find(Boolean);
-    if (!host) return;
-    const top = document.createElement("div");
-    top.className = "free-note";
-    top.innerHTML = `<b>Darmowa lekcja</b><span>Tak wygląda każdy z 20 tematów kursu. Można zacząć od razu, bez zakładania konta.</span><a href="cennik.html">Zobacz pełny kurs →</a>`;
-    host.prepend(top);
-    const end = document.createElement("div");
-    end.className = "free-cta box";
-    end.addEventListener("click", e => { if (e.target.closest("a[href='cennik.html']")) stat("free_cta_click"); });
-    end.innerHTML = `<div class="eyebrow">To był 1 z 20 tematów</div><h3>Cały egzamin z matematyki w jednym kursie</h3>
-      <p>W pełnej wersji: wszystkie tematy z egzaminu, test startowy, 2 egzaminy próbne na czas i panel rodzica. 199 zł do dnia egzaminu, 14 dni na zwrot pieniędzy.</p>
-      <div class="btn-row"><a class="btn btn-yellow" href="cennik.html">Zobacz plany i ceny</a><a class="text-link" href="kurs.html">Program kursu</a></div>`;
-    host.appendChild(end);
-  });
+  // ---------- darmowy temat: sprzedaż tylko w naturalnych momentach i tylko dla osób bez pełnego dostępu ----------
+  const FREE = T.slug === "procenty";
+  const buyer = me => !!(me && me.access && me.access.active) || document.documentElement.classList.contains("has-access");
+  // karta zachęty: na dole karty tematu, po ostatnim poziomie ćwiczeń i pod wynikiem testu
+  function freeCta(where, place) {
+    if (!FREE) return;
+    M8.ready.then(me => {
+      if (buyer(me)) return;
+      const c = {
+        hub: ["Darmowy temat · 1 z 20", "Cały egzamin z matematyki w jednym kursie", "btn-yellow", "Zobacz plany i ceny"],
+        practice: ["Ćwiczenia zrobione", "Tak wygląda każdy z 20 tematów kursu", "btn-plain", "Zobacz pełny kurs"],
+        test: ["To był 1 z 20 tematów", "Tak wygląda każdy z 20 tematów kursu", "btn-yellow", "Zobacz pełny kurs"]
+      }[where];
+      const end = el("div", { class: "free-cta box", "data-where": where });
+      end.addEventListener("click", e => { if (e.target.closest("a[href='cennik.html']")) stat("free_cta_click"); });
+      end.innerHTML = `<div class="eyebrow">${c[0]}</div><h3>${c[1]}</h3>
+        <ul class="fc-list"><li>wszystkie tematy z egzaminu, krok po kroku</li><li>test startowy i 2 egzaminy próbne na czas</li><li>panel rodzica</li></ul>
+        <p class="fc-price">199 zł do dnia egzaminu · 14 dni na zwrot pieniędzy</p>
+        <div class="btn-row"><a class="btn ${c[2]}" href="cennik.html">${c[3]}</a><a class="text-link" href="kurs.html">Program kursu</a></div>`;
+      place(end);
+    });
+  }
+  if (FREE && !document.querySelector(".step-tabs")) {
+    const host = document.querySelector("main .section .container");
+    if (host) freeCta("hub", n => host.appendChild(n));
+  }
+  // ---------- tryb nauki (strony Naucz się / Ćwicz / Sprawdź się): na telefonie krótka ścieżka „← Temat”, kompaktowe kroki, prosta stopka ----------
+  const MOBILE = window.matchMedia("(max-width: 640px)");
+  const tabsNav = document.querySelector(".page-hero .step-tabs");
+  if (tabsNav) {
+    document.body.classList.add("learn-mode");
+    const crumbs = document.querySelector(".page-hero .crumbs");
+    if (crumbs) crumbs.insertAdjacentHTML("beforebegin", `<a class="back-link" href="${T.slug}.html"><span aria-hidden="true">←</span> ${T.title}</a>`);
+    // klawiatura ekranowa otwarta: przyklejony pasek z przyciskiem wraca na swoje miejsce pod zadaniem, żeby go nie zasłaniała
+    let kbT = null;
+    document.addEventListener("focusin", e => { if (e.target.matches("input, textarea")) { clearTimeout(kbT); document.body.classList.add("kb-open"); } });
+    document.addEventListener("focusout", e => { if (e.target.matches("input, textarea")) kbT = setTimeout(() => document.body.classList.remove("kb-open"), 150); });
+  }
+  // przewinięcie do początku nowego ekranu (tylko telefon, gdy jego góra jest poza widokiem)
+  function toTop(node) {
+    if (!MOBILE.matches || !node) return;
+    const t = node.getBoundingClientRect().top;
+    if (t < 0 || t > innerHeight * 0.6) node.scrollIntoView({ block: "start" });
+  }
+  // pasek postępu przyklejony u góry (telefon): stan + cienki pasek + rozwijana lista (spis lekcji / numery zadań); na komputerze widać samą listę jak dotąd
+  function progTop(nav, listLabel, id) {
+    const box = el("div", { class: "prog-top" });
+    nav.id = id;
+    const btn = el("button", { class: "pt-btn", type: "button", "aria-expanded": "false", "aria-controls": id },
+      `<span class="pt-k"></span><span class="pt-t"></span><span class="pt-more">${listLabel} <span class="pt-arr" aria-hidden="true">▾</span></span>`);
+    const bar = el("span", { class: "pt-bar", "aria-hidden": "true" }, "<i></i>");
+    box.appendChild(btn); box.appendChild(bar); box.appendChild(nav);
+    const set = open => { box.classList.toggle("open", open); btn.setAttribute("aria-expanded", String(open)); };
+    btn.addEventListener("click", () => set(!box.classList.contains("open")));
+    nav.addEventListener("click", e => { if (e.target.closest("button")) set(false); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && box.classList.contains("open")) { set(false); btn.focus(); } });
+    document.addEventListener("click", e => { if (!box.contains(e.target)) set(false); });
+    return {
+      box,
+      update(k, t, pct) {
+        btn.querySelector(".pt-k").textContent = k;
+        btn.querySelector(".pt-t").textContent = t;
+        bar.firstChild.style.width = Math.max(0, Math.min(100, pct)) + "%";
+      }
+    };
+  }
   const S = M8.topic(T.slug);
   S.learnTasks = S.learnTasks || {};
   S.practice = S.practice || {};
@@ -80,6 +129,7 @@
   const tolOf = f => f.tol ?? (/≈/.test(f.label || "") ? 0.05 : 0);
   const fieldOk = (f, v) => f.text ? norm(v) === norm(f.ans) : (same(toNumber(v), f.ans) || Math.abs(toNumber(v) - f.ans) <= tolOf(f) + 1e-9);
   const LETTERS = ["A", "B", "C", "D"];
+  const plural = (n, one, few, many) => n === 1 ? one : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14) ? few : many;
   const fmtMath = t => String(t).replace(/\[\[(.+?)\]\]/g, '<span class="m">$1</span>');
 
   function chartSvg(c) {
@@ -838,7 +888,7 @@
         }
       }
     }
-    btn.addEventListener("click", () => { shown = Math.min(items.length, shown + 1); S.revealed[i] = shown; saveLearnPct(); render(); });
+    btn.addEventListener("click", () => { shown = Math.min(items.length, shown + 1); S.revealed[i] = shown; saveLearnPct(); render(); document.dispatchEvent(new Event("m8:checked")); });
     render();
     return card;
   }
@@ -875,9 +925,26 @@
       .concat(L.map((l, i) => ({ kind: "lesson", i, title: l.title })))
       .concat([{ kind: "sum", title: "Podsumowanie" }]);
     const nav = el("div", { class: "lesson-nav", role: "tablist", "aria-label": "Lekcje" });
+    const top = progTop(nav, "Spis", "lesson-list");
     const stage = el("div");
-    host.appendChild(nav); host.appendChild(stage);
-    const panes = [];
+    host.appendChild(top.box); host.appendChild(stage);
+    // darmowa lekcja, pierwsze wejście: krótka orientacja nad rozgrzewką (jednorazowa)
+    let intro = null;
+    const INTRO = "m8-free-intro";
+    const introSeen = () => { try { return localStorage.getItem(INTRO) === "1"; } catch (e) { return true; } };
+    const introDone = () => { try { localStorage.setItem(INTRO, "1"); } catch (e) {} if (intro) { intro.remove(); intro = null; } };
+    const nPr = (T.practice || []).length;
+    if (FREE && !S.lessonIdx && !introSeen() && !buyer(null)) {
+      intro = el("div", { class: "free-intro" });
+      intro.innerHTML = `<div class="fi-head"><span class="fi-badge">Darmowa lekcja</span><button class="fi-x" type="button" aria-label="Zamknij informację">✕</button></div>
+        <p class="fi-t">${T.title} w 3 krokach</p>
+        <ol class="fi-steps"><li><span><b>Naucz się:</b> rozgrzewka i ${L.length} ${plural(L.length, "krótka lekcja", "krótkie lekcje", "krótkich lekcji")}</span></li><li><span><b>Ćwicz:</b> ${nPr} ${plural(nPr, "zadanie", "zadania", "zadań")}, wynik od razu</span></li><li><span><b>Sprawdź się:</b> test na czas, ${T.test_minutes || 20} ${plural(T.test_minutes || 20, "minuta", "minuty", "minut")}</span></li></ol>
+        <p class="fi-note">Bez zakładania konta. Postęp zapisuje się w tej przeglądarce.</p>`;
+      intro.querySelector(".fi-x").addEventListener("click", introDone);
+      host.insertBefore(intro, top.box);
+      M8.ready.then(me => { if (buyer(me) && intro) { intro.remove(); intro = null; } });
+    }
+    const panes = [], nexts = [];
     const chips = steps.map((s, k) => {
       const b = el("button", { type: "button", role: "tab" },
         s.kind === "lesson" ? `<span class="n">${s.i + 1}</span><span class="t">${s.title}</span>` : `<span class="t">${s.title}</span>`);
@@ -885,6 +952,12 @@
       nav.appendChild(b);
       return b;
     });
+    const stepDone = j => {
+      const s = steps[j];
+      if (s.kind === "lesson") return (S.revealed[s.i] || 0) >= L[s.i].example.steps.length;
+      if (s.kind === "warm") return !!(S.learnTasks[T.warmup.id] && S.learnTasks[T.warmup.id].checked);
+      return true;
+    };
 
     function pane(k) {
       if (panes[k]) return panes[k];
@@ -908,16 +981,19 @@
           <p class="lesson-intro">Najważniejsze z całego tematu na jednym ekranie. Wróć tu przed testem.</p>`;
         renderCheat(p);
         renderTraps(p);
+        // koniec kroku 1: zachęta do ćwiczeń (bez sprzedaży)
+        const lv = LEVELS.length > 1 ? ` na ${LEVELS.length} poziomach` : "";
+        p.insertAdjacentHTML("beforeend", `<div class="learn-done"><b>Krok 1 zrobiony!</b><span>Teraz krok 2: ${nPr} ${plural(nPr, "zadanie", "zadania", "zadań")}${lv}. Każde sprawdzisz od razu, a przy każdym jest rozwiązanie.</span></div>`);
       }
       const bar = el("div", { class: "lesson-actions" });
       if (k > 0) { const b = el("button", { class: "btn btn-small btn-ghost", type: "button" }, "← Wstecz"); b.addEventListener("click", () => go(k - 1)); bar.appendChild(b); }
       bar.appendChild(el("span", { class: "spacer" }));
       if (k < steps.length - 1) {
-        const n = el("button", { class: "btn btn-yellow", type: "button" }, k === 0 ? "Zaczynamy lekcję 1 →" : k === steps.length - 2 ? "Podsumowanie →" : "Następna lekcja →");
+        const n = el("button", { class: "btn btn-yellow btn-next", type: "button" }, k === 0 ? "Zaczynamy lekcję 1 →" : k === steps.length - 2 ? "Podsumowanie →" : "Następna lekcja →");
         n.addEventListener("click", () => go(k + 1));
-        bar.appendChild(n);
+        bar.appendChild(n); nexts[k] = n;
       } else {
-        const a = el("a", { class: "btn btn-yellow", href: T.slug + "-cwiczenia.html" }, "Przejdź do ćwiczeń →");
+        const a = el("a", { class: "btn btn-yellow btn-next ready", href: T.slug + "-cwiczenia.html" }, "Przejdź do ćwiczeń →");
         a.addEventListener("click", () => { S.learned = true; saveLearnPct(); });
         bar.appendChild(a);
       }
@@ -929,14 +1005,21 @@
     function paintNav(k) {
       chips.forEach((c, j) => {
         c.setAttribute("aria-current", String(j === k));
-        const s = steps[j];
-        const done = s.kind === "lesson" && (S.revealed[s.i] || 0) >= L[s.i].example.steps.length;
-        c.classList.toggle("done", done || (s.kind === "warm" && S.learnTasks[T.warmup.id] && S.learnTasks[T.warmup.id].checked));
+        c.classList.toggle("done", steps[j].kind !== "sum" && stepDone(j));
       });
+      // na telefonie przycisk „dalej” świeci na żółto, gdy ekran jest zrobiony: przykład odsłonięty i „Teraz ty” sprawdzone
+      // (wcześniej też działa, tylko jest spokojniejszy, żeby główną akcją było zadanie na ekranie)
+      const youDone = j => steps[j].kind !== "lesson" || (L[steps[j].i].you || []).every(t => S.learnTasks[t.id] && S.learnTasks[t.id].checked);
+      nexts.forEach((n, j) => { if (n) n.classList.toggle("ready", stepDone(j) && youDone(j)); });
+      const s = steps[k];
+      top.update("Krok 1 z 3 · Naucz się",
+        s.kind === "lesson" ? `Lekcja ${s.i + 1} z ${L.length}: ${s.title}` : s.kind === "warm" ? "Rozgrzewka" : "Podsumowanie tematu",
+        (k + 1) / steps.length * 100);
     }
     function go(k) {
       k = Math.max(0, Math.min(steps.length - 1, k));
       S.lessonIdx = k; M8.save();
+      if (k > 0) introDone();
       if (!seenStep.has(k)) { seenStep.add(k); stat("lesson_step", { krok: k }); }
       pane(k);
       panes.forEach((p, j) => { if (p) p.hidden = j !== k; });
@@ -987,10 +1070,11 @@
     const tabs = el("div", { class: "level-tabs", role: "tablist", "aria-label": "Poziomy" });
     const intro = el("p", { class: "level-desc" });
     const nav = el("div", { class: "task-nav", role: "tablist", "aria-label": "Numery zadań" });
+    const top = progTop(nav, "Numery", "task-list");
     const stage = el("div");
     const summary = el("div", { class: "summary box" }); summary.hidden = true;
     if (LEVELS.length > 1) host.appendChild(tabs);
-    host.appendChild(intro); host.appendChild(nav); host.appendChild(stage); host.appendChild(summary);
+    host.appendChild(intro); host.appendChild(top.box); host.appendChild(stage); host.appendChild(summary);
     const countEl = document.getElementById("practice-count");
 
     const tabBtns = LEVELS.map(L => {
@@ -1017,12 +1101,16 @@
         }
       });
       if (vIdx(base)) b.card.querySelector(".task-top").insertAdjacentHTML("beforeend", '<span class="pill yellow">Powtórka z nowymi liczbami</span>');
-      const prev = el("button", { class: "btn btn-small btn-ghost", type: "button" }, "← Wstecz");
+      const prev = el("button", { class: "btn btn-small btn-ghost", type: "button", "aria-label": "Poprzednie zadanie" }, '<span aria-hidden="true">←</span><span class="bl"> Wstecz</span>');
       const last = i === list.length - 1;
-      const next = el("button", { class: "btn btn-small btn-yellow", type: "button" }, last ? "Podsumowanie poziomu →" : "Następne zadanie →");
+      const next = el("button", { class: "btn btn-small btn-yellow btn-next", type: "button" }, `<span class="bl">${last ? "Podsumowanie poziomu" : "Następne zadanie"} </span><span aria-hidden="true">→</span>`);
+      next.setAttribute("aria-label", last ? "Podsumowanie poziomu" : "Następne zadanie");
+      b.actions.classList.add("pr-actions");
+      if (t.type === "abcd") b.actions.classList.add("pick");
       prev.hidden = i === 0;
-      prev.addEventListener("click", () => go(i - 1));
-      next.addEventListener("click", () => { if (last) showSummary(); else go(i + 1); });
+      prev.classList.add("btn-prev");
+      prev.addEventListener("click", () => go(i - 1, true));
+      next.addEventListener("click", () => { if (last) showSummary(); else go(i + 1, true); });
       b.actions.appendChild(el("span", { class: "spacer" }));
       b.actions.appendChild(prev); b.actions.appendChild(next);
       b.restore();
@@ -1042,7 +1130,7 @@
       stage.innerHTML = ""; nav.innerHTML = ""; built = [];
       navBtns = list.map((t, i) => {
         const b = el("button", { type: "button", role: "tab", "aria-label": "Zadanie " + (i + 1) }, String(i + 1));
-        b.addEventListener("click", () => go(i));
+        b.addEventListener("click", () => go(i, true));
         nav.appendChild(b);
         return b;
       });
@@ -1061,19 +1149,27 @@
         tabBtns[k].setAttribute("aria-current", String(L.n === level));
         tabBtns[k].classList.toggle("done", g === lt.length);
       });
+      let goodL = 0;
       list.forEach((t, i) => {
         const p = S.practice[t.id];
+        if (p && p.correct) goodL++;
         navBtns[i].classList.toggle("ok", !!(p && p.checked && p.last));
         navBtns[i].classList.toggle("bad", !!(p && p.checked && p.last === false));
         navBtns[i].setAttribute("aria-current", String(i === idx && summary.hidden));
+        if (built[i]) built[i].actions.querySelector(".btn-next").classList.toggle("ready", !!(p && p.checked));
       });
+      const L = LEVELS.find(x => x.n === level);
+      top.update("Krok 2 z 3 · Ćwicz" + (LEVELS.length > 1 ? " · " + L.name : ""),
+        summary.hidden ? `Zadanie ${idx + 1} z ${list.length} · dobrze ${goodL}` : `Podsumowanie poziomu · dobrze ${goodL} z ${list.length}`,
+        summary.hidden ? (idx + 1) / list.length * 100 : 100);
     }
-    function go(i) {
+    function go(i, user) {
       idx = Math.max(0, Math.min(list.length - 1, i));
       S.levelIdx = S.levelIdx || {}; S.levelIdx[level] = idx; M8.save();
       summary.hidden = true;
       built.forEach((b, k) => { b.card.hidden = k !== idx; });
       paint();
+      if (user) toTop(top.box);
     }
     function showSummary() {
       stat("practice_done");
@@ -1107,6 +1203,9 @@
       summary.appendChild(row);
       summary.hidden = false;
       paint();
+      toTop(top.box);
+      // koniec ostatniego poziomu w darmowym temacie: spokojna karta o pełnym kursie
+      if (!nextL) freeCta("practice", n => { summary.querySelectorAll(".free-cta").forEach(x => x.remove()); if (!summary.hidden) summary.appendChild(n); });
     }
     setLevel(level);
   }
@@ -1239,6 +1338,7 @@
       });
       S.test.done = true;
       recalc();
+      if (KIND === "topic") freeCta("test", n => { if (card.isConnected) card.after(n); });
       return card;
     }
     function run() {
@@ -1246,13 +1346,22 @@
       const bar = el("div", { class: "timer-bar" });
       const time = el("span", { class: "time" });
       const finish = el("button", { class: "btn btn-small btn-yellow", type: "button" }, "Zakończ i sprawdź");
-      bar.appendChild(el("span", { class: "lbl" }, "Pozostały czas")); bar.appendChild(time);
+      const cnt = el("span", { class: "answered" });
+      bar.appendChild(el("span", { class: "lbl" }, "Pozostały czas")); bar.appendChild(time); bar.appendChild(cnt);
       bar.appendChild(el("span", { class: "spacer" })); bar.appendChild(finish);
       host.appendChild(bar);
+      const apis = [];
+      // licznik zadań zamkniętych z odpowiedzią (zadania otwarte rozwiązuje się na kartce)
+      const nSelf = T.test.filter(t => t.type === "self").length;
+      const count = () => {
+        const closed = apis.filter((x, i) => T.test[i].type !== "self");
+        cnt.textContent = "Odpowiedzi: " + closed.filter(x => x.isComplete()).length + "/" + closed.length + (nSelf ? " · " + nSelf + " na kartce" : "");
+      };
       T.test.forEach((t, i) => {
-        const b = buildTask(t, i + 1, "test", { answer: S.test.answers[t.id] }, { onChange: a => { S.test.answers[t.id] = a; M8.save(); } });
-        host.appendChild(b.card);
+        const b = buildTask(t, i + 1, "test", { answer: S.test.answers[t.id] }, { onChange: a => { S.test.answers[t.id] = a; M8.save(); count(); } });
+        host.appendChild(b.card); apis.push(b);
       });
+      count();
       const end = el("div", { class: "task-actions" });
       const finish2 = el("button", { class: "btn btn-yellow", type: "button" }, KIND === "exam" ? "Zakończ egzamin i zobacz wynik" : "Zakończ test i zobacz wynik");
       end.appendChild(finish2); host.appendChild(end);

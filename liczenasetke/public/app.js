@@ -422,9 +422,11 @@
       <div class="cookie-btns"><button type="button" class="btn btn-small btn-ghost" data-c="no">Tylko niezbędne</button><button type="button" class="btn btn-small btn-yellow" data-c="yes">Zgadzam się</button></div>`;
     bar.addEventListener("click", e => {
       const c = e.target.dataset && e.target.dataset.c; if (!c) return;
-      setConsent(c); bar.remove(); if (c === "yes") loadPixel();
+      setConsent(c); bar.remove(); document.documentElement.classList.remove("cookie-open"); if (c === "yes") loadPixel();
     });
     document.body.appendChild(bar);
+    // dopóki pasek jest widoczny, przyciski przyklejone na dole lekcji stoją w treści (pasek ich nie zasłania)
+    document.documentElement.classList.add("cookie-open");
   }
   // zdarzenia sprzed wczytania piksela czekają w kolejce; bez zgody na cookies nic nie jest wysyłane
   const pending = [];
