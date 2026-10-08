@@ -86,6 +86,13 @@ const now = () => Date.now();
 function hashPin(pin, salt = crypto.randomBytes(16).toString("hex")) {
   return salt + ":" + crypto.scryptSync(String(pin), salt, 32).toString("hex");
 }
+// klucz tylko do odczytu statystyk (zmienna STATS_TOKEN w Railway, min. 32 znaki); bez tej zmiennej nie działa
+function statsToken(req) {
+  const t = process.env.STATS_TOKEN || "", h = String(req.headers.authorization || "");
+  if (t.length < 32 || !h.startsWith("Bearer ")) return false;
+  const a = crypto.createHash("sha256").update(h.slice(7)).digest(), b = crypto.createHash("sha256").update(t).digest();
+  return crypto.timingSafeEqual(a, b);
+}
 function checkPin(pin, stored) {
   if (!stored) return false;
   const [salt, h] = stored.split(":");
@@ -709,6 +716,11 @@ async function api(req, res, url) {
   if (p === "/api/e" && m === "POST") {
     try { const raw = await readBody(req, 2048); clientEvent(req, JSON.parse(raw || "{}")); } catch (e) { /* błędne zdarzenie pomijamy */ }
     res.writeHead(204, { "Cache-Control": "no-store" }); return res.end();
+  }
+  // same statystyki kluczem: tylko GET /api/admin/stats (liczby i nazwy reklam, bez danych osobowych); koszty i reszta panelu dalej tylko po zalogowaniu
+  if (p === "/api/admin/stats" && m === "GET" && statsToken(req)) {
+    res.setHeader("X-Robots-Tag", "noindex, nofollow");
+    return json(res, 200, adminStats(Object.fromEntries(url.searchParams)));
   }
   // panel admina (tylko adresy z ADMIN_EMAILS); dla innych udajemy, że adresu nie ma
   if (p.startsWith("/api/admin/")) {

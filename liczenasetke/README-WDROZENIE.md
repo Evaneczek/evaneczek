@@ -60,6 +60,7 @@ Wszystko najpierw w **trybie testowym** (przełącznik „Test mode”).
 | `RESEND_API_KEY` | `re_…` |
 | `MAIL_FROM` | `Liczę na Setkę <kontakt@liczenasetke.pl>` |
 | `ADMIN_EMAILS` | adresy z dostępem do panelu `/admin.html`, po przecinku (domyślnie `klimczakjanek@gmail.com,liczenasetke@gmail.com`) |
+| `STATS_TOKEN` | (opcjonalnie) klucz min. 32 znaki do samego odczytu statystyk: `GET /api/admin/stats` z nagłówkiem `Authorization: Bearer <klucz>`. Nie pozwala niczego zmienić. Usunięcie zmiennej wyłącza klucz. |
 
 `DB_PATH=/data/dane.db` i port są już ustawione w Dockerfile. **Nie ustawiaj `DEV=1` na produkcji** (to tryb testowy, który pokazuje link logujący na stronie).
 
