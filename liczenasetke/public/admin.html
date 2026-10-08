@@ -21,7 +21,7 @@
 <title>Panel admina · Liczę na Setkę</title>
 <link rel="preload" href="nunito-latin-ff573f.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="baloo-2-latin-f5fe33.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="styles.css?v=1009ce89dd">
+<link rel="stylesheet" href="styles.css?v=19c80fa38c">
 <style>
   .adm { padding-block: 28px 80px; }
   .adm h1 { font-family: "Baloo 2", sans-serif; font-size: 34px; margin: 0 0 4px; }
@@ -134,7 +134,12 @@
   }
   function lessonHtml() {
     const L = data.lesson;
-    if (!L.starts) return `<p class="empty">Nikt jeszcze nie zaczął darmowej lekcji w tym okresie.</p>`;
+    const A = L.ad || {};
+    // wejścia z reklamy „Film zadanie” zaczynają od zadania z reklamy i są liczone osobno
+    const adLine = A.shown ? `<p class="sub">Z reklamy „Film zadanie” (na start zadanie z reklamy): <b>${A.shown}</b> · odpowiedziało <b>${A.answered}</b> (dobrze ${A.good})
+      · poszło dalej <b>${A.toLesson + A.fromStart + A.viaMenu}</b> (do lekcji z tą metodą: ${A.toLesson}, od początku: ${A.fromStart}, przez spis: ${A.viaMenu})
+      · przeszło 2 lekcje <b>${A.lesson2}</b></p>` : "";
+    if (!L.starts) return adLine || `<p class="empty">Nikt jeszcze nie zaczął darmowej lekcji w tym okresie.</p>`;
     const names = k => k === 0 ? "Rozgrzewka" : k === 11 ? "Podsumowanie" : "Lekcja " + k;
     const ks = Object.keys(L.reached).map(Number).sort((a, b) => a - b);
     const items = ks.map(k => [names(k), L.reached[k]]).concat([["Ćwiczenia: start", L.practiceStart], ["Ćwiczenia: koniec", L.practiceDone], ["Test: start", L.testStart], ["Test: koniec", L.testDone], ["Klik „Zobacz plany i ceny”", L.ctaClicks]]);
@@ -142,7 +147,7 @@
     const bars = items.map(([n, v], i) => `<g transform="translate(0 ${i * (bh + gap)})"><text x="0" y="${bh - 6}" font-size="13" fill="#16181d">${esc(n)}</text>
       <rect x="190" y="0" width="${Math.max(2, v / max * (W - 260))}" height="${bh}" rx="5" fill="${i >= ks.length ? "#3a7cf0" : "#ffc233"}" stroke="#16181d" stroke-width="1.5"/>
       <text x="${196 + v / max * (W - 260)}" y="${bh - 6}" font-size="13" font-weight="700" fill="#16181d">${v} (${Math.round(v / L.starts * 100)}%)</text></g>`).join("");
-    return `<p class="sub">Rozpoczęło: <b>${L.starts}</b> · średni wynik testu: <b>${L.avgScore == null ? "–" : fmt(L.avgScore, 1) + " / " + L.testMax}</b></p>
+    return adLine + `<p class="sub">Rozpoczęło od rozgrzewki: <b>${L.starts}</b> · średni wynik testu: <b>${L.avgScore == null ? "–" : fmt(L.avgScore, 1) + " / " + L.testMax}</b></p>
       <div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Do którego kroku dochodzą osoby w darmowej lekcji">${bars}</svg></div>`;
   }
   function dailyHtml() {

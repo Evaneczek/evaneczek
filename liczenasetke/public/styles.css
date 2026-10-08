@@ -2560,3 +2560,8 @@ mark.fill { background: #ffe08a; border: 1.5px dashed #b88600; border-radius: 4p
   .learn-mode .site-footer .cols { display: none; }
   .learn-mode .site-footer .bottom { margin-top: 0; padding-top: 0; border-top: 0; }
 }
+
+/* wejście z reklamy „Film zadanie”: most od zadania z reklamy do lekcji z tą metodą */
+.ad-next { margin-top: 22px; display: grid; gap: 4px; background: var(--blue-soft); border: 2px solid var(--blue); border-radius: 12px; padding: 14px 16px; }
+.ad-next b { font-family: var(--display); font-size: 18px; line-height: 1.25; }
+.ad-next span { color: var(--ink); }

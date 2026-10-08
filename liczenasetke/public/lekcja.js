@@ -30,6 +30,25 @@
   const stat = (name, meta) => { if (T.slug === "procenty" && M8.ev) M8.ev(name, meta); };
   // ---------- darmowy temat: sprzedaż tylko w naturalnych momentach i tylko dla osób bez pełnego dostępu ----------
   const FREE = T.slug === "procenty";
+  // zadanie z reklamy „Film zadanie” (to samo co na stronie głównej): pierwszy ekran dla osób, które weszły z tej reklamy
+  const AD_TASK = { id: "reklama-telefon", type: "abcd", q: "Po obniżce o 25% telefon kosztuje 600 zł. Ile kosztował przed obniżką?",
+    opts: ["450 zł", "750 zł", "800 zł", "2 400 zł"], ok: 2,
+    why: { A: "450 zł to 600 · 0,75. Pomnożono zamiast podzielić.",
+      B: "750 zł to 600 zł + 25% z 600 zł. Ale 25% liczono od starej ceny, a nie od 600 zł.",
+      D: "2 400 zł to 600 : 0,25. Po obniżce o 25% zostaje 75% ceny, więc dzieli się przez 0,75." },
+    sol: ["Najważniejsze: 600 zł to cena <b>po</b> obniżce. Obniżkę o 25% liczono od starej ceny, której nie znamy.",
+      "Po obniżce o 25% zostało 75% starej ceny. Czyli 600 zł to 75% starej ceny: [[0,75 · x = 600]].",
+      "Szukamy x, więc dzielimy: [[600 : 0,75 = 800]]. Sprawdźmy: 25% z 800 zł to 200 zł, a 800 − 200 = 600. Zgadza się!"],
+    answer: "C, 800 zł.", tip: "Znasz cenę PO zmianie i szukasz ceny PRZED? Zawsze dzielisz." };
+  // nazwa reklamy z linku (Meta czasem koduje ją podwójnie: „Film+zadanie”, „Film%20zadanie”)
+  const adName = () => {
+    let c = "";
+    try { c = (M8.stat && M8.stat.utm && M8.stat.utm.content) || new URLSearchParams(location.search).get("utm_content") || ""; } catch (e) {}
+    c = String(c).replace(/\+/g, " ");
+    try { c = decodeURIComponent(c); } catch (e) {}
+    return c;
+  };
+  const fromAdTask = () => /film\s*zadanie/i.test(adName()) || new URLSearchParams(location.search).get("zadanie") === "reklama";
   const buyer = me => !!(me && me.access && me.access.active) || document.documentElement.classList.contains("has-access");
   // karta zachęty: na dole karty tematu, po ostatnim poziomie ćwiczeń i pod wynikiem testu
   function freeCta(where, place) {
@@ -934,7 +953,11 @@
     const introSeen = () => { try { return localStorage.getItem(INTRO) === "1"; } catch (e) { return true; } };
     const introDone = () => { try { localStorage.setItem(INTRO, "1"); } catch (e) {} if (intro) { intro.remove(); intro = null; } };
     const nPr = (T.practice || []).length;
-    if (FREE && !S.lessonIdx && !introSeen() && !buyer(null)) {
+    // wejście z reklamy „Film zadanie” (pierwsze wejście do lekcji): najpierw zadanie z reklamy i jego rozwiązanie,
+    // potem lekcja, która uczy tej metody; reszta tematu dostępna jak zawsze
+    const adLesson = Math.max(0, L.findIndex(l => /przed zmian/i.test(l.title))) + 1;
+    const adMode = FREE && S.lessonIdx == null && !S.adTask && !buyer(null) && fromAdTask();
+    if (FREE && !adMode && !S.lessonIdx && !introSeen() && !buyer(null)) {
       intro = el("div", { class: "free-intro" });
       intro.innerHTML = `<div class="fi-head"><span class="fi-badge">Darmowa lekcja</span><button class="fi-x" type="button" aria-label="Zamknij informację">✕</button></div>
         <p class="fi-t">${T.title} w 3 krokach</p>
@@ -1008,16 +1031,59 @@
         c.classList.toggle("done", steps[j].kind !== "sum" && stepDone(j));
       });
       // na telefonie przycisk „dalej” świeci na żółto, gdy ekran jest zrobiony: przykład odsłonięty i „Teraz ty” sprawdzone
-      // (wcześniej też działa, tylko jest spokojniejszy, żeby główną akcją było zadanie na ekranie)
+      // (wcześniej też działa, tylko jest spokojniejszy, żeby główną akcją było zadanie na ekranie);
+      // rozgrzewka jest nieobowiązkowa, więc „Zaczynamy lekcję 1” jest żółty od początku
       const youDone = j => steps[j].kind !== "lesson" || (L[steps[j].i].you || []).every(t => S.learnTasks[t.id] && S.learnTasks[t.id].checked);
-      nexts.forEach((n, j) => { if (n) n.classList.toggle("ready", stepDone(j) && youDone(j)); });
+      nexts.forEach((n, j) => { if (n) n.classList.toggle("ready", steps[j].kind === "warm" || (stepDone(j) && youDone(j))); });
       const s = steps[k];
       top.update("Krok 1 z 3 · Naucz się",
         s.kind === "lesson" ? `Lekcja ${s.i + 1} z ${L.length}: ${s.title}` : s.kind === "warm" ? "Rozgrzewka" : "Podsumowanie tematu",
         (k + 1) / steps.length * 100);
     }
+    let adPane = null;
+    function closeAd(akcja) {
+      if (!adPane) return;
+      adPane.remove(); adPane = null;
+      S.adTask = "done"; M8.save();
+      stat("ad_task", { akcja });
+    }
+    function showAd() {
+      adPane = el("section", { class: "lesson ad-task" });
+      adPane.innerHTML = `<div class="eyebrow">Zadanie z reklamy</div><h2>Ile kosztował telefon przed obniżką?</h2>
+        <p class="lesson-intro">Najpierw spróbuj odpowiedzieć. Zaraz potem zobaczysz rozwiązanie krok po kroku.</p>`;
+      miniTask(adPane, AD_TASK, "Wybierz odpowiedź");
+      const lt = L[adLesson - 1];
+      adPane.insertAdjacentHTML("beforeend", `<div class="ad-next"><b>Tej metody uczy lekcja ${adLesson}: „${lt.title}”.</b>
+        <span>Zasada, przykład krok po kroku i podobne zadanie do samodzielnego rozwiązania. Cały temat ma ${L.length} krótkich lekcji, za darmo i bez zakładania konta.</span></div>`);
+      const bar = el("div", { class: "lesson-actions" });
+      const back = el("button", { class: "btn btn-small btn-ghost", type: "button" }, "Od początku tematu");
+      back.addEventListener("click", () => { closeAd("od_poczatku"); go(0); });
+      const next = el("button", { class: "btn btn-yellow btn-next", type: "button" }, `Dalej: lekcja ${adLesson} →`);
+      next.addEventListener("click", () => { closeAd("lekcja"); go(adLesson); });
+      bar.appendChild(back); bar.appendChild(el("span", { class: "spacer" })); bar.appendChild(next);
+      adPane.appendChild(bar);
+      stage.prepend(adPane);
+      let answered = false;
+      const paintAd = () => {
+        const r = S.learnTasks[AD_TASK.id];
+        next.classList.toggle("ready", !!(r && r.checked));
+        if (r && r.checked && !answered && adPane) {
+          answered = true;
+          stat("ad_task", { akcja: r.correct ? "dobrze" : "zle" });
+          // reklama obiecuje rozwiązanie krok po kroku: po odpowiedzi od razu je pokazujemy
+          const sb = adPane.querySelector(".sol-btn");
+          if (sb && sb.getAttribute("aria-expanded") !== "true") sb.click();
+        }
+      };
+      document.addEventListener("m8:checked", paintAd);
+      paintAd();
+      chips.forEach(c => c.setAttribute("aria-current", "false"));
+      top.update("Krok 1 z 3 · Naucz się", "Zadanie z reklamy", 0);
+      stat("ad_task", { akcja: "pokaz" });
+    }
     function go(k) {
       k = Math.max(0, Math.min(steps.length - 1, k));
+      closeAd("spis");
       S.lessonIdx = k; M8.save();
       if (k > 0) introDone();
       if (!seenStep.has(k)) { seenStep.add(k); stat("lesson_step", { krok: k }); }
@@ -1026,10 +1092,11 @@
       paintNav(k);
       host.scrollIntoView({ block: "start" });
     }
+    document.addEventListener("m8:checked", () => { if (!adPane) paintNav(S.lessonIdx || 0); });
+    if (adMode) { showAd(); return; }
     const start = Math.min(S.lessonIdx || 0, steps.length - 1);
     seenStep.add(start); stat("lesson_step", { krok: start });
     pane(start); panes.forEach((p, j) => { if (p) p.hidden = j !== start; }); paintNav(start);
-    document.addEventListener("m8:checked", () => paintNav(S.lessonIdx || 0));
   }
 
   function initLearn() {

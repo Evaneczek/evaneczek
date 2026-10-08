@@ -81,6 +81,13 @@ for (const sql of [
 
 // ---------- narzędzia ----------
 const sha = s => crypto.createHash("sha256").update(s).digest("hex");
+setTimeout(() => {
+  try {
+    for (const col of ["campaign", "content"]) for (const r of db.prepare(`SELECT DISTINCT ${col} AS v FROM events WHERE instr(${col}, '+') > 0 OR instr(${col}, '%') > 0`).all()) {
+      const fixed = clip(adLabel(r.v)); if (fixed !== r.v) db.prepare(`UPDATE events SET ${col} = ? WHERE ${col} = ?`).run(fixed, r.v);
+    }
+  } catch (e) { console.error("Poprawa nazw reklam:", e.message); }
+}, 0);
 const token = () => crypto.randomBytes(32).toString("base64url");
 const now = () => Date.now();
 function hashPin(pin, salt = crypto.randomBytes(16).toString("hex")) {
@@ -408,7 +415,7 @@ async function onStripeEvent(ev) {
 // Odwiedzający = skrót z dziennej soli + IP + przeglądarki. Sól zmienia się codziennie i stara jest kasowana,
 // więc z zapisanych danych nie da się odtworzyć ani IP, ani tego, że to ta sama osoba w różne dni.
 const EV_NAMES = new Set(["view", "lesson_start", "lesson_step", "practice_start", "practice_done", "test_start", "test_done",
-  "free_cta_click", "pricing_view", "plan_click", "login", "scroll_50", "scroll_90"]);
+  "free_cta_click", "pricing_view", "plan_click", "login", "scroll_50", "scroll_90", "ad_task"]);
 const BOT = /bot|crawl|spider|slurp|headless|lighthouse|preview|facebookexternalhit|meta-externalagent|monitor|curl|wget|python|axios/i;
 function daySalt(day = warsawDay()) {
   const k = "salt_" + day;
@@ -422,10 +429,18 @@ function daySalt(day = warsawDay()) {
 const visitorOf = req => sha(daySalt() + "|" + ip(req) + "|" + (req.headers["user-agent"] || "")).slice(0, 24);
 const deviceOf = ua => /iPad|Tablet/i.test(ua) ? "tablet" : /Mobi|Android|iPhone/i.test(ua) ? "mobile" : "desktop";
 const clip = (v, n = 80) => (typeof v === "string" ? v : v == null ? "" : String(v)).replace(/[\u0000-\u001f]/g, "").trim().slice(0, n);
+// nazwy kampanii i reklam z linków: Meta czasem koduje je podwójnie („Film+rodzic”, „Film+55%25”), więc jedna reklama rozpadała się na dwie
+function adLabel(v) {
+  let t = String(v == null ? "" : v);
+  if (!/[+%]/.test(t)) return t;
+  t = t.replace(/\+/g, " ");
+  try { t = decodeURIComponent(t); } catch (e) { /* zostaje jak jest, np. „55%” */ }
+  return t;
+}
 // źródło wejścia: UTM-y mają pierwszeństwo, potem host strony, z której ktoś przyszedł
 function sourceOf(u, refHost) {
   const src = clip(u.source, 40).toLowerCase();
-  if (src) return { source: src, medium: clip(u.medium, 40).toLowerCase(), campaign: clip(u.campaign), content: clip(u.content) };
+  if (src) return { source: src, medium: clip(u.medium, 40).toLowerCase(), campaign: clip(adLabel(u.campaign)), content: clip(adLabel(u.content)) };
   const h = clip(refHost, 100).toLowerCase(), base = { medium: "", campaign: "", content: "" };
   if (!h) return { source: "bezpośrednio", ...base };
   if (/(^|\.)google\./.test(h)) return { source: "google", ...base, medium: "organic" };
@@ -484,7 +499,8 @@ function sessionsIn(from, to, f) {
   if (f.device) list = list.filter(s => s.device === f.device);
   for (const s of list) {
     const has = n => s.ev.some(e => e.name === n);
-    s.flags = { visit: s.ev.some(e => e.name === "view"), lesson: has("lesson_start"), testDone: s.ev.some(e => e.name === "test_done" && /procenty/.test(e.path || "")),
+    const seen = new Set(s.ev.filter(e => e.name === "lesson_step" && /procenty/.test(e.path || "")).map(e => JSON.parse(e.meta || "{}").krok || 0).filter(k => k >= 1));
+    s.flags = { visit: s.ev.some(e => e.name === "view"), lesson: has("lesson_start"), lesson2: seen.size >= 2, testDone: s.ev.some(e => e.name === "test_done" && /procenty/.test(e.path || "")),
       pricing: has("pricing_view"), plan: has("plan_click"), checkout: has("checkout_start"), purchase: has("purchase") };
     s.revenue = s.ev.filter(e => e.name === "purchase").reduce((a, e) => a + (JSON.parse(e.meta || "{}").kwota || 0), 0)
       - s.ev.filter(e => e.name === "refund").reduce((a, e) => a + (JSON.parse(e.meta || "{}").kwota || 0), 0);
@@ -501,7 +517,7 @@ function tiles(list, spend) {
   return { visitors, sessions: n("visit"), lessons: n("lesson"), pricing: n("pricing"), checkouts: n("checkout"), purchases,
     revenue: Math.round(revenue * 100) / 100, spend: Math.round(sp * 100) / 100, cpa: purchases ? Math.round(sp / purchases * 100) / 100 : null, roas: sp ? Math.round(revenue / sp * 100) / 100 : null };
 }
-const FUNNEL = [["visit", "Wejście na stronę"], ["lesson", "Darmowa lekcja: start"], ["testDone", "Test darmowy ukończony"], ["pricing", "Cennik"],
+const FUNNEL = [["visit", "Wejście na stronę"], ["lesson", "Darmowa lekcja: start"], ["lesson2", "Darmowa lekcja: 2 lekcje"], ["pricing", "Cennik"],
   ["plan", "Klik planu"], ["checkout", "Płatność rozpoczęta"], ["purchase", "Zakup"]];
 function funnel(list, steps = FUNNEL) {
   const out = steps.map(([k, label]) => ({ k, label, n: list.filter(s => s.flags[k]).length }));
@@ -529,14 +545,19 @@ function adsTable(list, spend) {
     roas: g.spend ? Math.round(g.revenue / g.spend * 100) / 100 : null })).sort((a, b) => b.sessions - a.sessions || b.spend - a.spend);
 }
 function lessonStats(list) {
-  const L = list.filter(s => s.flags.lesson);
+  const isAd = s => s.ev.some(e => e.name === "ad_task");
+  const L = list.filter(s => s.flags.lesson && !isAd(s));
   const maxStep = s => Math.max(0, ...s.ev.filter(e => e.name === "lesson_step" && /procenty/.test(e.path || "")).map(e => JSON.parse(e.meta || "{}").krok || 0));
   const reached = {};
   for (const s of L) { const m = maxStep(s); for (let k = 0; k <= m; k++) reached[k] = (reached[k] || 0) + 1; }
+  const A = list.filter(isAd), act = (s, a) => s.ev.some(e => e.name === "ad_task" && JSON.parse(e.meta || "{}").akcja === a);
+  const ad = { shown: A.length, answered: A.filter(s => act(s, "dobrze") || act(s, "zle")).length, good: A.filter(s => act(s, "dobrze")).length,
+    toLesson: A.filter(s => act(s, "lekcja")).length, fromStart: A.filter(s => act(s, "od_poczatku")).length, viaMenu: A.filter(s => act(s, "spis")).length,
+    lesson2: A.filter(s => s.flags.lesson2).length };
   // jeden wynik na sesję (ostatni), żeby odświeżenie strony z wynikiem nie liczyło testu drugi raz
   const tests = list.map(s => s.ev.filter(e => e.name === "test_done" && /procenty/.test(e.path || "")).pop()).filter(Boolean).map(e => JSON.parse(e.meta || "{}"));
   const has = n => list.filter(s => s.ev.some(e => e.name === n && /procenty/.test(e.path || ""))).length;
-  return { starts: L.length, reached, practiceStart: has("practice_start"), practiceDone: has("practice_done"), testStart: has("test_start"), testDone: tests.length,
+  return { starts: L.length, reached, ad, practiceStart: has("practice_start"), practiceDone: has("practice_done"), testStart: has("test_start"), testDone: tests.length,
     ctaClicks: list.filter(s => s.ev.some(e => e.name === "free_cta_click")).length,
     avgScore: tests.length ? Math.round(tests.reduce((a, t) => a + (t.wynik || 0), 0) / tests.length * 10) / 10 : null, testMax: tests.length ? tests[0].max : null };
 }
@@ -605,7 +626,7 @@ function adminStats(f) {
   const t = tiles(list, spend), prev = tiles(sessionsIn(pFrom, pTo, filt), filt.device ? [] : spendIn(pFrom, pTo).filter(r => !filt.source || r.source === filt.source));
   const fun = funnel(list), ads = adsTable(list, spend), les = lessonStats(list), pages = pageStats(list);
   const entryHome = funnel(list.filter(s => s.first === "/" || s.first === "/index.html"), [["visit", "Wejście na stronę główną"], ["pricing", "Cennik"], ["checkout", "Płatność"], ["purchase", "Zakup"]]);
-  const entryLesson = funnel(list.filter(s => /procenty/.test(s.first || "")), [["visit", "Wejście prosto na lekcję"], ["testDone", "Test ukończony"], ["pricing", "Cennik"], ["purchase", "Zakup"]]);
+  const entryLesson = funnel(list.filter(s => /procenty/.test(s.first || "")), [["visit", "Wejście prosto na lekcję"], ["lesson2", "2 lekcje"], ["pricing", "Cennik"], ["purchase", "Zakup"]]);
   const sources = [...new Set(q("SELECT DISTINCT COALESCE(source, 'bezpośrednio') AS s FROM events WHERE day >= ?").all(warsawDay(now() - 400 * DAY)).map(r => r.s))].sort();
   return { from, to, prevFrom: pFrom, prevTo: pTo, tiles: t, prev, funnel: fun, entryHome, entryLesson, ads, lesson: les, payments: paymentStats(from, to),
     daily: daily(from, to, filt), pages, insights: insights(t, fun, ads, les, pages), sources, firstDay: (q("SELECT MIN(day) AS d FROM events").get() || {}).d || today };
