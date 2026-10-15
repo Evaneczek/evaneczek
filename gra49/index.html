@@ -25,6 +25,12 @@
   --bad: #d3261b;
   --on-bad: #ffffff;
   --hit: #dcf0e3;
+  /* ranking tiers, fastest to slowest */
+  --t-s: #d99a00; --t-s-on: #1c1400;
+  --t-a: #15804a; --t-a-on: #ffffff;
+  --t-b: #2a64b0; --t-b-on: #ffffff;
+  --t-c: #b9650c; --t-c-on: #ffffff;
+  --t-d: #6b7079; --t-d-on: #ffffff;
   --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
   --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mono: "Chivo Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
@@ -98,12 +104,15 @@ body {
 .clock .btn { width: 100%; }
 
 /* ---------- board ---------- */
-.board {
+.stage {
   grid-area: board;
-  position: relative;
+  display: grid;
+  gap: 22px;
   width: max(300px, min(640px, calc(100vh - 190px), calc(100vw - 400px)));
   width: max(300px, min(640px, calc(100dvh - 190px), calc(100vw - 400px)));
+  container-type: inline-size;
 }
+.board { position: relative; }
 .grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -227,9 +236,12 @@ body {
 
 .best { margin: 0; font: 500 2.1rem/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
 .note { margin: 0; color: var(--muted); font-size: 0.9rem; }
-.hist li.is-best .t { color: var(--go); font-weight: 500; }
-.hist .k { flex: 1; }
-.hist .w { color: var(--muted); font-size: 0.85rem; }
+.top li { justify-content: flex-start; padding-inline: 6px; margin-inline: -6px; }
+.top li.is-last { background: var(--hit); }
+.top .pos { width: 1.5em; color: var(--muted); font: 500 0.85rem/1 var(--f-mono); }
+.top li:first-child .t { color: var(--go); font-weight: 500; }
+.top .tier { width: 1.5em; height: 1.5em; font-size: 0.8rem; align-self: center; }
+.top .k { margin-left: auto; }
 
 .btn-ghost {
   appearance: none;
@@ -254,6 +266,77 @@ kbd {
   border-radius: 3px;
 }
 
+/* ---------- ranking ---------- */
+[data-tier="S"] { --tier: var(--t-s); --on-tier: var(--t-s-on); }
+[data-tier="A"] { --tier: var(--t-a); --on-tier: var(--t-a-on); }
+[data-tier="B"] { --tier: var(--t-b); --on-tier: var(--t-b-on); }
+[data-tier="C"] { --tier: var(--t-c); --on-tier: var(--t-c-on); }
+[data-tier="D"] { --tier: var(--t-d); --on-tier: var(--t-d-on); }
+.tier {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.75em;
+  height: 1.75em;
+  border-radius: 3px;
+  background: var(--tier);
+  color: var(--on-tier);
+  font: 700 1rem/1 var(--f-display);
+}
+
+.scale { display: grid; gap: 10px; }
+.scale-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 4px 16px; }
+.scale-unit { letter-spacing: 0.04em; text-transform: none; font-weight: 500; }
+.ladder {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.rung {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px 10px 11px;
+  background: var(--cell);
+  border-top: 4px solid var(--tier);
+}
+.rung-name { font-weight: 600; font-size: 0.9rem; line-height: 1.15; }
+.rung-range { font: 400 0.8rem/1.2 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.rung-pace { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+.rung.is-best { background: var(--tier); color: var(--on-tier); }
+.rung.is-best .rung-pace { color: var(--on-tier); }
+.rung.is-best .tier { background: var(--on-tier); color: var(--tier); }
+.scale-note { margin: 0; font-size: 0.92rem; text-wrap: pretty; }
+.scale-fine { margin: 0; color: var(--muted); font-size: 0.82rem; text-wrap: pretty; }
+
+@container (max-width: 470px) {
+  .ladder { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .rung {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-top: 0;
+    border-left: 4px solid var(--tier);
+  }
+  .rung .tier { width: 1.6em; height: 1.6em; font-size: 0.9rem; }
+  .rung-pace { display: none; }
+}
+
+.veil-tier {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font: 700 1.4rem/1 var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 /* ---------- phones ---------- */
 @media (max-width: 760px) {
   .app {
@@ -264,7 +347,7 @@ kbd {
   }
   .clock { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
   .clock .btn { width: auto; }
-  .board {
+  .stage {
     justify-self: center;
     width: min(100%, calc(100vh - 200px));
     width: min(100%, calc(100dvh - 200px));
@@ -292,11 +375,23 @@ kbd {
     <button id="toggle" type="button" class="btn btn-go">Start</button>
   </div>
 
-  <div class="board is-idle" id="board">
-    <div class="grid" id="grid" role="group" aria-label="Plansza 7 na 7"></div>
-    <div class="veil" id="veil">
-      <div class="veil-box" id="veil-box"></div>
+  <div class="stage">
+    <div class="board is-idle" id="board">
+      <div class="grid" id="grid" role="group" aria-label="Plansza 7 na 7"></div>
+      <div class="veil" id="veil">
+        <div class="veil-box" id="veil-box"></div>
+      </div>
     </div>
+
+    <section class="scale" aria-labelledby="scale-h">
+      <div class="scale-head">
+        <h2 class="label" id="scale-h">Ranking poziomów</h2>
+        <span class="label scale-unit">czas na 49 liczb · tempo na liczbę</span>
+      </div>
+      <ol class="ladder" id="ladder"></ol>
+      <p class="scale-note" id="scale-note"></p>
+      <p class="scale-fine">Skala orientacyjna. Dla tabeli 7&nbsp;×&nbsp;7 nie ma oficjalnych norm, więc progi wynikają z tempa na jedną liczbę: około 1&nbsp;s to poziom mistrzowski, ponad 2,2&nbsp;s to wynik do poprawy. Na telefonie zwykle idzie szybciej niż myszą.</p>
+    </section>
   </div>
 
   <aside class="panel" aria-label="Wyniki">
@@ -321,8 +416,12 @@ kbd {
       <h2 class="label">Rekord</h2>
       <p class="best" id="best">—</p>
       <p class="note" id="best-note"></p>
-      <ol class="rows hist" id="hist" hidden></ol>
-      <button type="button" id="clear" class="btn-ghost" hidden>Wyczyść wyniki</button>
+    </section>
+
+    <section class="block" id="top-block" hidden>
+      <h2 class="label">Twoje top 5</h2>
+      <ol class="rows top" id="top"></ol>
+      <button type="button" id="clear" class="btn-ghost">Wyczyść wyniki</button>
     </section>
 
     <p class="tip">Wskazówka: patrz w środek siatki i szukaj kolejnych liczb kątem oka. Tak ćwiczy się widzenie peryferyjne. <kbd>Esc</kbd> przerywa próbę.</p>
@@ -336,13 +435,22 @@ kbd {
   const SECTORS = [10, 20, 30, 40, 49];
   const SECTOR_LABELS = ['1–10', '11–20', '21–30', '31–40', '41–49'];
   const KEY = 'siatka49.v1';
-  const HIST_ROWS = 6;
+  const TOP_ROWS = 5;
+  // Orientacyjne progi dla 49 liczb (górna granica czasu w ms). Tempo: ~1.0 / 1.3 / 1.7 / 2.2 s na liczbę.
+  const TIERS = [
+    { id: 'S', name: 'Mistrz', max: 50000, pace: '< 1.0 s' },
+    { id: 'A', name: 'Bardzo dobry', max: 65000, pace: '1.0–1.3 s' },
+    { id: 'B', name: 'Dobry', max: 85000, pace: '1.3–1.7 s' },
+    { id: 'C', name: 'Przeciętny', max: 110000, pace: '1.7–2.2 s' },
+    { id: 'D', name: 'Do poprawy', max: Infinity, pace: '> 2.2 s' },
+  ];
 
   const $ = (id) => document.getElementById(id);
   const boardEl = $('board'), gridEl = $('grid'), veilEl = $('veil'), veilBox = $('veil-box');
   const timeEl = $('time'), toggleEl = $('toggle');
   const progEl = $('prog'), errsEl = $('errs'), barEl = $('bar'), splitsEl = $('splits');
-  const bestEl = $('best'), bestNote = $('best-note'), histEl = $('hist'), clearEl = $('clear');
+  const bestEl = $('best'), bestNote = $('best-note'), clearEl = $('clear');
+  const topBlock = $('top-block'), topEl = $('top'), ladderEl = $('ladder'), scaleNote = $('scale-note');
 
   let order = [], cells = [], next = 1, errors = 0, splits = [];
   let phase = 'intro';           // intro | running | stopped | done
@@ -373,6 +481,18 @@ kbd {
     const s = Math.floor((ms % 60000) / 1000);
     const x = ms % 1000;
     return `${m}:${String(s).padStart(2, '0')}.${String(x).padStart(3, '0')}`;
+  }
+  function fmtShort(ms) {
+    return `${Math.floor(ms / 60000)}:${String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}`;
+  }
+  const tierOf = (ms) => TIERS.find((t) => ms < t.max);
+  // "Do poziomu A brakuje 4.2 s", or null on the top tier
+  function toNextTier(ms) {
+    const i = TIERS.indexOf(tierOf(ms));
+    if (i === 0) return null;
+    const goal = TIERS[i - 1];
+    const secs = Math.max(0.1, (ms - goal.max + 1) / 1000).toFixed(1);
+    return `Do poziomu ${goal.id} brakuje ${secs} s.`;
   }
   function errWord(n) {
     if (n === 1) return 'pomyłka';
@@ -487,10 +607,13 @@ kbd {
     if (phase === 'done' && lastResult) {
       const avg = (lastResult.t / 1000 / TOTAL).toFixed(2);
       const eyebrow = lastResult.first ? 'Pierwszy wynik' : lastResult.record ? 'Nowy rekord' : 'Meta';
+      const tier = tierOf(lastResult.t);
+      const nextTier = toNextTier(lastResult.t) || 'Najwyższy poziom w rankingu.';
       return `
         <p class="eyebrow${lastResult.record && !lastResult.first ? ' is-record' : ''}">${eyebrow}</p>
         <p class="veil-time">${fmt(lastResult.t)}</p>
-        <p class="veil-text">${lastResult.e} ${errWord(lastResult.e)} · średnio ${avg}&nbsp;s na liczbę</p>
+        <p class="veil-tier" data-tier="${tier.id}"><span class="tier">${tier.id}</span>${tier.name}</p>
+        <p class="veil-text">${lastResult.e} ${errWord(lastResult.e)} · ${avg}&nbsp;s na liczbę. ${nextTier}</p>
         <button type="button" class="btn btn-go btn-lg" id="veil-start" data-act="start">Jeszcze raz</button>`;
     }
     if (phase === 'stopped') {
@@ -518,7 +641,7 @@ kbd {
     if (!running) veilBox.innerHTML = veilHTML();
     renderStats();
     renderSplits();
-    renderHist();
+    renderResults();
   }
 
   function renderStats() {
@@ -538,12 +661,31 @@ kbd {
     }).join('');
   }
 
-  function renderHist() {
+  function renderLadder(best) {
+    const bestTier = best == null ? null : tierOf(best);
+    ladderEl.innerHTML = TIERS.map((t, i) => {
+      const lo = i ? TIERS[i - 1].max : null;
+      const range = lo == null ? `< ${fmtShort(t.max)}`
+        : t.max === Infinity ? `> ${fmtShort(lo)}`
+        : `${fmtShort(lo)}–${fmtShort(t.max)}`;
+      return `<li class="rung${t === bestTier ? ' is-best' : ''}" data-tier="${t.id}">` +
+        `<span class="tier">${t.id}</span><span class="rung-name">${t.name}</span>` +
+        `<span class="rung-range">${range}</span><span class="rung-pace">${t.pace}</span></li>`;
+    }).join('');
+    if (best == null) {
+      scaleNote.textContent = 'Ukończ rundę, a zaznaczymy Twój poziom.';
+      return;
+    }
+    scaleNote.innerHTML = `Twój rekord <strong>${fmt(best)}</strong> to poziom <strong>${bestTier.id} · ${bestTier.name}</strong>. ` +
+      (toNextTier(best) || 'To najwyższy poziom w rankingu.');
+  }
+
+  function renderResults() {
     if (!runs.length) {
       bestEl.textContent = '—';
       bestNote.textContent = 'Ukończ pierwszą rundę, a wynik pojawi się tutaj.';
-      histEl.hidden = true;
-      clearEl.hidden = true;
+      topBlock.hidden = true;
+      renderLadder(null);
       return;
     }
     const best = Math.min(...runs.map((r) => r.t));
@@ -553,11 +695,15 @@ kbd {
     bestNote.textContent = runs.length > 1
       ? `Średnia z ${lastFive.length} ostatnich: ${fmt(avg)} · ukończone rundy: ${runs.length}`
       : 'Pierwsza ukończona runda.';
-    histEl.hidden = false;
-    clearEl.hidden = false;
-    histEl.innerHTML = runs.slice(-HIST_ROWS).reverse().map((r) =>
-      `<li${r.t === best ? ' class="is-best"' : ''}><span class="t">${fmt(r.t)}</span><span class="k">${r.e} ${errWord(r.e)}</span><span class="w">${when(r.d)}</span></li>`
-    ).join('');
+    const last = runs[runs.length - 1];
+    topBlock.hidden = false;
+    topEl.innerHTML = runs.slice().sort((a, b) => a.t - b.t).slice(0, TOP_ROWS).map((r, i) => {
+      const t = tierOf(r.t);
+      return `<li${r === last ? ' class="is-last"' : ''} title="${when(r.d)}${r === last ? ' · ostatnia runda' : ''}">` +
+        `<span class="pos">${i + 1}.</span><span class="t">${fmt(r.t)}</span>` +
+        `<span class="tier" data-tier="${t.id}">${t.id}</span><span class="k">${r.e} ${errWord(r.e)}</span></li>`;
+    }).join('');
+    renderLadder(best);
   }
 
   let clearTimer = 0;
@@ -578,7 +724,7 @@ kbd {
     clearEl.classList.remove('is-armed');
     runs = [];
     save();
-    renderHist();
+    renderResults();
   });
 
   // ---------- boot (keeps a round in progress across page updates) ----------
