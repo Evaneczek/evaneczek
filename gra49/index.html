@@ -28,20 +28,8 @@
   --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
   --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --f-mono: "Chivo Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #111316; --cell: #1b1e22; --ink: #eceef1; --line: #3d434b; --muted: #9ba2ab; --soft: #2a2f35;
-    --accent: #ff6c36; --on-accent: #1c0b03; --go: #3bbd73; --on-go: #06180d;
-    --bad: #ff5546; --on-bad: #ffffff; --hit: #183627;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #111316; --cell: #1b1e22; --ink: #eceef1; --line: #3d434b; --muted: #9ba2ab; --soft: #2a2f35;
-  --accent: #ff6c36; --on-accent: #1c0b03; --go: #3bbd73; --on-go: #06180d;
-  --bad: #ff5546; --on-bad: #ffffff; --hit: #183627;
-  color-scheme: dark;
+  /* always light, regardless of the device theme */
+  color-scheme: light;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
