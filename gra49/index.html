@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}</style>
+<title>Siatka 49</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=Chivo+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: timing bench. Name over the board on the left, lap clock and timing sheet in the right column; one column on phones. */
+:root {
+  --bg: #eceef0;
+  --cell: #ffffff;
+  --ink: #14161a;
+  --line: #14161a;
+  --muted: #5a6069;
+  --soft: #dce0e4;
+  --accent: #e8521a;
+  --on-accent: #ffffff;
+  --go: #15804a;
+  --on-go: #ffffff;
+  --bad: #d3261b;
+  --on-bad: #ffffff;
+  --hit: #dcf0e3;
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", system-ui, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-mono: "Chivo Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111316; --cell: #1b1e22; --ink: #eceef1; --line: #3d434b; --muted: #9ba2ab; --soft: #2a2f35;
+    --accent: #ff6c36; --on-accent: #1c0b03; --go: #3bbd73; --on-go: #06180d;
+    --bad: #ff5546; --on-bad: #ffffff; --hit: #183627;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111316; --cell: #1b1e22; --ink: #eceef1; --line: #3d434b; --muted: #9ba2ab; --soft: #2a2f35;
+  --accent: #ff6c36; --on-accent: #1c0b03; --go: #3bbd73; --on-go: #06180d;
+  --bad: #ff5546; --on-bad: #ffffff; --hit: #183627;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.45 var(--f-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: auto minmax(250px, 300px);
+  grid-template-areas:
+    "brand clock"
+    "board panel";
+  gap: 22px 36px;
+  justify-content: center;
+  align-items: start;
+  padding-block: 20px 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* ---------- name ---------- */
+.brand { grid-area: brand; align-self: end; min-width: 0; }
+.brand h1 {
+  margin: 0;
+  font: 700 clamp(2.2rem, 5vw, 3rem)/0.88 var(--f-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+.brand p { margin: 8px 0 0; color: var(--muted); font-size: 0.95rem; }
+
+/* ---------- clock ---------- */
+.clock { grid-area: clock; display: grid; gap: 10px; min-width: 0; }
+.time {
+  display: block;
+  font: 500 clamp(2.2rem, 6vw, 3.1rem)/1 var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+.time[data-state="done"] { color: var(--go); }
+.time[data-state="stopped"] { color: var(--muted); }
+
+.btn {
+  appearance: none;
+  border: 0;
+  border-radius: 3px;
+  padding: 0.62em 1.3em 0.58em;
+  min-width: 6.5em;
+  font: 700 1.3rem/1 var(--f-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.btn-go { background: var(--go); color: var(--on-go); }
+.btn-stop { background: var(--accent); color: var(--on-accent); }
+.btn-lg { font-size: 1.45rem; }
+.btn:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+.clock .btn { width: 100%; }
+
+/* ---------- board ---------- */
+.board {
+  grid-area: board;
+  position: relative;
+  width: max(300px, min(640px, calc(100vh - 190px), calc(100vw - 400px)));
+  width: max(300px, min(640px, calc(100dvh - 190px), calc(100vw - 400px)));
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-rows: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  aspect-ratio: 1;
+  background: var(--line);
+  border: 3px solid var(--ink);
+  container-type: inline-size;
+  transition: filter 0.25s ease, opacity 0.25s ease;
+}
+.board.is-idle .grid { filter: blur(6px); opacity: 0.5; }
+
+.cell {
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: var(--cell);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-weight: 500;
+  font-size: clamp(1rem, 3.4vw, 2rem);
+  font-size: 5.3cqi;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.cell:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; position: relative; z-index: 1; }
+@media (hover: hover) {
+  .cell:not(.done):hover { background: var(--soft); }
+}
+.cell.miss { animation: miss 0.38s ease-out; }
+.cell.done { color: transparent; cursor: default; animation: hit 0.3s ease-out; }
+@keyframes miss {
+  from { background: var(--bad); color: var(--on-bad); }
+  to { background: var(--cell); color: var(--ink); }
+}
+@keyframes hit {
+  from { background: var(--hit); }
+  to { background: var(--cell); }
+}
+
+.veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+.veil-box {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  width: min(100%, 360px);
+  padding: 26px 24px 24px;
+  background: var(--cell);
+  border: 3px solid var(--ink);
+  text-align: center;
+}
+.eyebrow {
+  margin: 0;
+  font: 600 0.78rem/1 var(--f-body);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.eyebrow.is-record { color: var(--accent); }
+.veil-title {
+  margin: 0;
+  font: 700 clamp(1.9rem, 6cqi, 2.5rem)/0.95 var(--f-display);
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.veil-time {
+  margin: 0;
+  font: 500 clamp(2rem, 7vw, 2.8rem)/1 var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+}
+.veil-text { margin: 0 0 4px; color: var(--muted); max-width: 30ch; text-wrap: pretty; }
+
+/* ---------- timing sheet ---------- */
+.panel { grid-area: panel; display: grid; gap: 22px; min-width: 0; }
+.label {
+  margin: 0;
+  font: 600 0.74rem/1.2 var(--f-body);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.stat { display: grid; gap: 6px; }
+.stat .val { font: 500 1.9rem/1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.stat .of { color: var(--muted); font-size: 0.55em; margin-left: 2px; }
+.meter { height: 6px; background: var(--soft); margin-top: -8px; }
+.meter span { display: block; height: 100%; width: 0; background: var(--go); transition: width 0.15s ease; }
+
+.block { display: grid; gap: 10px; }
+.rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.rows li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--soft);
+  font-variant-numeric: tabular-nums;
+}
+.rows li:last-child { border-bottom: 0; }
+.rows .t { font-family: var(--f-mono); font-size: 0.95rem; }
+.rows .k { color: var(--muted); font-size: 0.9rem; }
+.splits li.is-pending .t { color: var(--muted); }
+.splits li.is-slow .t { color: var(--accent); }
+
+.best { margin: 0; font: 500 2.1rem/1 var(--f-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.note { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.hist li.is-best .t { color: var(--go); font-weight: 500; }
+.hist .k { flex: 1; }
+.hist .w { color: var(--muted); font-size: 0.85rem; }
+
+.btn-ghost {
+  appearance: none;
+  justify-self: start;
+  background: transparent;
+  border: 1px solid var(--soft);
+  border-radius: 3px;
+  color: var(--muted);
+  font: 500 0.85rem/1 var(--f-body);
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.btn-ghost:hover { color: var(--ink); border-color: var(--muted); }
+.btn-ghost:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn-ghost.is-armed { color: var(--bad); border-color: var(--bad); }
+
+.tip { margin: 0; color: var(--muted); font-size: 0.88rem; max-width: 36ch; }
+kbd {
+  font: 500 0.8em/1 var(--f-mono);
+  padding: 2px 5px;
+  border: 1px solid var(--soft);
+  border-radius: 3px;
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 760px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "brand" "clock" "board" "panel";
+    gap: 16px;
+    padding-block: 14px 24px;
+  }
+  .clock { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .clock .btn { width: auto; }
+  .board {
+    justify-self: center;
+    width: min(100%, calc(100vh - 200px));
+    width: min(100%, calc(100dvh - 200px));
+    min-width: min(100%, 280px);
+  }
+  .panel { gap: 20px; }
+  .tip { max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid, .meter span { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="brand">
+    <h1>Siatka 49</h1>
+    <p>Tabela Schultego 7&nbsp;×&nbsp;7. Klikaj liczby po kolei od&nbsp;1 do&nbsp;49.</p>
+  </header>
+
+  <div class="clock">
+    <output id="time" class="time" data-state="intro">0:00.000</output>
+    <button id="toggle" type="button" class="btn btn-go">Start</button>
+  </div>
+
+  <div class="board is-idle" id="board">
+    <div class="grid" id="grid" role="group" aria-label="Plansza 7 na 7"></div>
+    <div class="veil" id="veil">
+      <div class="veil-box" id="veil-box"></div>
+    </div>
+  </div>
+
+  <aside class="panel" aria-label="Wyniki">
+    <div class="stats">
+      <div class="stat">
+        <span class="label">Znalezione</span>
+        <span class="val"><span id="prog">0</span><span class="of">/49</span></span>
+      </div>
+      <div class="stat">
+        <span class="label">Pomyłki</span>
+        <span class="val" id="errs">0</span>
+      </div>
+    </div>
+    <div class="meter" aria-hidden="true"><span id="bar"></span></div>
+
+    <section class="block">
+      <h2 class="label">Międzyczasy</h2>
+      <ol class="rows splits" id="splits"></ol>
+    </section>
+
+    <section class="block">
+      <h2 class="label">Rekord</h2>
+      <p class="best" id="best">—</p>
+      <p class="note" id="best-note"></p>
+      <ol class="rows hist" id="hist" hidden></ol>
+      <button type="button" id="clear" class="btn-ghost" hidden>Wyczyść wyniki</button>
+    </section>
+
+    <p class="tip">Wskazówka: patrz w środek siatki i szukaj kolejnych liczb kątem oka. Tak ćwiczy się widzenie peryferyjne. <kbd>Esc</kbd> przerywa próbę.</p>
+  </aside>
+</div>
+
+<script>
+(() => {
+  const N = 7;
+  const TOTAL = N * N;
+  const SECTORS = [10, 20, 30, 40, 49];
+  const SECTOR_LABELS = ['1–10', '11–20', '21–30', '31–40', '41–49'];
+  const KEY = 'siatka49.v1';
+  const HIST_ROWS = 6;
+
+  const $ = (id) => document.getElementById(id);
+  const boardEl = $('board'), gridEl = $('grid'), veilEl = $('veil'), veilBox = $('veil-box');
+  const timeEl = $('time'), toggleEl = $('toggle');
+  const progEl = $('prog'), errsEl = $('errs'), barEl = $('bar'), splitsEl = $('splits');
+  const bestEl = $('best'), bestNote = $('best-note'), histEl = $('hist'), clearEl = $('clear');
+
+  let order = [], cells = [], next = 1, errors = 0, splits = [];
+  let phase = 'intro';           // intro | running | stopped | done
+  let t0 = 0, elapsed = 0, raf = 0, lastResult = null;
+  let runs = load();
+
+  // ---------- helpers ----------
+  function load() {
+    try {
+      const data = JSON.parse(localStorage.getItem(KEY) || 'null');
+      return Array.isArray(data && data.runs) ? data.runs.filter((r) => typeof r.t === 'number') : [];
+    } catch (e) { return []; }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify({ runs })); } catch (e) { /* storage unavailable */ }
+  }
+  function shuffled() {
+    const a = Array.from({ length: TOTAL }, (_, i) => i + 1);
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+  function fmt(ms) {
+    ms = Math.max(0, Math.floor(ms));
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const x = ms % 1000;
+    return `${m}:${String(s).padStart(2, '0')}.${String(x).padStart(3, '0')}`;
+  }
+  function errWord(n) {
+    if (n === 1) return 'pomyłka';
+    const d = n % 10, h = n % 100;
+    if (d >= 2 && d <= 4 && !(h >= 12 && h <= 14)) return 'pomyłki';
+    return 'pomyłek';
+  }
+  function when(ts) {
+    const d = new Date(ts);
+    const time = d.toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' });
+    if (d.toDateString() === new Date().toDateString()) return time;
+    return d.toLocaleDateString('pl-PL', { day: '2-digit', month: '2-digit' }) + ' ' + time;
+  }
+  const now = () => performance.now();
+
+  // ---------- board ----------
+  function build() {
+    gridEl.textContent = '';
+    cells = order.map((n, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cell';
+      b.id = 'cell-' + i;
+      b.dataset.n = n;
+      b.textContent = n;
+      if (n < next) markDone(b);
+      gridEl.appendChild(b);
+      return b;
+    });
+  }
+  function markDone(b) {
+    b.classList.remove('miss');
+    b.classList.add('done');
+    b.setAttribute('aria-disabled', 'true');
+  }
+
+  function press(cell) {
+    if (phase !== 'running' || !cell || cell.classList.contains('done')) return;
+    const n = Number(cell.dataset.n);
+    if (n === next) {
+      markDone(cell);
+      if (SECTORS.includes(n)) { splits.push(now() - t0); renderSplits(); }
+      next++;
+      if (next > TOTAL) finish();
+      else renderStats();
+    } else {
+      errors++;
+      cell.classList.remove('miss');
+      void cell.offsetWidth; // restart the flash
+      cell.classList.add('miss');
+      renderStats();
+    }
+  }
+
+  // pointerdown reacts faster than click; keyboard activation arrives as a click with detail 0
+  gridEl.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    press(e.target.closest('.cell'));
+  });
+  gridEl.addEventListener('click', (e) => {
+    if (e.detail !== 0) return;
+    press(e.target.closest('.cell'));
+  });
+
+  // ---------- clock ----------
+  function tick() {
+    timeEl.textContent = fmt(now() - t0);
+    raf = requestAnimationFrame(tick);
+  }
+  function start() {
+    order = shuffled();
+    next = 1; errors = 0; splits = []; elapsed = 0; lastResult = null;
+    build();
+    phase = 'running';
+    t0 = now();
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(tick);
+    render();
+    if (cells[0]) cells[0].focus({ preventScroll: true });
+  }
+  function stop() {
+    if (phase !== 'running') return;
+    elapsed = now() - t0;
+    cancelAnimationFrame(raf);
+    phase = 'stopped';
+    timeEl.textContent = fmt(elapsed);
+    render();
+    toggleEl.focus({ preventScroll: true });
+  }
+  function finish() {
+    elapsed = now() - t0;
+    cancelAnimationFrame(raf);
+    phase = 'done';
+    timeEl.textContent = fmt(elapsed);
+    const prevBest = runs.length ? Math.min(...runs.map((r) => r.t)) : Infinity;
+    const run = { t: Math.round(elapsed), e: errors, d: Date.now() };
+    lastResult = { ...run, record: run.t < prevBest, first: !runs.length };
+    runs.push(run);
+    if (runs.length > 100) runs = runs.slice(-100);
+    save();
+    render();
+    const again = $('veil-start');
+    if (again) again.focus({ preventScroll: true });
+  }
+
+  toggleEl.addEventListener('click', () => (phase === 'running' ? stop() : start()));
+  veilEl.addEventListener('click', (e) => { if (e.target.closest('[data-act="start"]')) start(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && phase === 'running') stop(); });
+
+  // ---------- rendering ----------
+  function veilHTML() {
+    if (phase === 'done' && lastResult) {
+      const avg = (lastResult.t / 1000 / TOTAL).toFixed(2);
+      const eyebrow = lastResult.first ? 'Pierwszy wynik' : lastResult.record ? 'Nowy rekord' : 'Meta';
+      return `
+        <p class="eyebrow${lastResult.record && !lastResult.first ? ' is-record' : ''}">${eyebrow}</p>
+        <p class="veil-time">${fmt(lastResult.t)}</p>
+        <p class="veil-text">${lastResult.e} ${errWord(lastResult.e)} · średnio ${avg}&nbsp;s na liczbę</p>
+        <button type="button" class="btn btn-go btn-lg" id="veil-start" data-act="start">Jeszcze raz</button>`;
+    }
+    if (phase === 'stopped') {
+      return `
+        <p class="eyebrow">Zatrzymano</p>
+        <h2 class="veil-title">${next - 1} z ${TOTAL}</h2>
+        <p class="veil-text">Przerwana próba nie trafia do wyników. Nowa runda dostaje nowy układ liczb.</p>
+        <button type="button" class="btn btn-go btn-lg" id="veil-start" data-act="start">Od nowa</button>`;
+    }
+    return `
+      <p class="eyebrow">Trening koncentracji</p>
+      <h2 class="veil-title">Od 1 do 49</h2>
+      <p class="veil-text">Klikaj liczby po kolei, jak najszybciej. Zegar rusza po naciśnięciu START, a trafione liczby znikają z siatki.</p>
+      <button type="button" class="btn btn-go btn-lg" id="veil-start" data-act="start">Start</button>`;
+  }
+
+  function render() {
+    const running = phase === 'running';
+    toggleEl.textContent = running ? 'Stop' : 'Start';
+    toggleEl.className = 'btn ' + (running ? 'btn-stop' : 'btn-go');
+    timeEl.dataset.state = phase;
+    boardEl.classList.toggle('is-idle', !running);
+    gridEl.inert = !running;
+    veilEl.hidden = running;
+    if (!running) veilBox.innerHTML = veilHTML();
+    renderStats();
+    renderSplits();
+    renderHist();
+  }
+
+  function renderStats() {
+    const found = next - 1;
+    progEl.textContent = found;
+    errsEl.textContent = errors;
+    barEl.style.width = (found / TOTAL) * 100 + '%';
+  }
+
+  function renderSplits() {
+    const durs = splits.map((t, i) => t - (i ? splits[i - 1] : 0));
+    const slowest = durs.length > 1 ? durs.indexOf(Math.max(...durs)) : -1;
+    splitsEl.innerHTML = SECTORS.map((_, i) => {
+      const has = i < durs.length;
+      const cls = !has ? 'is-pending' : i === slowest ? 'is-slow' : '';
+      return `<li class="${cls}"><span class="k">${SECTOR_LABELS[i]}</span><span class="t">${has ? fmt(durs[i]) : '—'}</span></li>`;
+    }).join('');
+  }
+
+  function renderHist() {
+    if (!runs.length) {
+      bestEl.textContent = '—';
+      bestNote.textContent = 'Ukończ pierwszą rundę, a wynik pojawi się tutaj.';
+      histEl.hidden = true;
+      clearEl.hidden = true;
+      return;
+    }
+    const best = Math.min(...runs.map((r) => r.t));
+    const lastFive = runs.slice(-5);
+    const avg = lastFive.reduce((sum, r) => sum + r.t, 0) / lastFive.length;
+    bestEl.textContent = fmt(best);
+    bestNote.textContent = runs.length > 1
+      ? `Średnia z ${lastFive.length} ostatnich: ${fmt(avg)} · ukończone rundy: ${runs.length}`
+      : 'Pierwsza ukończona runda.';
+    histEl.hidden = false;
+    clearEl.hidden = false;
+    histEl.innerHTML = runs.slice(-HIST_ROWS).reverse().map((r) =>
+      `<li${r.t === best ? ' class="is-best"' : ''}><span class="t">${fmt(r.t)}</span><span class="k">${r.e} ${errWord(r.e)}</span><span class="w">${when(r.d)}</span></li>`
+    ).join('');
+  }
+
+  let clearTimer = 0;
+  clearEl.addEventListener('click', () => {
+    if (!clearTimer) {
+      clearEl.textContent = 'Kliknij ponownie, aby usunąć';
+      clearEl.classList.add('is-armed');
+      clearTimer = setTimeout(() => {
+        clearTimer = 0;
+        clearEl.textContent = 'Wyczyść wyniki';
+        clearEl.classList.remove('is-armed');
+      }, 3000);
+      return;
+    }
+    clearTimeout(clearTimer);
+    clearTimer = 0;
+    clearEl.textContent = 'Wyczyść wyniki';
+    clearEl.classList.remove('is-armed');
+    runs = [];
+    save();
+    renderHist();
+  });
+
+  // ---------- boot (keeps a round in progress across page updates) ----------
+  function snapshot() {
+    return { order, next, errors, splits, phase, lastResult, elapsed: phase === 'running' ? now() - t0 : elapsed };
+  }
+  function boot(data) {
+    data = data || {};
+    if (Array.isArray(data.order) && data.order.length === TOTAL) {
+      order = data.order;
+      next = data.next || 1;
+      errors = data.errors || 0;
+      splits = Array.isArray(data.splits) ? data.splits : [];
+      phase = data.phase || 'intro';
+      lastResult = data.lastResult || null;
+      elapsed = data.elapsed || 0;
+    } else {
+      order = shuffled();
+    }
+    build();
+    if (phase === 'running') {
+      t0 = now() - elapsed;
+      raf = requestAnimationFrame(tick);
+    } else {
+      timeEl.textContent = fmt(elapsed);
+    }
+    render();
+  }
+
+  const hot = window.claude && window.claude.hot;
+  try { if (hot && hot.snapshot) hot.snapshot(snapshot); } catch (e) { /* not in a viewer */ }
+  if (hot && hot.ready) hot.ready(boot);
+  else boot(hot && hot.data ? hot.data : {});
+})();
+</script>
+</body>
+</html>
