@@ -1,0 +1,1768 @@
+<title>Atlas Wykładów</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;1,7..72,400&display=swap">
+<style>
+:root{
+  /* Layout: a binder index of stained tabs on the left, one reading column (~70ch) on the right */
+  --bg:#F3F4F8;
+  --surface:#FFFFFF;
+  --sunk:#E9EBF2;
+  --ink:#191A2B;
+  --muted:#5A5D76;
+  --faint:#8A8DA6;
+  --line:#DADDE8;
+  --accent:#3E3C9C;          /* hematoksylina */
+  --accent-ink:#FFFFFF;
+  --accent-soft:#E5E5F6;
+  --mark:#F8CCDA;            /* eozyna jako zakreślacz */
+  --mark-ink:#8C1D45;
+  --good:#1D7149; --good-soft:#DCF0E4;
+  --warn:#9A5300; --warn-soft:#FAE9D2;
+  --bad:#B0233B;  --bad-soft:#F8DEE3;
+  --scrim:rgba(20,21,36,.42);
+  --shadow:0 1px 2px rgba(25,26,43,.06), 0 8px 24px rgba(25,26,43,.08);
+  --s-eozyna:#C8396A; --s-hema:#4543A5; --s-trichrom:#127C6B; --s-sudan:#BF521D;
+  --s-pruski:#1B5BA0; --s-pas:#982A86; --s-ziel:#4C7F20; --s-srebro:#6A5745;
+  --f-read:"Literata","Iowan Old Style",Georgia,"Times New Roman",serif;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101119; --surface:#181A26; --sunk:#212335; --ink:#E6E7F2; --muted:#A0A3BE; --faint:#6F7290; --line:#2C2E43;
+    --accent:#A6A4F8; --accent-ink:#15142C; --accent-soft:#2A2957;
+    --mark:#5B2139; --mark-ink:#FFC4D6;
+    --good:#63D19B; --good-soft:#163426; --warn:#F0B260; --warn-soft:#382811; --bad:#FF8C9D; --bad-soft:#3B1822;
+    --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+    --s-eozyna:#F07CA2; --s-hema:#9593F2; --s-trichrom:#45C7B0; --s-sudan:#F08C58;
+    --s-pruski:#6EA8F0; --s-pas:#DD78CB; --s-ziel:#9ACB62; --s-srebro:#BBA791;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101119; --surface:#181A26; --sunk:#212335; --ink:#E6E7F2; --muted:#A0A3BE; --faint:#6F7290; --line:#2C2E43;
+  --accent:#A6A4F8; --accent-ink:#15142C; --accent-soft:#2A2957;
+  --mark:#5B2139; --mark-ink:#FFC4D6;
+  --good:#63D19B; --good-soft:#163426; --warn:#F0B260; --warn-soft:#382811; --bad:#FF8C9D; --bad-soft:#3B1822;
+  --scrim:rgba(0,0,0,.6); --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35);
+  --s-eozyna:#F07CA2; --s-hema:#9593F2; --s-trichrom:#45C7B0; --s-sudan:#F08C58;
+  --s-pruski:#6EA8F0; --s-pas:#DD78CB; --s-ziel:#9ACB62; --s-srebro:#BBA791;
+  color-scheme:dark;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body.locked{overflow:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#main:focus{outline:none}
+.sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.tnum{font-variant-numeric:tabular-nums}
+.label{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* ---------- shell ---------- */
+.shell{display:grid;grid-template-columns:244px minmax(0,1fr);gap:48px;max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 72px}
+.rail{position:sticky;top:28px;align-self:start;display:flex;flex-direction:column;gap:18px;max-height:calc(100vh - 56px);overflow-y:auto;padding:2px 4px 2px 2px}
+.brand{display:flex;align-items:center;gap:12px;padding:2px 6px;border:0;background:transparent;text-align:left;color:var(--ink)}
+.brand-mark{width:46px;height:21px;flex:none}
+.bm-glass{fill:var(--surface);stroke:var(--line);stroke-width:1}
+.bm-label{fill:var(--sunk)}
+.bm-eo{fill:var(--s-eozyna);fill-opacity:.78}
+.bm-he{fill:var(--s-hema)}
+.brand-name{display:block;font-family:var(--f-read);font-weight:600;font-size:18px;letter-spacing:-.01em;line-height:1.15}
+.brand-sub{display:block;font-size:12px;color:var(--muted)}
+.search input{width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);outline:none}
+.search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+#rail-nav{display:flex;flex-direction:column;gap:2px}
+.nav-label{margin:14px 10px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:transparent;text-align:left;color:var(--ink)}
+.nav-item:hover{background:var(--sunk)}
+.nav-item.on{background:var(--surface);border-color:var(--line);font-weight:600}
+.nav-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav-count{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.nav-item.add{color:var(--accent);font-weight:500;margin-top:6px}
+.sw{display:inline-block;width:12px;height:12px;flex:none;border-radius:52% 44% 56% 46% / 48% 56% 44% 52%;background:var(--c,var(--accent))}
+.sw.lg{width:22px;height:20px}
+.sw.ring{background:transparent;box-shadow:inset 0 0 0 1.5px var(--faint)}
+
+@media (max-width:880px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:22px;padding-block:16px 56px}
+  .rail{position:static;max-height:none;overflow:visible;gap:12px;padding:0}
+  #rail-nav{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px;scrollbar-width:none}
+  #rail-nav::-webkit-scrollbar{display:none}
+  .nav-label{display:none}
+  .nav-item{width:auto;flex:none;white-space:nowrap;border-color:var(--line);background:var(--surface)}
+  .nav-item.on{border-color:var(--ink)}
+  .nav-item.add{margin-top:0}
+  .nav-name{overflow:visible}
+}
+
+/* ---------- headings & buttons ---------- */
+.head{display:flex;flex-direction:column;gap:10px;padding-bottom:24px;margin-bottom:28px;border-bottom:1px solid var(--line)}
+.head h1{margin:0;font-family:var(--f-read);font-weight:600;font-size:clamp(28px,3.6vw,40px);line-height:1.12;letter-spacing:-.015em;text-wrap:balance}
+.eyebrow{display:flex;align-items:center;gap:8px;margin:0;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.head-meta{margin:0;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center}
+.actions,.row{display:flex;gap:8px;align-items:center}
+.actions,.row.wrap{flex-wrap:wrap}
+.actions{margin-top:6px}
+.row.end{justify-content:flex-end;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:38px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font-weight:500;line-height:1.2;text-align:center;transition:background-color .15s,border-color .15s}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn:disabled{opacity:.45}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not(:disabled){border-color:var(--accent);filter:brightness(1.08)}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover:not(:disabled){background:var(--sunk);border-color:transparent;color:var(--ink)}
+.btn.sm{min-height:32px;padding:5px 11px;font-size:13.5px}
+.btn.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:var(--surface)}
+.btn.danger-text,.btn.ghost.danger-text{color:var(--bad)}
+.btn.wide{width:100%;min-height:50px;font-size:16px}
+.kbd{font-family:var(--f-mono);font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid currentColor;opacity:.7;font-weight:400}
+
+/* ---------- home ---------- */
+.today{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 28px;align-items:end;padding:24px;background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:40px}
+.today p{margin:0}
+.today-num{margin-top:6px!important;font-size:18px}
+.big{font-family:var(--f-read);font-size:58px;font-weight:600;line-height:1;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-right:6px}
+.today-side{display:flex;flex-direction:column;align-items:flex-end;gap:14px}
+.act{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.act-cells{display:grid;grid-template-columns:repeat(14,14px);gap:4px}
+.act-cells i{display:block;width:14px;height:14px;border-radius:3px;background:var(--sunk)}
+.act-cells .lv1{background:color-mix(in srgb,var(--accent) 28%,var(--sunk))}
+.act-cells .lv2{background:color-mix(in srgb,var(--accent) 50%,var(--sunk))}
+.act-cells .lv3{background:color-mix(in srgb,var(--accent) 75%,var(--sunk))}
+.act-cells .lv4{background:var(--accent)}
+@media (max-width:640px){
+  .today{grid-template-columns:minmax(0,1fr);padding:20px}
+  .today-side,.act{align-items:stretch}
+}
+.block{margin-bottom:42px}
+.block-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.h2{margin:0 0 14px;font-family:var(--f-read);font-size:21px;font-weight:600;letter-spacing:-.01em}
+.block-head .h2{margin:0}
+.exams{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.exam{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:left}
+.exam:hover{border-color:color-mix(in srgb,var(--c) 55%,var(--line))}
+.exam-name{flex:1;min-width:0;font-weight:600}
+.exam-date{color:var(--muted);font-size:14px}
+.exam-prog{flex-basis:100%;padding-left:24px;font-size:13px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.neutral{background:var(--sunk);color:var(--muted)}
+.subj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
+.subj-card{display:flex;flex-direction:column;gap:8px;padding:16px;min-height:158px;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left;transition:border-color .15s}
+.subj-card:hover{border-color:color-mix(in srgb,var(--c) 60%,var(--line))}
+.subj-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.subj-name{font-family:var(--f-read);font-size:20px;font-weight:600;line-height:1.2;letter-spacing:-.01em}
+.subj-meta{font-size:13.5px;color:var(--muted)}
+.subj-meta b{color:var(--accent);font-weight:600}
+.subj-foot{margin-top:auto;font-size:12.5px;color:var(--muted)}
+.bar{display:flex;width:100%;height:6px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.bar i{display:block;height:100%}
+.b-good{background:var(--good)}
+.b-mid{background:color-mix(in srgb,var(--warn) 65%,var(--sunk))}
+.tag-ex{display:inline-block;font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mark-ink);background:var(--mark);padding:2px 7px;border-radius:4px;line-height:1.4}
+.recent{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.recent-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 12px;align-items:center;width:100%;padding:12px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left}
+.recent-row .sw{grid-row:span 2}
+.recent-title{font-family:var(--f-read);font-size:16.5px;font-weight:500}
+.recent-row:hover .recent-title{color:var(--accent)}
+.howto{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.how{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:18px;border-radius:12px;background:var(--sunk)}
+.how h3{margin:0;font-family:var(--f-read);font-size:16.5px;font-weight:600}
+.how p{margin:0;color:var(--muted);font-size:14px}
+.how .btn{margin-top:auto}
+.banner{display:flex;gap:12px 16px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:14px 16px;margin-bottom:28px;border-radius:12px;background:color-mix(in srgb,var(--mark) 50%,var(--surface))}
+.banner > div:first-child{flex:1 1 320px;min-width:0}
+.banner p{margin:0}
+.banner-title{font-weight:600;margin-bottom:2px!important}
+.empty{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:28px;margin-bottom:36px;border:1.5px dashed var(--line);border-radius:14px}
+.empty p{margin:0;max-width:62ch}
+.empty-title{font-family:var(--f-read);font-size:20px;font-weight:600}
+.sk{height:14px;border-radius:6px;background:var(--sunk)}
+.loading{display:flex;flex-direction:column;gap:12px;max-width:560px}
+.loading p{margin:6px 0 0}
+
+/* ---------- subject ---------- */
+.subj-prog{display:flex;flex-direction:column;gap:6px;max-width:520px;margin-top:8px}
+.lectures{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.lec{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:16px;align-items:center;width:100%;padding:16px 8px 16px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left}
+.lec:hover{background:color-mix(in srgb,var(--c,var(--accent)) 6%,transparent)}
+.lec-nr{font-family:var(--f-mono);font-size:22px;color:var(--faint);font-variant-numeric:tabular-nums;letter-spacing:-.02em;text-align:right}
+.lec-main{display:flex;flex-direction:column;gap:3px;min-width:0}
+.lec-title{font-family:var(--f-read);font-size:18px;font-weight:500;line-height:1.3}
+.lec-meta{font-size:13px;color:var(--muted)}
+.lec-meta b{color:var(--accent);font-weight:600}
+.chip{font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap;border:1px solid transparent}
+.chip.c-nowe{border-color:var(--line);color:var(--muted)}
+.chip.c-czytam{background:var(--warn-soft);color:var(--warn)}
+.chip.c-umiem{background:var(--good-soft);color:var(--good)}
+@media (max-width:560px){
+  .lec{grid-template-columns:36px minmax(0,1fr);gap:4px 12px}
+  .lec .chip{grid-column:2;justify-self:start}
+  .lec-nr{font-size:17px}
+}
+
+/* ---------- note ---------- */
+.crumbs{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px;color:var(--muted)}
+.crumb{display:inline-flex;align-items:center;gap:7px;padding:2px 0;border:0;background:transparent;color:var(--ink);font-weight:500}
+.crumb:hover{color:var(--accent)}
+.note-bar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:6px}
+.seg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:9px;background:var(--surface)}
+.seg-b{padding:5px 12px;border:0;border-radius:6px;background:transparent;font-size:13.5px;font-weight:500;color:var(--muted)}
+.seg-b:hover{color:var(--ink)}
+.seg-b.on[data-val="nowe"]{background:var(--sunk);color:var(--ink)}
+.seg-b.on[data-val="czytam"]{background:var(--warn-soft);color:var(--warn)}
+.seg-b.on[data-val="umiem"]{background:var(--good-soft);color:var(--good)}
+.recall-hint{margin:4px 0 0;font-size:13.5px;color:var(--accent)}
+.note-grid{display:grid;grid-template-columns:minmax(0,1fr) 196px;gap:48px;align-items:start}
+.toc{position:sticky;top:28px;display:flex;flex-direction:column;gap:1px;max-height:calc(100vh - 56px);overflow:auto}
+.toc .label{margin-bottom:8px}
+.toc-i{padding:5px 0;border:0;background:transparent;text-align:left;font-size:13px;line-height:1.35;color:var(--muted)}
+.toc-i:hover{color:var(--accent)}
+@media (max-width:1100px){
+  .note-grid{grid-template-columns:minmax(0,1fr)}
+  .toc{display:none}
+}
+.note{min-width:0;max-width:70ch;font-family:var(--f-read);font-size:17px;line-height:1.68}
+.nsec{padding:4px 0 28px;scroll-margin-top:20px}
+.nsec + .nsec{padding-top:24px;border-top:1px solid var(--line)}
+.nsec-t{margin:0 0 12px;font-family:var(--f-ui);font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.nsec-t.h{font-family:var(--f-read);font-size:23px;letter-spacing:-.01em;text-transform:none;color:var(--ink);line-height:1.25;text-wrap:balance}
+.md > :first-child{margin-top:0}
+.md > :last-child{margin-bottom:0}
+.md p{margin:0 0 .8em}
+.md ul,.md ol{margin:0 0 .9em;padding-left:1.3em}
+.md li{margin:.25em 0}
+.md li::marker{color:var(--faint)}
+.md strong{font-weight:600}
+.md h1,.md h2,.md h3,.md h4{margin:1.2em 0 .4em;font-size:1.05em;font-weight:600}
+.md table{display:block;max-width:100%;overflow-x:auto;border-collapse:collapse;margin:.4em 0 1em;font-family:var(--f-ui);font-size:14px;line-height:1.45}
+.md th,.md td{padding:7px 10px;border:1px solid var(--line);text-align:left;vertical-align:top}
+.md th{background:var(--sunk);font-weight:600}
+.md code{font-family:var(--f-mono);font-size:.88em;background:var(--sunk);padding:1px 5px;border-radius:4px}
+.md blockquote{margin:0 0 1em;padding-left:14px;border-left:3px solid var(--line);color:var(--muted)}
+.md a{color:var(--accent)}
+.lead{font-size:18.5px}
+@media (max-width:560px){
+  .note{font-size:16.5px;line-height:1.62}
+  .lead{font-size:17.5px}
+}
+.hy-list,.dot-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.hy-list li,.dot-list li{position:relative;padding-left:24px}
+.hy-list li::before,.dot-list li::before{content:"";position:absolute;left:3px;top:.62em;width:9px;height:9px;border-radius:52% 44% 56% 46% / 48% 56% 44% 52%;background:var(--s-eozyna)}
+.dot-list li::before{background:var(--faint)}
+.hy-list strong{font-weight:600;background:linear-gradient(transparent 58%,var(--mark) 58%);padding:0 1px}
+.terms{display:flex;flex-direction:column;margin:0}
+.terms > div{display:grid;grid-template-columns:minmax(120px,30%) minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:1px solid var(--line)}
+.terms > div:first-child{padding-top:0}
+.terms dt{font-weight:600}
+.terms dd{margin:0}
+@media (max-width:560px){ .terms > div{grid-template-columns:minmax(0,1fr);gap:2px} }
+.veil{position:relative;border-radius:8px;cursor:pointer}
+.veil > :not(.veil-cta){filter:blur(7px);opacity:.5;user-select:none;pointer-events:none}
+.veil-cta{position:absolute;inset:0;display:flex;justify-content:center;align-items:flex-start;padding-top:14px}
+.veil-cta span{padding:6px 14px;border-radius:999px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);font-family:var(--f-ui);font-size:13px;font-weight:600;color:var(--accent)}
+.veil:hover .veil-cta span{border-color:var(--accent)}
+.fc-list{display:flex;flex-direction:column;gap:8px;font-family:var(--f-ui);font-size:15px;line-height:1.5}
+.fc{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.fc summary{display:flex;gap:12px;justify-content:space-between;align-items:baseline;padding:12px 14px;cursor:pointer;list-style:none;font-weight:500}
+.fc summary::-webkit-details-marker{display:none}
+.fc[open] summary{color:var(--accent)}
+.fc-st{flex:none;font-size:12px;font-weight:400;color:var(--muted)}
+.fc-a{margin:0 14px;padding:10px 0 14px;border-top:1px dashed var(--line)}
+.qz-teaser{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:16px;border-radius:10px;background:var(--sunk);font-family:var(--f-ui);font-size:15px}
+.qz-teaser p{margin:0}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:70ch;margin-top:20px}
+.pn-b{display:flex;flex-direction:column;gap:4px;min-width:0;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:left}
+.pn-b.r{align-items:flex-end;text-align:right}
+.pn-b span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--f-read);font-weight:500}
+.pn-b:hover{border-color:var(--muted)}
+.manage{max-width:70ch;margin-top:28px;padding-top:14px;border-top:1px solid var(--line)}
+.manage summary{cursor:pointer;color:var(--muted);font-size:13.5px;font-weight:500}
+.manage-body{display:flex;flex-direction:column;gap:14px;align-items:flex-start;padding-top:14px}
+.field-inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:14px}
+select,input[type="date"],input[type="text"],textarea{max-width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+select:focus,input[type="date"]:focus,input[type="text"]:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+
+/* ---------- search ---------- */
+.results{display:flex;flex-direction:column;margin:0;padding:0;list-style:none;border-top:1px solid var(--line)}
+.res{display:flex;flex-direction:column;gap:4px;width:100%;padding:14px 4px;border:0;border-bottom:1px solid var(--line);background:transparent;text-align:left}
+.res-src{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted)}
+.res-title{font-family:var(--f-read);font-size:18px;font-weight:500}
+.res:hover .res-title{color:var(--accent)}
+.res-snip{font-size:14px;color:var(--muted)}
+mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1px}
+
+/* ---------- overlay ---------- */
+.ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding-top:max(24px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.ov-scrim{position:absolute;inset:0;background:var(--scrim)}
+.panel{position:relative;display:flex;flex-direction:column;gap:16px;width:100%;max-width:680px;max-height:100%;overflow-y:auto;padding:22px 24px 26px;border-radius:16px;background:var(--bg);box-shadow:var(--shadow)}
+.panel-ask{max-width:760px}
+.panel:focus{outline:none}
+.ov-head{display:flex;align-items:center;gap:12px}
+.ov-head > :first-child{flex:1;min-width:0}
+.ov-title{margin:0;font-family:var(--f-read);font-size:22px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
+.x{display:grid;place-items:center;flex:none;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--muted)}
+.x:hover{background:var(--sunk);color:var(--ink)}
+@media (max-width:640px){
+  .ov{padding:0}
+  .panel{max-width:none;height:100%;max-height:none;border-radius:0;padding-top:max(16px,env(safe-area-inset-top,0px));padding-bottom:max(24px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+.prog{height:4px;border-radius:999px;background:var(--sunk);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.card{display:flex;flex-direction:column;gap:16px;min-height:220px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.card-src{display:flex;align-items:center;gap:8px;margin:0;font-size:12.5px;color:var(--muted)}
+.card-q{font-family:var(--f-read);font-size:22px;line-height:1.4;font-weight:500}
+.card-a{padding-top:16px;border-top:1px dashed var(--line);font-family:var(--f-read);font-size:18px;line-height:1.55}
+.rate{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rate .wide{grid-column:1 / -1}
+.rate-b{flex-direction:column;gap:2px;min-height:62px}
+.rate-b span{font-size:12px;font-weight:400;color:var(--muted)}
+.rate-b.r1 b{color:var(--bad)}
+.rate-b.r2 b{color:var(--warn)}
+.rate-b.r3 b{color:var(--good)}
+.done{display:flex;flex-direction:column;gap:8px;align-items:flex-start;padding:8px 0}
+.done p{margin:0}
+.done-big{font-family:var(--f-read);font-size:46px;font-weight:600;line-height:1}
+.done .row{margin-top:10px}
+.qz{display:flex;flex-direction:column;gap:14px}
+.qz-q{margin:0;font-family:var(--f-read);font-size:20px;line-height:1.45;font-weight:500}
+.qz-opts{display:flex;flex-direction:column;gap:8px}
+.qz-o{display:flex;gap:12px;align-items:flex-start;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-align:left;line-height:1.45}
+.qz-o:hover:not(:disabled){border-color:var(--accent)}
+.qz-o:disabled{cursor:default}
+.qz-l{display:grid;place-items:center;flex:none;width:24px;height:24px;border-radius:6px;background:var(--sunk);color:var(--muted);font-family:var(--f-mono);font-size:12.5px}
+.qz-o.ok{border-color:var(--good);background:var(--good-soft)}
+.qz-o.ok .qz-l{background:var(--good);color:var(--surface)}
+.qz-o.no{border-color:var(--bad);background:var(--bad-soft)}
+.qz-o.no .qz-l{background:var(--bad);color:var(--surface)}
+.qz-o.dim{opacity:.55}
+.qz-why{padding:12px 14px;border-radius:10px;background:var(--sunk)}
+.qz-why p{margin:0}
+.wrong{width:100%;margin-top:6px}
+.wrong ul{display:flex;flex-direction:column;gap:8px;margin:6px 0 0;padding-left:1.2em}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0;margin:0;padding:0;border:0}
+.field > label,.field > legend{padding:0;font-size:13px;font-weight:600;color:var(--ink)}
+.field > legend{margin-bottom:6px}
+.imp-sub{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:flex-end}
+.imp-nr{display:flex;align-items:center;gap:8px;margin:0 0 9px;color:var(--muted)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tab{margin-bottom:-1px;padding:10px 12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);font-weight:500}
+.tab.on{color:var(--ink);border-bottom-color:var(--accent)}
+.steps{display:flex;flex-direction:column;gap:6px;margin:0;padding-left:1.3em}
+.copybox{display:flex;flex-direction:column;gap:8px}
+.copybox textarea{width:100%;resize:none;font-size:14px;line-height:1.5}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:28px 16px;border:1.5px dashed var(--line);border-radius:12px;background:var(--surface);text-align:center;cursor:pointer}
+.drop:hover,.drop:focus-within{border-color:var(--accent)}
+.drop-title{font-weight:600;word-break:break-word}
+.paste summary{cursor:pointer;color:var(--accent);font-weight:500;font-size:14px}
+.paste textarea{width:100%;margin-top:8px;resize:vertical}
+.working{display:flex;flex-direction:column;align-items:center;gap:10px;padding:28px 8px;text-align:center}
+.working p{margin:0}
+.working.err{align-items:flex-start;text-align:left}
+.spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--sunk);border-top-color:var(--accent);animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.preview{display:flex;flex-direction:column;gap:12px}
+.preview input{width:100%;font-family:var(--f-read);font-size:18px}
+.preview .md{font-family:var(--f-read);font-size:16px;line-height:1.6}
+.form{display:flex;flex-direction:column;gap:16px}
+.form input[type="text"]{width:100%}
+.stains{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.stain-opt{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);cursor:pointer;font-size:13.5px}
+.stain-opt:has(input:checked){border-color:var(--c);box-shadow:inset 0 0 0 1px var(--c);font-weight:600}
+.stain-opt:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.form-err{margin:0;color:var(--bad);font-size:14px}
+.danger-zone{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:14px;border-top:1px solid var(--line)}
+.chat{display:flex;flex-direction:column;gap:12px;min-height:120px}
+.chat > p{margin:0}
+.msg{max-width:92%;padding:12px 14px;border-radius:12px}
+.msg.user{align-self:flex-end;background:var(--accent-soft);white-space:pre-wrap}
+.msg.assistant{align-self:flex-start;border:1px solid var(--line);background:var(--surface);font-family:var(--f-read);font-size:16px;line-height:1.6}
+.sugg{display:flex;flex-wrap:wrap;gap:6px}
+.chip-b{padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:13.5px}
+.chip-b:hover{border-color:var(--accent);color:var(--accent)}
+.ask-form{position:sticky;bottom:0;display:flex;gap:8px;align-items:flex-end;padding-top:8px;background:var(--bg)}
+.ask-form textarea{flex:1;min-width:0;resize:none}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100% - 32px);transform:translateX(-50%);padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:var(--shadow)}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+</style>
+
+<div class="shell">
+  <aside class="rail" aria-label="Nawigacja">
+    <button class="brand" data-act="go-home" aria-label="Atlas Wykładów — pulpit">
+      <svg class="brand-mark" viewBox="0 0 46 21" aria-hidden="true">
+        <rect class="bm-glass" x="0.5" y="0.5" width="45" height="20" rx="3"/>
+        <rect class="bm-label" x="3.5" y="3.5" width="11" height="14" rx="1.5"/>
+        <ellipse class="bm-eo" cx="30" cy="10.5" rx="9.5" ry="6.5"/>
+        <circle class="bm-he" cx="27" cy="8.6" r="1.5"/>
+        <circle class="bm-he" cx="32.6" cy="12.6" r="1.25"/>
+        <circle class="bm-he" cx="31" cy="7" r="1"/>
+        <circle class="bm-he" cx="25.4" cy="12.8" r="0.9"/>
+      </svg>
+      <span><span class="brand-name">Atlas Wykładów</span><span class="brand-sub">notatki · fiszki · testy</span></span>
+    </button>
+    <div class="search">
+      <label for="q" class="sr">Szukaj w notatkach</label>
+      <input id="q" type="search" placeholder="Szukaj w notatkach…" autocomplete="off">
+    </div>
+    <nav id="rail-nav"></nav>
+  </aside>
+  <main id="main" tabindex="-1"></main>
+</div>
+<div id="ov" class="ov" hidden></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* ================= stałe ================= */
+const STAINS = [
+  {k: 'eozyna', n: 'Eozyna'},
+  {k: 'hema', n: 'Hematoksylina'},
+  {k: 'trichrom', n: 'Trichrom Massona'},
+  {k: 'sudan', n: 'Sudan III'},
+  {k: 'pruski', n: 'Błękit pruski'},
+  {k: 'pas', n: 'PAS'},
+  {k: 'ziel', n: 'Zieleń jasna'},
+  {k: 'srebro', n: 'Impregnacja srebrem'},
+];
+const STATUS = {nowe: 'Nowy', czytam: 'W trakcie', umiem: 'Umiem'};
+const INTERVALS = [0, 1, 3, 7, 14, 30, 60];   // dni do następnej powtórki dla pudełka 0–6
+const NEW_PER_SESSION = 20;
+const MAX_SOURCE_CHARS = 120000;
+const LS_KEY = 'atlas-wykladow-v1';
+const LIB = {
+  jszip: 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
+  pdf: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
+  pdfw: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+};
+const SUGG = [
+  'Wyjaśnij najtrudniejszą część prościej',
+  'Jakie pytania mogą paść na egzaminie?',
+  'Zrób tabelę porównawczą najważniejszych pojęć',
+  'Podaj przykład z praktyki',
+];
+const X_ICON = '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>';
+
+/* ================= stan ================= */
+const S = {
+  phase: 'boot',                 // boot | loading | ready | nodb | error
+  db: null, uid: null, canWrite: null, sample: null,
+  got: {subjects: false, notes: false},
+  subjects: [], notes: [], meta: {},
+  prog: {}, stats: {days: {}},
+  view: {name: 'home'}, prevView: null,
+  recall: false, revealed: new Set(), openDetails: new Set(),
+  q: '', ov: null, confirmClear: false, confirmDel: null,
+};
+
+/* ================= pomocnicze ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o ?? {}));
+const arr = v => Array.isArray(v) ? v : [];
+const pad2 = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const today = () => ymd(new Date());
+const parseYmd = s => { const [y, m, d] = String(s).split('-').map(Number); return new Date(y, (m || 1) - 1, d || 1); };
+const addDays = (s, n) => { const d = parseYmd(s); d.setDate(d.getDate() + n); return ymd(d); };
+const daysUntil = s => Math.round((parseYmd(s) - parseYmd(today())) / 86400000);
+const isYmd = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
+const reduced = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function plural(n, one, few, many) {
+  const a = Math.abs(n);
+  if (a === 1) return one;
+  const d = a % 10, h = a % 100;
+  return d >= 2 && d <= 4 && !(h >= 12 && h <= 14) ? few : many;
+}
+const pl = (n, one, few, many) => `${n} ${plural(n, one, few, many)}`;
+function fmtDay(s, opts = {day: 'numeric', month: 'long'}) {
+  try { return parseYmd(s).toLocaleDateString('pl-PL', opts); } catch (e) { return s; }
+}
+function fmtIso(iso) {
+  const d = new Date(iso);
+  return isNaN(d) ? '' : d.toLocaleDateString('pl-PL', {day: 'numeric', month: 'long'});
+}
+function inDays(n) {
+  if (n === 0) return 'dziś';
+  if (n === 1) return 'jutro';
+  if (n < 0) return `${-n} ${plural(-n, 'dzień', 'dni', 'dni')} temu`;
+  return `za ${n} ${plural(n, 'dzień', 'dni', 'dni')}`;
+}
+function hash(s) {
+  let h = 5381; s = String(s);
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+function shuffle(a) {
+  a = a.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+// zamienia znak po znaku (długość bez zmian), żeby dało się podświetlić trafienie w oryginale
+function fold(s) {
+  let o = '';
+  for (const ch of String(s).split('')) {
+    const c = (ch === 'ł' || ch === 'Ł') ? 'l' : (ch.normalize('NFD')[0] || ' ').toLowerCase()[0];
+    o += c || ' ';
+  }
+  return o;
+}
+function slug(s) {
+  const base = fold(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'przedmiot';
+  return base + '-' + Math.random().toString(36).slice(2, 6);
+}
+function plain(s) { return String(s ?? '').replace(/[*_`#>|]/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+if (window.marked) marked.setOptions({gfm: true, breaks: false, mangle: false, headerIds: false});
+if (window.DOMPurify) DOMPurify.addHook('afterSanitizeAttributes', n => {
+  if (n.tagName === 'A') { n.setAttribute('target', '_blank'); n.setAttribute('rel', 'noopener noreferrer'); }
+});
+function md(s) {
+  s = String(s ?? '');
+  if (!s.trim()) return '';
+  try { if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parse(s)); } catch (e) {}
+  return '<p>' + esc(s).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
+}
+function mdi(s) {
+  s = String(s ?? '');
+  try { if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parseInline(s)); } catch (e) {}
+  return esc(s);
+}
+
+/* ================= dane ================= */
+const stainOf = k => STAINS.find(s => s.k === k) || STAINS[1];
+const cvar = k => `--c:var(--s-${stainOf(k).k})`;
+const subjectsSorted = () => S.subjects.slice().sort((a, b) =>
+  (Number(a.order) || 999) - (Number(b.order) || 999) || String(a.name).localeCompare(String(b.name), 'pl'));
+const subjectById = id => S.subjects.find(s => s.id === id);
+const noteById = id => S.notes.find(n => n.id === id);
+const notesOf = sid => S.notes.filter(n => n.subjectId === sid)
+  .sort((a, b) => (Number(a.nr) || 0) - (Number(b.nr) || 0) || String(a.addedAt).localeCompare(String(b.addedAt)));
+const nextNr = sid => notesOf(sid).reduce((m, n) => Math.max(m, Number(n.nr) || 0), 0) + 1;
+const canWrite = () => !!S.db && S.canWrite !== false;
+const P = id => S.prog[id] || {status: 'nowe', cards: {}};
+const statusOf = id => P(id).status || 'nowe';
+const cardsOf = n => arr(n.flashcards).filter(c => c && c.q).map(c => ({noteId: n.id, key: hash(c.q), q: c.q, a: c.a}));
+const cardSt = c => { const p = S.prog[c.noteId]; return p && p.cards ? p.cards[c.key] : undefined; };
+function cardStats(notes) {
+  const t = today();
+  let due = 0, fresh = 0, total = 0, known = 0;
+  for (const n of notes) for (const c of cardsOf(n)) {
+    total++;
+    const st = cardSt(c);
+    if (!st) fresh++;
+    else { if (st.d <= t) due++; if (st.b >= 3) known++; }
+  }
+  return {due, fresh, total, known};
+}
+function statusCount(ns) {
+  const c = {umiem: 0, czytam: 0};
+  for (const n of ns) { const st = statusOf(n.id); if (st in c) c[st]++; }
+  return c;
+}
+
+/* ---------- postęp: prywatny dla osoby (data/users/<id>), awaryjnie w przeglądarce ---------- */
+const timers = new Map(), chains = new Map(), dirty = new Set();
+function saveLocal() { try { localStorage.setItem(LS_KEY, JSON.stringify({prog: S.prog, stats: S.stats})); } catch (e) {} }
+function loadLocal() {
+  try {
+    const v = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (v) { S.prog = v.prog || {}; S.stats = v.stats || {days: {}}; }
+  } catch (e) {}
+}
+function saveProg(key) {             // key = id notatki albo '__stats'
+  dirty.add(key);
+  clearTimeout(timers.get(key));
+  timers.set(key, setTimeout(() => flush(key), 800));
+  if (!S.uid) saveLocal();
+}
+function flush(key) {
+  timers.delete(key);
+  if (!S.db || !S.uid) { dirty.delete(key); saveLocal(); return; }
+  const body = key === '__stats' ? S.stats : S.prog[key];
+  if (!body) { dirty.delete(key); return; }
+  const data = clone(body);
+  const docId = key === '__stats' ? 'stats' : 'n_' + key;
+  const p = (chains.get(key) || Promise.resolve())
+    .then(() => S.db.collection('data/users/' + S.uid).doc(docId).set(data))
+    .catch(e => {
+      console.warn('zapis postępu', e);
+      if (e && e.code === 'invalid_argument') { S.uid = null; saveLocal(); toast('Postęp zapisuje się teraz tylko w tej przeglądarce.'); }
+    })
+    .finally(() => { if (chains.get(key) === p) { chains.delete(key); if (!timers.has(key)) dirty.delete(key); } });
+  chains.set(key, p);
+}
+function onUserSnap(snap) {
+  let changed = false;
+  for (const d of snap.docs) {
+    const data = d.data();
+    if (d.id === 'stats') {
+      if (dirty.has('__stats')) continue;
+      if (JSON.stringify(data) !== JSON.stringify(S.stats)) { S.stats = clone(data); changed = true; }
+    } else if (d.id.startsWith('n_')) {
+      const k = d.id.slice(2);
+      if (dirty.has(k)) continue;
+      if (JSON.stringify(data) !== JSON.stringify(S.prog[k])) { S.prog[k] = clone(data); changed = true; }
+    }
+  }
+  if (changed) scheduleRender();
+}
+function bumpStats() {
+  const t = today();
+  if (!S.stats.days) S.stats.days = {};
+  const days = S.stats.days;
+  days[t] = (days[t] || 0) + 1;
+  const cutoff = addDays(t, -90);
+  for (const k of Object.keys(days)) if (k < cutoff) delete days[k];
+  saveProg('__stats');
+}
+
+/* ================= start ================= */
+const use = name => {
+  try {
+    return (window.claude && typeof window.claude.use === 'function')
+      ? Promise.resolve(window.claude.use(name)).catch(() => null) : Promise.resolve(null);
+  } catch (e) { return Promise.resolve(null); }
+};
+
+async function boot() {
+  bindEvents();
+  render();
+  use('sample').then(s => { S.sample = s || null; scheduleRender(); });
+  const user = await use('user');
+  if (user) {
+    try { S.uid = await user.id(); } catch (e) { S.uid = null; }
+    try { S.canWrite = await user.can('data.write'); } catch (e) { S.canWrite = null; }
+  }
+  const db = await use('db');
+  if (!db) { S.phase = 'nodb'; loadLocal(); render(); return; }
+  S.db = db;
+  S.phase = 'loading';
+  if (!S.uid) loadLocal();
+  const fail = e => { console.warn(e); S.phase = 'error'; S.err = e && e.code; render(); };
+  db.collection('subjects').onSnapshot(snap => {
+    S.subjects = snap.docs.map(d => ({...d.data(), id: d.id}));
+    S.got.subjects = true; ready();
+  }, fail);
+  db.collection('notes').onSnapshot(snap => {
+    S.notes = snap.docs.map(d => ({...d.data(), id: d.id}));
+    S.got.notes = true; ready();
+  }, fail);
+  db.doc('meta/info').onSnapshot(d => { S.meta = d.exists ? {...d.data()} : {}; scheduleRender(); }, () => {});
+  if (S.uid) db.collection('data/users/' + S.uid).onSnapshot(onUserSnap, e => console.warn('postęp', e));
+}
+function ready() { if (S.got.subjects && S.got.notes) S.phase = 'ready'; scheduleRender(); }
+
+/* ================= render ================= */
+let rq = 0;
+function scheduleRender() { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; render(); }); }
+function render() { renderRail(); renderMain(); }
+
+function renderRail() {
+  const v = S.view;
+  const activeSid = v.name === 'subject' ? v.id : v.name === 'note' ? (noteById(v.id) || {}).subjectId : null;
+  let h = `<button class="nav-item ${v.name === 'home' ? 'on' : ''}" data-act="go-home"><span class="sw ring"></span><span class="nav-name">Pulpit</span></button>`;
+  const subs = subjectsSorted();
+  if (subs.length) h += `<p class="label nav-label">Przedmioty</p>`;
+  for (const s of subs) {
+    h += `<button class="nav-item ${activeSid === s.id ? 'on' : ''}" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}"><span class="sw"></span><span class="nav-name">${esc(s.name)}</span><span class="nav-count">${notesOf(s.id).length}</span></button>`;
+  }
+  if (S.phase === 'ready' && canWrite()) h += `<button class="nav-item add" data-act="new-subject">+ Dodaj przedmiot</button>`;
+  $('#rail-nav').innerHTML = h;
+}
+
+function renderMain() {
+  const m = $('#main');
+  if (S.phase === 'boot' || S.phase === 'loading') { m.innerHTML = viewLoading(); return; }
+  if (S.phase === 'nodb') { m.innerHTML = viewNoDb(); return; }
+  if (S.phase === 'error') { m.innerHTML = viewError(); return; }
+  const v = S.view;
+  m.innerHTML = v.name === 'subject' ? viewSubject(v.id)
+    : v.name === 'note' ? viewNote(v.id)
+    : v.name === 'search' ? viewSearch()
+    : viewHome();
+}
+
+const dateLine = () => esc(cap(new Date().toLocaleDateString('pl-PL', {weekday: 'long', day: 'numeric', month: 'long'})));
+
+function viewLoading() {
+  return `<header class="head"><p class="eyebrow">${dateLine()}</p><h1>Pulpit</h1></header>
+  <div class="loading"><div class="sk" style="width:72%"></div><div class="sk" style="width:54%"></div><div class="sk" style="width:63%"></div>
+  <p class="muted">Wczytuję przedmioty, wykłady i Twoje powtórki…</p></div>`;
+}
+function viewNoDb() {
+  return `<header class="head"><p class="eyebrow">Atlas Wykładów</p><h1>Notatki są zapisane w bazie tej strony</h1></header>
+  <div class="empty"><p>Przedmioty, wykłady i postępy w nauce trzymane są w bazie przypisanej do tej strony w Claude. Otwórz ją w Claude, będąc zalogowanym, a pojawią się tutaj.</p></div>`;
+}
+function viewError() {
+  return `<header class="head"><p class="eyebrow">Atlas Wykładów</p><h1>Nie udało się wczytać notatek</h1></header>
+  <div class="empty"><p>Połączenie z bazą strony zostało przerwane${S.err ? ` (${esc(S.err)})` : ''}. Odśwież stronę, żeby spróbować ponownie.</p></div>`;
+}
+function gone(msg) {
+  return `<div class="empty"><p class="empty-title">${esc(msg)}</p><button class="btn" data-act="go-home">Wróć na pulpit</button></div>`;
+}
+
+function bar(good, mid, total) {
+  const g = total ? good / total * 100 : 0, m = total ? mid / total * 100 : 0;
+  return `<span class="bar" role="img" aria-label="Umiem ${good}, w trakcie ${mid}, wszystkich ${total}"><i class="b-good" style="width:${g}%"></i><i class="b-mid" style="width:${m}%"></i></span>`;
+}
+const statusChip = st => `<span class="chip c-${STATUS[st] ? st : 'nowe'}">${STATUS[st] || STATUS.nowe}</span>`;
+const examCls = d => d <= 7 ? 'bad' : d <= 21 ? 'warn' : 'neutral';
+
+/* ---------- pulpit ---------- */
+function viewHome() {
+  const subs = subjectsSorted();
+  let h = `<header class="head"><p class="eyebrow">${dateLine()}</p><h1>Pulpit</h1></header>`;
+  if (S.subjects.some(s => s.example) || S.notes.some(n => n.example)) h += exampleBanner();
+  if (!subs.length) {
+    return h + `<div class="empty"><p class="empty-title">Zacznij od przedmiotów</p><p class="muted">Dodaj przedmioty, których się uczysz. Potem każda prezentacja z wykładu zamieni się w notatki, fiszki i test, a trafi do właściwego przedmiotu jako kolejny wykład.</p>${canWrite() ? '<button class="btn primary" data-act="new-subject">Dodaj pierwszy przedmiot</button>' : ''}</div>` + howTo();
+  }
+
+  const st = cardStats(S.notes);
+  const newToday = Math.min(st.fresh, NEW_PER_SESSION);
+  const todo = st.due + newToday;
+  const mins = Math.max(1, Math.round(todo * 9 / 60));
+  h += `<section class="today" aria-label="Powtórka na dziś">
+    <div>
+      <p class="label">Do powtórki dziś</p>
+      <p class="today-num"><span class="big">${st.due}</span>${plural(st.due, 'fiszka', 'fiszki', 'fiszek')}${newToday ? ` <span class="muted">+ ${newToday} ${plural(newToday, 'nowa', 'nowe', 'nowych')}</span>` : ''}</p>
+      <p class="muted small">${todo ? `Około ${mins} min. Najpierw zaległe, potem nowe.` : st.total ? 'Na dziś wszystko powtórzone.' : 'Fiszki pojawią się razem z pierwszym wykładem.'}</p>
+    </div>
+    <div class="today-side">
+      ${todo ? '<button class="btn primary" data-act="review" data-kind="all">Zacznij powtórkę</button>' : ''}
+      ${activity()}
+    </div>
+  </section>`;
+
+  const exams = subs.filter(s => isYmd(s.exam) && daysUntil(s.exam) >= 0).sort((a, b) => a.exam.localeCompare(b.exam));
+  if (exams.length) {
+    h += `<section class="block"><h2 class="h2">Najbliższe egzaminy</h2><ul class="exams">${exams.map(s => {
+      const d = daysUntil(s.exam), ns = notesOf(s.id), c = statusCount(ns);
+      return `<li><button class="exam" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}">
+        <span class="sw"></span><span class="exam-name">${esc(s.name)}${s.example ? ' <span class="tag-ex">przykład</span>' : ''}</span>
+        <span class="exam-date">${esc(fmtDay(s.exam))}</span><span class="pill ${examCls(d)}">${inDays(d)}</span>
+        <span class="exam-prog">Umiesz ${c.umiem} z ${pl(ns.length, 'wykładu', 'wykładów', 'wykładów')}</span></button></li>`;
+    }).join('')}</ul></section>`;
+  }
+
+  h += `<section class="block"><div class="block-head"><h2 class="h2">Przedmioty</h2>${canWrite() ? '<button class="btn ghost sm" data-act="new-subject">+ Dodaj przedmiot</button>' : ''}</div>
+    <div class="subj-grid">${subs.map(subjCard).join('')}</div></section>`;
+
+  const recent = S.notes.slice().sort((a, b) => String(b.addedAt || '').localeCompare(String(a.addedAt || ''))).slice(0, 5);
+  if (recent.length) {
+    h += `<section class="block"><h2 class="h2">Ostatnio dodane</h2><ul class="recent">${recent.map(n => {
+      const s = subjectById(n.subjectId);
+      return `<li><button class="recent-row" data-act="go-note" data-id="${esc(n.id)}" style="${cvar(s && s.stain)}"><span class="sw"></span><span class="recent-title">${esc(n.title || 'Bez tytułu')}</span><span class="muted small">${esc(s ? s.name : 'bez przedmiotu')} · Wykład ${esc(n.nr)}${n.addedAt ? ' · ' + esc(fmtIso(n.addedAt)) : ''}</span></button></li>`;
+    }).join('')}</ul></section>`;
+  }
+  return h + howTo();
+}
+
+function subjCard(s) {
+  const ns = notesOf(s.id), c = statusCount(ns), cs = cardStats(ns);
+  const exam = isYmd(s.exam) && daysUntil(s.exam) >= 0 ? `Egzamin ${inDays(daysUntil(s.exam))}` : 'Bez daty egzaminu';
+  return `<button class="subj-card" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}">
+    <span class="subj-top"><span class="sw lg"></span>${s.example ? '<span class="tag-ex">przykład</span>' : ''}</span>
+    <span class="subj-name">${esc(s.name)}</span>
+    <span class="subj-meta">${pl(ns.length, 'wykład', 'wykłady', 'wykładów')}${cs.due ? ` · <b>${cs.due} do powtórki</b>` : ''}</span>
+    ${bar(c.umiem, c.czytam, ns.length)}
+    <span class="subj-foot">${esc(exam)}</span>
+  </button>`;
+}
+
+function activity() {
+  const t = today(), days = (S.stats && S.stats.days) || {};
+  let cells = '', sum = 0;
+  for (let i = 13; i >= 0; i--) {
+    const d = addDays(t, -i), n = days[d] || 0;
+    sum += n;
+    const lv = n === 0 ? 0 : n < 10 ? 1 : n < 30 ? 2 : n < 60 ? 3 : 4;
+    cells += `<i class="lv${lv}" title="${esc(fmtDay(d, {day: 'numeric', month: 'short'}))}: ${n}"></i>`;
+  }
+  let streak = 0;
+  for (let i = days[t] ? 0 : 1; i < 400; i++) { if (days[addDays(t, -i)]) streak++; else break; }
+  return `<div class="act"><div class="act-cells" aria-hidden="true">${cells}</div>
+    <p class="muted small">Ostatnie 14 dni: ${pl(sum, 'powtórka', 'powtórki', 'powtórek')}${streak > 1 ? ` · seria ${streak} dni` : ''}</p></div>`;
+}
+
+function exampleBanner() {
+  let actions = '';
+  if (canWrite()) actions = S.confirmClear
+    ? `<div class="row wrap"><button class="btn danger sm" data-act="clear-examples-yes">Tak, usuń przykłady</button><button class="btn ghost sm" data-act="clear-examples-no">Anuluj</button></div>`
+    : `<button class="btn sm" data-act="clear-examples">Usuń przykłady</button>`;
+  return `<div class="banner"><div><p class="banner-title">Przykładowe przedmioty i jeden wykład pokazowy</p>
+    <p class="muted small">Pokazują, jak działa strona. Zmień nazwy na swoje przedmioty (przedmiot → Edytuj) albo usuń przykłady jednym kliknięciem. Przedmiot, który edytujesz, przestaje być przykładem.</p></div>${actions}</div>`;
+}
+
+function howTo() {
+  const can = S.subjects.length && canWrite();
+  return `<section class="block"><h2 class="h2">Jak dodać nowy wykład</h2><div class="howto">
+    <div class="how"><h3>Wyślij prezentację w czacie</h3><p>Załącz plik .pptx lub .pdf w rozmowie z Claude i napisz, do którego przedmiotu. Notatki, fiszki i test dopiszą się tutaj same jako kolejny wykład.</p>${can ? '<button class="btn sm" data-act="open-import" data-tab="chat">Skopiuj gotowe polecenie</button>' : ''}</div>
+    ${S.sample ? `<div class="how"><h3>Albo wgraj plik tutaj</h3><p>Claude przeczyta tekst slajdów prosto na tej stronie. Szybko, ale bez obrazów i schematów.</p>${can ? '<button class="btn sm" data-act="open-import" data-tab="file">Wgraj prezentację</button>' : ''}</div>` : ''}
+    <div class="how"><h3>Ucz się aktywnie</h3><p>Czytaj w trybie przypominania, codziennie rób powtórkę fiszek z pulpitu, a przed egzaminem rozwiąż test z całego przedmiotu.</p></div>
+  </div></section>`;
+}
+
+/* ---------- przedmiot ---------- */
+function viewSubject(id) {
+  const s = subjectById(id);
+  if (!s) return gone('Ten przedmiot został usunięty.');
+  const ns = notesOf(id), cs = cardStats(ns), c = statusCount(ns);
+  const qn = ns.reduce((a, n) => a + arr(n.quiz).length, 0);
+  const examLine = isYmd(s.exam)
+    ? `<span>Egzamin ${esc(fmtDay(s.exam, {day: 'numeric', month: 'long', year: 'numeric'}))}</span>${daysUntil(s.exam) >= 0 ? `<span class="pill ${examCls(daysUntil(s.exam))}">${inDays(daysUntil(s.exam))}</span>` : ''}`
+    : '<span>bez daty egzaminu</span>';
+  const sessionCount = cs.due + Math.min(cs.fresh, NEW_PER_SESSION);
+  let h = `<header class="head" style="${cvar(s.stain)}">
+    <p class="eyebrow"><span class="sw"></span>Przedmiot${s.example ? ' · przykład' : ''}</p>
+    <h1>${esc(s.name)}</h1>
+    <p class="head-meta"><span>${pl(ns.length, 'wykład', 'wykłady', 'wykładów')} · ${pl(cs.total, 'fiszka', 'fiszki', 'fiszek')} · ${pl(qn, 'pytanie', 'pytania', 'pytań')} ·</span>${examLine}</p>
+    <div class="actions">
+      <button class="btn primary" data-act="review" data-kind="subject" data-id="${esc(id)}" ${cs.total ? '' : 'disabled'}>Powtórka fiszek${sessionCount ? ` (${sessionCount})` : ''}</button>
+      <button class="btn" data-act="quiz" data-kind="subject" data-id="${esc(id)}" ${qn ? '' : 'disabled'}>Test z przedmiotu</button>
+      ${canWrite() ? `<button class="btn" data-act="open-import" data-id="${esc(id)}">Dodaj wykład</button><button class="btn ghost" data-act="edit-subject" data-id="${esc(id)}">Edytuj</button>` : ''}
+    </div>
+    ${ns.length ? `<div class="subj-prog">${bar(c.umiem, c.czytam, ns.length)}<span class="muted small">Umiesz ${c.umiem} z ${ns.length} · w trakcie ${c.czytam}${cs.total ? ` · fiszki opanowane w ${Math.round(cs.known / cs.total * 100)}%` : ''}</span></div>` : ''}
+  </header>`;
+  if (!ns.length) {
+    h += `<div class="empty"><p class="empty-title">Brak wykładów</p><p class="muted">Wyślij prezentację Claude'owi w czacie albo wgraj ją tutaj. Każdy nowy wykład dopisze się na końcu listy z kolejnym numerem.</p>${canWrite() ? `<button class="btn primary" data-act="open-import" data-id="${esc(id)}">Dodaj pierwszy wykład</button>` : ''}</div>`;
+  } else {
+    h += `<ol class="lectures" style="${cvar(s.stain)}">${ns.map(lecRow).join('')}</ol>`;
+  }
+  return h;
+}
+function lecRow(n) {
+  const p = P(n.id), due = cardStats([n]).due;
+  const meta = [];
+  if (isYmd(n.lectureDate)) meta.push(esc(fmtDay(n.lectureDate)));
+  meta.push(pl(arr(n.flashcards).length, 'fiszka', 'fiszki', 'fiszek'));
+  meta.push(pl(arr(n.quiz).length, 'pytanie', 'pytania', 'pytań'));
+  if (p.quiz) meta.push(`test ${p.quiz.last}%`);
+  if (due) meta.push(`<b>${due} do powtórki</b>`);
+  if (n.example) meta.push('przykład');
+  return `<li><button class="lec" data-act="go-note" data-id="${esc(n.id)}">
+    <span class="lec-nr">${pad2(Number(n.nr) || 0)}</span>
+    <span class="lec-main"><span class="lec-title">${esc(n.title || 'Bez tytułu')}</span><span class="lec-meta">${meta.join(' · ')}</span></span>
+    ${statusChip(statusOf(n.id))}
+  </button></li>`;
+}
+
+/* ---------- wykład ---------- */
+function viewNote(id) {
+  const n = noteById(id);
+  if (!n) return gone('Ten wykład został usunięty.');
+  const s = subjectById(n.subjectId);
+  const ns = s ? notesOf(s.id) : [n];
+  const idx = ns.findIndex(x => x.id === id);
+  const prev = ns[idx - 1], next = ns[idx + 1];
+  const st = statusOf(id), p = P(id), cards = cardsOf(n), qs = arr(n.quiz);
+
+  const secs = [];
+  if (n.summary) secs.push({id: 's-sum', t: 'W skrócie', html: `<div class="md lead">${md(n.summary)}</div>`});
+  if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Najważniejsze na egzamin', recall: true, html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  arr(n.sections).forEach((x, i) => secs.push({id: 's-' + i, t: (x && x.heading) || `Część ${i + 1}`, h: true, recall: true, html: `<div class="md">${md(x && x.body)}</div>`}));
+  if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', recall: true, html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
+  if (arr(n.mnemonics).length) secs.push({id: 's-mn', t: 'Mnemotechniki', html: `<ul class="dot-list">${arr(n.mnemonics).map(x => `<li>${mdi(typeof x === 'string' ? x : (x && x.text))}</li>`).join('')}</ul>`});
+  if (arr(n.clinical).length) secs.push({id: 's-cl', t: 'Znaczenie kliniczne', recall: true, html: `<ul class="dot-list">${arr(n.clinical).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  if (cards.length) secs.push({id: 's-fc', t: `Fiszki (${cards.length})`, html: inlineCards(n, cards)});
+  if (qs.length) secs.push({id: 's-qz', t: `Sprawdź się · ${pl(qs.length, 'pytanie', 'pytania', 'pytań')}`, html: `<div class="qz-teaser"><p>${p.quiz ? `Ostatni wynik: <b>${p.quiz.last}%</b> · najlepszy: ${p.quiz.best}%` : 'Ten test nie był jeszcze rozwiązywany.'}</p><button class="btn primary sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Rozwiąż test</button></div>`});
+
+  const rec = S.recall;
+  const meta = [];
+  if (isYmd(n.lectureDate)) meta.push(`wykład z ${esc(fmtDay(n.lectureDate, {day: 'numeric', month: 'long', year: 'numeric'}))}`);
+  if (n.addedAt) meta.push(`dodano ${esc(fmtIso(n.addedAt))}`);
+  if (n.source) meta.push(`źródło: ${esc(n.source)}`);
+
+  let h = `<header class="head" style="${cvar(s && s.stain)}">
+    <nav class="crumbs" aria-label="Ścieżka">${s ? `<button class="crumb" data-act="go-subject" data-id="${esc(s.id)}"><span class="sw"></span>${esc(s.name)}</button><span aria-hidden="true">/</span>` : ''}<span>Wykład ${esc(n.nr)}</span>${n.example ? '<span class="tag-ex">przykład</span>' : ''}</nav>
+    <h1>${esc(n.title || 'Bez tytułu')}</h1>
+    ${meta.length ? `<p class="head-meta">${cap(meta.join(' · '))}</p>` : ''}
+    <div class="note-bar">
+      <div class="seg" role="group" aria-label="Jak dobrze znasz ten wykład">${['nowe', 'czytam', 'umiem'].map(k => `<button class="seg-b ${st === k ? 'on' : ''}" data-act="set-status" data-val="${k}" aria-pressed="${st === k}">${STATUS[k]}</button>`).join('')}</div>
+      <div class="row wrap">
+        <button class="btn sm ${rec ? 'on' : ''}" data-act="toggle-recall" aria-pressed="${rec}">${rec ? 'Odsłoń wszystko' : 'Tryb przypominania'}</button>
+        ${cards.length ? `<button class="btn sm" data-act="review" data-kind="note" data-id="${esc(id)}">Fiszki</button>` : ''}
+        ${qs.length ? `<button class="btn sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Test</button>` : ''}
+        ${S.sample ? `<button class="btn sm" data-act="ask-open" data-id="${esc(id)}">Zapytaj Claude'a</button>` : ''}
+      </div>
+    </div>
+    ${rec ? '<p class="recall-hint">Najpierw spróbuj z pamięci odtworzyć każdą część, a dopiero potem ją odsłoń.</p>' : ''}
+  </header>
+  <div class="note-grid">
+    <article class="note">${secs.map(x => {
+      const veiled = rec && x.recall && !S.revealed.has(x.id);
+      const body = veiled ? `<div class="veil" data-act="reveal" data-id="${x.id}" role="button" tabindex="0" aria-label="Odsłoń: ${esc(x.t)}">${x.html}<span class="veil-cta"><span>Odsłoń</span></span></div>` : x.html;
+      return `<section class="nsec" id="${x.id}"><h2 class="nsec-t ${x.h ? 'h' : ''}">${esc(x.t)}</h2>${body}</section>`;
+    }).join('')}</article>
+    <aside class="toc" aria-label="Spis treści"><p class="label">Spis treści</p>${secs.map(x => `<button class="toc-i" data-act="toc" data-id="${x.id}">${esc(x.t)}</button>`).join('')}</aside>
+  </div>
+  ${prev || next ? `<nav class="pn" aria-label="Sąsiednie wykłady">${prev ? `<button class="pn-b" data-act="go-note" data-id="${esc(prev.id)}"><span class="label">← Wykład ${esc(prev.nr)}</span><span>${esc(prev.title)}</span></button>` : '<span></span>'}${next ? `<button class="pn-b r" data-act="go-note" data-id="${esc(next.id)}"><span class="label">Wykład ${esc(next.nr)} →</span><span>${esc(next.title)}</span></button>` : '<span></span>'}</nav>` : ''}
+  ${canWrite() ? manageNote(n, idx, ns) : ''}`;
+  return h;
+}
+function inlineCards(n, cards) {
+  const t = today();
+  return `<div class="fc-list">${cards.map(c => {
+    const k = 'fc-' + n.id + '-' + c.key, st = cardSt(c);
+    const tag = st ? (st.d <= t ? 'do powtórki' : 'następna ' + esc(fmtDay(st.d, {day: 'numeric', month: 'short'}))) : '';
+    return `<details class="fc" data-k="${esc(k)}" ${S.openDetails.has(k) ? 'open' : ''}><summary><span>${mdi(c.q)}</span>${tag ? `<span class="fc-st">${tag}</span>` : ''}</summary><div class="fc-a">${mdi(c.a)}</div></details>`;
+  }).join('')}</div>`;
+}
+function manageNote(n, idx, ns) {
+  const subs = subjectsSorted();
+  const del = S.confirmDel === n.id
+    ? `<div class="row wrap"><span>Usunąć ten wykład na stałe?</span><button class="btn danger sm" data-act="note-del-yes" data-id="${esc(n.id)}">Tak, usuń</button><button class="btn ghost sm" data-act="note-del-no">Anuluj</button></div>`
+    : `<button class="btn ghost sm danger-text" data-act="note-del" data-id="${esc(n.id)}">Usuń wykład</button>`;
+  return `<details class="manage" data-k="manage" ${S.openDetails.has('manage') ? 'open' : ''}><summary>Zarządzaj wykładem</summary><div class="manage-body">
+    <div class="row wrap">
+      <button class="btn sm" data-act="note-move" data-dir="-1" data-id="${esc(n.id)}" ${idx <= 0 ? 'disabled' : ''}>Przesuń wcześniej</button>
+      <button class="btn sm" data-act="note-move" data-dir="1" data-id="${esc(n.id)}" ${idx >= ns.length - 1 ? 'disabled' : ''}>Przesuń później</button>
+    </div>
+    <div class="field-inline"><label for="mv-sub">Przenieś do przedmiotu</label><select id="mv-sub" data-id="${esc(n.id)}">${subs.map(x => `<option value="${esc(x.id)}" ${x.id === n.subjectId ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+    ${del}
+  </div></details>`;
+}
+
+/* ---------- wyszukiwanie ---------- */
+function viewSearch() {
+  const q = S.q.trim(), fq = fold(q);
+  let h = `<header class="head"><p class="eyebrow">Wyszukiwanie</p><h1>„${esc(q)}”</h1></header>`;
+  if (q.length < 2) return h + '<p class="muted">Wpisz co najmniej dwa znaki.</p>';
+  const res = [];
+  for (const n of S.notes) {
+    const fields = [['Tytuł', n.title], ['W skrócie', n.summary]]
+      .concat(arr(n.highYield).map(x => ['Najważniejsze', x]))
+      .concat(arr(n.sections).map(x => [(x && x.heading) || 'Notatki', ((x && x.heading) || '') + ' — ' + ((x && x.body) || '')]))
+      .concat(arr(n.terms).map(x => ['Pojęcia', `${x && x.term} — ${x && x.def}`]))
+      .concat(arr(n.clinical).map(x => ['Znaczenie kliniczne', x]))
+      .concat(arr(n.flashcards).map(x => ['Fiszka', `${x && x.q} — ${x && x.a}`]))
+      .concat(arr(n.tags).map(x => ['Tag', x]));
+    let hits = 0, first = null;
+    for (const [label, raw] of fields) {
+      const txt = plain(raw), f = fold(txt);
+      let i = f.indexOf(fq);
+      if (i >= 0 && !first) first = {label, txt, i};
+      while (i >= 0) { hits++; i = f.indexOf(fq, i + fq.length); }
+    }
+    if (hits) res.push({n, hits, first, titleHit: fold(n.title || '').includes(fq) ? 1 : 0});
+  }
+  res.sort((a, b) => (b.titleHit - a.titleHit) || (b.hits - a.hits));
+  if (!res.length) return h + '<p class="muted">Nic nie znaleziono. Spróbuj innego słowa albo krótszej frazy.</p>';
+  h += `<p class="muted" style="margin:0 0 12px">${pl(res.length, 'wykład', 'wykłady', 'wykładów')}</p><ul class="results">`;
+  for (const r of res) {
+    const s = subjectById(r.n.subjectId), f = r.first;
+    const a = Math.max(0, f.i - 70), b = Math.min(f.txt.length, f.i + fq.length + 90);
+    const snip = (a > 0 ? '…' : '') + esc(f.txt.slice(a, f.i)) + '<mark>' + esc(f.txt.slice(f.i, f.i + fq.length)) + '</mark>' + esc(f.txt.slice(f.i + fq.length, b)) + (b < f.txt.length ? '…' : '');
+    h += `<li><button class="res" data-act="go-note" data-id="${esc(r.n.id)}" style="${cvar(s && s.stain)}">
+      <span class="res-src"><span class="sw"></span>${esc(s ? s.name : '')} · Wykład ${esc(r.n.nr)} · ${pl(r.hits, 'trafienie', 'trafienia', 'trafień')}</span>
+      <span class="res-title">${esc(r.n.title)}</span><span class="res-snip">${esc(f.label || '')}: ${snip}</span></button></li>`;
+  }
+  return h + '</ul>';
+}
+
+/* ================= nawigacja i akcje ================= */
+function go(view) {
+  S.view = view;
+  S.revealed.clear();
+  S.confirmDel = null;
+  if (view.name !== 'search' && S.q) { S.q = ''; $('#q').value = ''; }
+  render();
+  window.scrollTo(0, 0);
+  $('#main').focus({preventScroll: true});
+}
+function openNote(id) {
+  go({name: 'note', id});
+  if (noteById(id) && statusOf(id) === 'nowe') {
+    const p = clone(P(id));
+    p.status = 'czytam';
+    p.readAt = new Date().toISOString();
+    S.prog[id] = p;
+    saveProg(id);
+    render();
+  }
+}
+function setStatus(id, val) {
+  const p = clone(P(id));
+  p.status = val;
+  S.prog[id] = p;
+  saveProg(id);
+  renderMain();
+}
+function dbErr(e) {
+  const c = e && e.code;
+  if (c === 'quota_exceeded') return 'Baza strony jest pełna. Usuń stare wykłady, żeby zrobić miejsce.';
+  if (c === 'invalid_argument') return 'Nie masz uprawnień do zmian na tej stronie albo dane są nieprawidłowe.';
+  if (c === 'resource_exhausted') return 'Za dużo zapisów naraz. Spróbuj za chwilę.';
+  return 'Nie udało się zapisać. Spróbuj ponownie.';
+}
+let tt = 0;
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(tt);
+  tt = setTimeout(() => { t.hidden = true; }, 3400);
+}
+async function renumber(list) {
+  for (let k = 0; k < list.length; k++) {
+    if (Number(list[k].nr) !== k + 1) await S.db.doc('notes/' + list[k].id).update({nr: k + 1});
+  }
+}
+async function moveNote(id, dir) {
+  const n = noteById(id);
+  if (!n) return;
+  const ns = notesOf(n.subjectId), i = ns.findIndex(x => x.id === id), j = i + dir;
+  if (j < 0 || j >= ns.length) return;
+  [ns[i], ns[j]] = [ns[j], ns[i]];
+  try { await renumber(ns); toast(`Teraz to Wykład ${j + 1}`); } catch (e) { toast(dbErr(e)); }
+}
+async function transferNote(id, sid) {
+  const n = noteById(id), s = subjectById(sid);
+  if (!n || !s || n.subjectId === sid) return;
+  const oldList = notesOf(n.subjectId).filter(x => x.id !== id);
+  const nr = nextNr(sid);
+  try {
+    await S.db.doc('notes/' + id).update({subjectId: sid, nr});
+    await renumber(oldList);
+    toast(`Przeniesiono do: ${s.name} (Wykład ${nr})`);
+  } catch (e) { toast(dbErr(e)); }
+}
+async function deleteNote(id) {
+  const n = noteById(id);
+  if (!n) return;
+  const sid = n.subjectId, rest = notesOf(sid).filter(x => x.id !== id);
+  try {
+    await S.db.doc('notes/' + id).delete();
+    await renumber(rest);
+    toast('Usunięto wykład.');
+    go(subjectById(sid) ? {name: 'subject', id: sid} : {name: 'home'});
+  } catch (e) { toast(dbErr(e)); }
+}
+async function deleteSubject(id) {
+  const ns = notesOf(id);
+  try {
+    for (const n of ns) await S.db.doc('notes/' + n.id).delete();
+    await S.db.doc('subjects/' + id).delete();
+    closeOv();
+    go({name: 'home'});
+    toast('Usunięto przedmiot.');
+  } catch (e) { toast(dbErr(e)); }
+}
+async function clearExamples() {
+  S.confirmClear = false;
+  const exNotes = S.notes.filter(n => n.example);
+  const keep = new Set(S.notes.filter(n => !n.example).map(n => n.subjectId));
+  const exSubs = S.subjects.filter(s => s.example);
+  try {
+    for (const n of exNotes) await S.db.doc('notes/' + n.id).delete();
+    for (const s of exSubs) {
+      if (keep.has(s.id)) await S.db.doc('subjects/' + s.id).update({example: false});
+      else await S.db.doc('subjects/' + s.id).delete();
+    }
+    toast('Usunięto przykłady.');
+    go({name: 'home'});
+  } catch (e) { toast(dbErr(e)); }
+}
+
+/* ================= nakładki ================= */
+function openOv() {
+  $('#ov').hidden = false;
+  document.body.classList.add('locked');
+  renderOv();
+}
+function closeOv() {
+  if (S.ov && S.ov.ctl) { try { S.ov.ctl.abort(); } catch (e) {} }
+  S.ov = null;
+  const el = $('#ov');
+  el.hidden = true;
+  el.innerHTML = '';
+  document.body.classList.remove('locked');
+  render();
+}
+function renderOv() {
+  const o = S.ov;
+  if (!o) return;
+  const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy);
+  const body = o.type === 'review' ? ovReview(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : ovAsk(o);
+  const el = $('#ov');
+  el.innerHTML = `<div class="ov-scrim" ${locked ? '' : 'data-act="close-ov"'}></div><div class="panel panel-${o.type}" role="dialog" aria-modal="true" tabindex="-1">${body}</div>`;
+  const af = el.querySelector('[autofocus]') || el.querySelector('.panel');
+  if (af) af.focus({preventScroll: true});
+}
+const ovHead = (title, closable = true, extra = '') =>
+  `<div class="ov-head"><h2 class="ov-title">${esc(title)}</h2>${extra}${closable ? `<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button>` : ''}</div>`;
+const ovHeadLabel = (label, extra = '') =>
+  `<div class="ov-head"><p class="label">${esc(label)}</p>${extra}<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button></div>`;
+
+function scopeNotes(kind, id) {
+  if (kind === 'subject') return notesOf(id);
+  if (kind === 'note') return [noteById(id)].filter(Boolean);
+  return S.notes;
+}
+function scopeLabel(kind, id, what) {
+  if (kind === 'subject') { const s = subjectById(id); return `${what} · ${s ? s.name : ''}`; }
+  if (kind === 'note') { const n = noteById(id); return `${what} · Wykład ${n ? n.nr : ''}`; }
+  return `${what} · wszystkie przedmioty`;
+}
+
+/* ---------- powtórka fiszek (pudełka Leitnera) ---------- */
+function startReview(kind, id) {
+  const notes = scopeNotes(kind, id), t = today();
+  const due = [], fresh = [];
+  for (const n of notes) for (const c of cardsOf(n)) {
+    const st = cardSt(c);
+    if (!st) fresh.push(c); else if (st.d <= t) due.push(c);
+  }
+  let q = shuffle(due).concat(kind === 'note' ? fresh : shuffle(fresh).slice(0, NEW_PER_SESSION));
+  let cram = false;
+  if (!q.length && kind !== 'all') { q = shuffle(notes.flatMap(cardsOf)); cram = true; }
+  if (!q.length) { toast('Na dziś wszystko powtórzone.'); return; }
+  S.ov = {type: 'review', kind, id, q, i: 0, flipped: false, tally: {1: 0, 2: 0, 3: 0}, cram, label: scopeLabel(kind, id, cram ? 'Przegląd fiszek' : 'Powtórka')};
+  openOv();
+}
+function rate(r) {
+  const o = S.ov, c = o.q[o.i];
+  if (!c) return;
+  const p = clone(P(c.noteId));
+  if (!p.cards) p.cards = {};
+  const st = p.cards[c.key] || {b: 0}, t = today();
+  let b, d;
+  if (r === 1) { b = 0; d = t; o.q.splice(Math.min(o.i + 4, o.q.length), 0, c); }
+  else if (r === 2) { b = Math.max(1, st.b || 0); d = addDays(t, 1); }
+  else { b = Math.min((st.b || 0) + 1, 6); d = addDays(t, INTERVALS[b]); }
+  p.cards[c.key] = {b, d};
+  S.prog[c.noteId] = p;
+  saveProg(c.noteId);
+  bumpStats();
+  o.tally[r]++;
+  o.i++;
+  o.flipped = false;
+  renderOv();
+}
+function ovReview(o) {
+  const total = o.q.length;
+  if (o.i >= total) {
+    const n = o.tally[1] + o.tally[2] + o.tally[3];
+    return ovHeadLabel(o.label) + `<div class="done"><p class="done-big">Gotowe</p>
+      <p>${pl(n, 'odpowiedź', 'odpowiedzi', 'odpowiedzi')}: pamiętam ${o.tally[3]}, z trudem ${o.tally[2]}, nie pamiętam ${o.tally[1]}.</p>
+      <p class="muted">Kolejne powtórki ułożyły się według tego, jak poszło. Trudne fiszki wrócą szybciej.</p>
+      <div class="row"><button class="btn primary" data-act="close-ov" autofocus>Zamknij</button></div></div>`;
+  }
+  const c = o.q[o.i], n = noteById(c.noteId), s = n && subjectById(n.subjectId);
+  const st = cardSt(c) || {b: 0};
+  const good = INTERVALS[Math.min((st.b || 0) + 1, 6)];
+  return ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${total}</span>`) +
+    `<div class="prog"><i style="width:${o.i / total * 100}%"></i></div>
+    <div class="card" style="${cvar(s && s.stain)}">
+      <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')} · Wykład ${esc(n ? n.nr : '')}${cardSt(c) ? '' : ' · <b>nowa</b>'}</p>
+      <div class="card-q">${mdi(c.q)}</div>
+      ${o.flipped ? `<div class="card-a">${mdi(c.a)}</div>` : ''}
+    </div>
+    ${o.flipped ? `<div class="rate">
+      <button class="btn rate-b r1" data-act="rate" data-r="1"><b>Nie pamiętam</b><span>jeszcze dziś · 1</span></button>
+      <button class="btn rate-b r2" data-act="rate" data-r="2"><b>Z trudem</b><span>jutro · 2</span></button>
+      <button class="btn rate-b r3" data-act="rate" data-r="3"><b>Pamiętam</b><span>${good === 1 ? 'jutro' : `za ${good} dni`} · 3</span></button>
+    </div>` : `<div class="rate"><button class="btn primary wide" data-act="flip" autofocus>Pokaż odpowiedź <span class="kbd">spacja</span></button></div>`}`;
+}
+
+/* ---------- test ---------- */
+function startQuiz(kind, id) {
+  const notes = scopeNotes(kind, id);
+  let qs = notes.flatMap(n => arr(n.quiz).filter(q => q && q.q && arr(q.options).length > 1).map(q => ({...q, noteId: n.id})));
+  if (!qs.length) { toast('Brak pytań testowych w tych notatkach.'); return; }
+  qs = shuffle(qs).slice(0, kind === 'note' ? qs.length : 25);
+  S.ov = {type: 'quiz', kind, id, qs, i: 0, picked: null, correct: 0, per: {}, wrong: [], label: scopeLabel(kind, id, 'Test')};
+  openOv();
+}
+function pick(k) {
+  const o = S.ov;
+  if (!o || o.picked !== null) return;
+  const q = o.qs[o.i], ok = k === Number(q.answer);
+  o.picked = k;
+  if (ok) o.correct++; else o.wrong.push(q);
+  const r = o.per[q.noteId] || (o.per[q.noteId] = {c: 0, t: 0});
+  r.t++;
+  if (ok) r.c++;
+  renderOv();
+}
+function quizNext() {
+  const o = S.ov;
+  if (!o || o.picked === null) return;
+  o.i++;
+  o.picked = null;
+  if (o.i >= o.qs.length) {
+    for (const [nid, r] of Object.entries(o.per)) {
+      const p = clone(P(nid)), pct = Math.round(r.c / r.t * 100);
+      p.quiz = {last: pct, best: Math.max(pct, (p.quiz && p.quiz.best) || 0), at: today()};
+      S.prog[nid] = p;
+      saveProg(nid);
+    }
+  }
+  renderOv();
+}
+function ovQuiz(o) {
+  if (o.i >= o.qs.length) {
+    const pct = Math.round(o.correct / o.qs.length * 100);
+    const verdict = pct >= 85 ? 'Bardzo dobrze. Ten materiał już siedzi.' : pct >= 60 ? 'Nieźle. Wróć do pytań, w których był błąd.' : 'Warto jeszcze raz przeczytać notatki i powtórzyć fiszki.';
+    return ovHeadLabel(o.label) + `<div class="done"><p class="done-big">${pct}%</p><p>${o.correct} z ${o.qs.length} poprawnie.</p><p class="muted">${verdict}</p>
+      ${o.wrong.length ? `<div class="wrong"><p class="label">Do poprawki</p><ul>${o.wrong.map(w => `<li>${mdi(w.q)}<br><span class="muted">Poprawna odpowiedź: ${mdi(arr(w.options)[w.answer])}</span></li>`).join('')}</ul></div>` : ''}
+      <div class="row"><button class="btn" data-act="quiz-again">Jeszcze raz</button><button class="btn primary" data-act="close-ov" autofocus>Zamknij</button></div></div>`;
+  }
+  const q = o.qs[o.i], answered = o.picked !== null, ans = Number(q.answer);
+  const n = noteById(q.noteId);
+  return ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${o.qs.length}</span>`) +
+    `<div class="prog"><i style="width:${o.i / o.qs.length * 100}%"></i></div>
+    <div class="qz">
+      ${o.kind !== 'note' && n ? `<p class="label">Wykład ${esc(n.nr)} · ${esc(n.title)}</p>` : ''}
+      <p class="qz-q">${mdi(q.q)}</p>
+      <div class="qz-opts">${arr(q.options).map((op, k) => {
+        const cls = !answered ? '' : k === ans ? 'ok' : k === o.picked ? 'no' : 'dim';
+        return `<button class="qz-o ${cls}" data-act="quiz-pick" data-k="${k}" ${answered ? 'disabled' : ''}><span class="qz-l">${'ABCDEF'[k]}</span><span>${mdi(op)}</span></button>`;
+      }).join('')}</div>
+      ${answered ? `<div class="qz-why"><p><b>${o.picked === ans ? 'Dobrze.' : 'Niestety nie.'}</b> ${mdi(q.why || '')}</p></div>
+      <div class="rate"><button class="btn primary wide" data-act="quiz-next" autofocus>${o.i + 1 < o.qs.length ? 'Następne pytanie' : 'Zobacz wynik'} <span class="kbd">Enter</span></button></div>` : ''}
+    </div>`;
+}
+
+/* ---------- przedmiot: dodaj / edytuj ---------- */
+function ovSubject(o) {
+  const s = o.id ? subjectById(o.id) : null;
+  const stain = (s && s.stain) || STAINS[S.subjects.length % STAINS.length].k;
+  return ovHead(s ? 'Edytuj przedmiot' : 'Nowy przedmiot') + `<form id="subj-form" class="form" novalidate>
+    <div class="field"><label for="sf-name">Nazwa</label><input id="sf-name" type="text" maxlength="80" value="${esc(s ? s.name : '')}" placeholder="np. Anatomia" autocomplete="off" autofocus></div>
+    <fieldset class="field"><legend>Kolor</legend><div class="stains">${STAINS.map(x => `<label class="stain-opt" style="--c:var(--s-${x.k})"><input class="sr" type="radio" name="sf-stain" id="sf-st-${x.k}" value="${x.k}" ${x.k === stain ? 'checked' : ''}><span class="sw"></span><span>${x.n}</span></label>`).join('')}</div>
+      <p class="muted small" style="margin:6px 0 0">Kolory nazwane od barwników histologicznych.</p></fieldset>
+    <div class="field"><label for="sf-exam">Data egzaminu <span class="muted">(opcjonalnie)</span></label><input id="sf-exam" type="date" value="${esc(s && isYmd(s.exam) ? s.exam : '')}"></div>
+    <p class="form-err" id="sf-err" hidden></p>
+    <div class="row end"><button type="button" class="btn ghost" data-act="close-ov">Anuluj</button><button type="submit" class="btn primary">${s ? 'Zapisz' : 'Dodaj przedmiot'}</button></div>
+    ${s ? delZone(s) : ''}
+  </form>`;
+}
+function delZone(s) {
+  const n = notesOf(s.id).length;
+  return `<div class="danger-zone" id="del-zone"><button type="button" class="btn ghost sm danger-text" data-act="subj-del" data-id="${esc(s.id)}">Usuń przedmiot${n ? ` razem z ${pl(n, 'wykładem', 'wykładami', 'wykładami')}` : ''}</button></div>`;
+}
+async function submitSubject() {
+  const o = S.ov;
+  const name = $('#sf-name').value.trim();
+  const stainEl = document.querySelector('input[name="sf-stain"]:checked');
+  const stain = stainEl ? stainEl.value : 'hema';
+  const exam = $('#sf-exam').value;
+  const err = $('#sf-err');
+  if (!name) { err.textContent = 'Podaj nazwę przedmiotu.'; err.hidden = false; return; }
+  if (exam && !isYmd(exam)) { err.textContent = 'Data egzaminu ma zły format.'; err.hidden = false; return; }
+  try {
+    if (o.id) {
+      await S.db.doc('subjects/' + o.id).update({name, stain, exam: exam || null, example: false});
+      closeOv();
+      toast('Zapisano zmiany.');
+    } else {
+      const order = S.subjects.reduce((m, s) => Math.max(m, Number(s.order) || 0), 0) + 1;
+      const id = slug(name);
+      await S.db.collection('subjects').doc(id).set({name, stain, exam: exam || null, order, createdAt: new Date().toISOString()});
+      closeOv();
+      go({name: 'subject', id});
+      toast(`Dodano przedmiot: ${name}`);
+    }
+  } catch (e) { err.textContent = dbErr(e); err.hidden = false; }
+}
+
+/* ---------- dodawanie wykładu ---------- */
+function chatPrompt(s) {
+  const url = S.meta && S.meta.url;
+  return `Przerób załączoną prezentację na notatki do nauki i dodaj je jako kolejny wykład do przedmiotu „${s ? s.name : '…'}” na mojej stronie Atlas Wykładów${url ? `: ${url}` : ''}.`;
+}
+function ovImport(o) {
+  const subs = subjectsSorted();
+  if (!subjectById(o.sid) && subs[0]) o.sid = subs[0].id;
+  const s = subjectById(o.sid);
+  const busy = o.stage === 'extract' || o.stage === 'gen';
+  let h = ovHead('Dodaj wykład', !busy);
+  if (!s) return h + `<p style="margin:0">Najpierw dodaj przedmiot, do którego trafi wykład.</p><div class="row end"><button class="btn primary" data-act="new-subject">Dodaj przedmiot</button></div>`;
+  const nr = nextNr(s.id);
+  h += `<div class="imp-sub"><div class="field"><label for="imp-sub">Przedmiot</label><select id="imp-sub" ${busy ? 'disabled' : ''}>${subs.map(x => `<option value="${esc(x.id)}" ${x.id === o.sid ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
+    <p class="imp-nr" style="${cvar(s.stain)}"><span class="sw"></span>zapisze się jako <b>Wykład ${nr}</b></p></div>`;
+  const tab = S.sample ? o.tab : 'chat';
+  h += `<div class="tabs" role="tablist"><button role="tab" class="tab ${tab === 'chat' ? 'on' : ''}" aria-selected="${tab === 'chat'}" data-act="imp-tab" data-tab="chat" ${busy ? 'disabled' : ''}>Wyślij w czacie</button>${S.sample ? `<button role="tab" class="tab ${tab === 'file' ? 'on' : ''}" aria-selected="${tab === 'file'}" data-act="imp-tab" data-tab="file" ${busy ? 'disabled' : ''}>Wgraj plik tutaj</button>` : ''}</div>`;
+
+  if (tab === 'chat') {
+    return h + `<ol class="steps"><li>Skopiuj polecenie.</li><li>W rozmowie z Claude załącz prezentację (.pptx lub .pdf) i wklej polecenie. Plik może też leżeć na Dysku Google, wtedy wystarczy podać jego nazwę.</li><li>Notatki, fiszki i pytania pojawią się tutaj same jako Wykład ${nr}.</li></ol>
+      <div class="copybox"><label for="copy-src" class="label">Polecenie</label><textarea id="copy-src" rows="3" readonly>${esc(chatPrompt(s))}</textarea><div class="row"><button class="btn primary" data-act="copy-prompt">Kopiuj polecenie</button></div></div>
+      <p class="muted small" style="margin:0">To najlepsza droga: w czacie Claude widzi też obrazy, schematy i tabele ze slajdów.</p>`;
+  }
+  if (o.stage === 'extract' || o.stage === 'gen') {
+    return h + `<div class="working"><div class="spinner" aria-hidden="true"></div><p id="imp-live" aria-live="polite">${esc(o.status || 'Pracuję…')}</p>
+      ${o.stage === 'gen' ? `<p class="muted small">Zwykle trwa to od pół minuty do dwóch minut.${o.cut ? ' Plik był bardzo długi, więc Claude dostał pierwsze 120 tys. znaków.' : ''}</p><button class="btn" data-act="imp-stop">Zatrzymaj</button>` : ''}</div>`;
+  }
+  if (o.stage === 'error') {
+    return h + `<div class="working err"><p><b>Nie udało się.</b> ${esc(o.err)}</p><div class="row wrap"><button class="btn" data-act="imp-reset">Wróć</button><button class="btn primary" data-act="imp-tab" data-tab="chat">Wyślij w czacie</button></div></div>`;
+  }
+  if (o.stage === 'preview' && o.result) {
+    const r = o.result;
+    return h + `<div class="preview">
+      <div class="field"><label for="imp-title">Tytuł wykładu</label><input id="imp-title" type="text" maxlength="200" value="${esc(r.title)}"></div>
+      <p class="muted small" style="margin:0">${pl(r.sections.length, 'część', 'części', 'części')} · ${pl(r.flashcards.length, 'fiszka', 'fiszki', 'fiszek')} · ${pl(r.quiz.length, 'pytanie', 'pytania', 'pytań')} · ${pl(r.terms.length, 'pojęcie', 'pojęcia', 'pojęć')}</p>
+      <div class="md">${md(r.summary)}</div>
+      ${r.highYield.length ? `<ul class="hy-list">${r.highYield.slice(0, 5).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}
+      <div class="row end"><button class="btn ghost" data-act="imp-reset">Od nowa</button><button class="btn primary" data-act="imp-save" ${o.saving ? 'disabled' : ''}>${o.saving ? 'Zapisuję…' : `Zapisz jako Wykład ${nr}`}</button></div>
+    </div>`;
+  }
+  const f = o.file;
+  return h + `<label class="drop" for="imp-file"><input id="imp-file" class="sr" type="file" accept=".pptx,.pdf,.docx,.txt,.md">
+      <span class="drop-title">${f ? esc(f.name) : 'Wybierz plik albo upuść go tutaj'}</span>
+      <span class="muted small">${f ? `${(f.size / 1048576).toFixed(1)} MB · kliknij, żeby zmienić` : 'PowerPoint (.pptx), PDF, Word (.docx) albo plik tekstowy'}</span></label>
+    <details class="paste" data-k="imp-paste" ${o.text || S.openDetails.has('imp-paste') ? 'open' : ''}><summary>albo wklej tekst</summary><label for="imp-text" class="sr">Tekst wykładu</label><textarea id="imp-text" rows="6" placeholder="Wklej treść slajdów albo własne notatki…">${esc(o.text || '')}</textarea></details>
+    <p class="muted small" style="margin:0">Tutaj Claude czyta sam tekst slajdów. Jeśli prezentacja to głównie obrazy i schematy, lepiej wyślij ją w czacie.</p>
+    <div class="row end"><button class="btn primary" id="imp-run" data-act="imp-run" ${f || (o.text || '').trim() ? '' : 'disabled'}>Utwórz notatki</button></div>`;
+}
+function setLive(msg) {
+  if (S.ov) S.ov.status = msg;
+  const el = $('#imp-live');
+  if (el) el.textContent = msg;
+}
+function impError(msg) {
+  const o = S.ov;
+  if (!o) return;
+  o.stage = 'error';
+  o.err = msg;
+  o.ctl = null;
+  renderOv();
+}
+function sampleErr(e) {
+  const c = e && e.code;
+  return ({
+    not_granted: 'Strona nie ma zgody na korzystanie z Claude. Zmień to w uprawnieniach strony albo wyślij plik w czacie.',
+    rate_limited: 'Za dużo zapytań naraz albo wyczerpany limit. Spróbuj za chwilę.',
+    prompt_too_large: 'Prezentacja jest za długa. Podziel ją na części.',
+    invalid_json: 'Claude zwrócił niepełne notatki, pewnie przez długość prezentacji. Spróbuj ponownie albo podziel plik na części.',
+    refused: 'Claude odmówił przetworzenia tego tekstu.',
+    session_expired: 'Sesja wygasła. Zaloguj się ponownie.',
+    sampling_disabled: 'Claude nie jest dostępny dla tego konta.',
+  })[c] || 'Coś poszło nie tak po stronie Claude. Spróbuj ponownie.';
+}
+
+const loadedLibs = {};
+function loadScript(src) {
+  return loadedLibs[src] || (loadedLibs[src] = new Promise((res, rej) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = () => res();
+    s.onerror = () => { delete loadedLibs[src]; rej(new Error('Nie udało się wczytać czytnika plików. Sprawdź połączenie i spróbuj ponownie.')); };
+    document.head.appendChild(s);
+  }));
+}
+const parseXml = x => new DOMParser().parseFromString(x, 'application/xml');
+function xmlParas(doc, pTag, tTag) {
+  const out = [];
+  for (const p of doc.getElementsByTagName(pTag)) {
+    let t = '';
+    for (const n of p.getElementsByTagName(tTag)) t += n.textContent;
+    t = t.replace(/\s+/g, ' ').trim();
+    if (t) out.push(t);
+  }
+  return out;
+}
+async function pptxText(file, say) {
+  await loadScript(LIB.jszip);
+  const zip = await window.JSZip.loadAsync(await file.arrayBuffer());
+  const read = p => zip.file(p) ? zip.file(p).async('string') : Promise.resolve(null);
+  let order = [];
+  try {
+    const pres = parseXml(await read('ppt/presentation.xml'));
+    const rels = parseXml(await read('ppt/_rels/presentation.xml.rels'));
+    const map = {};
+    for (const r of rels.getElementsByTagName('Relationship')) map[r.getAttribute('Id')] = r.getAttribute('Target');
+    for (const sl of pres.getElementsByTagName('p:sldId')) {
+      const t = map[sl.getAttribute('r:id')];
+      if (t) order.push('ppt/' + t.replace(/^\/?ppt\//, ''));
+    }
+  } catch (e) { order = []; }
+  if (!order.length) {
+    const num = n => Number((n.match(/(\d+)\.xml$/) || [])[1]) || 0;
+    order = Object.keys(zip.files).filter(n => /^ppt\/slides\/slide\d+\.xml$/.test(n)).sort((a, b) => num(a) - num(b));
+  }
+  const out = [];
+  for (let i = 0; i < order.length; i++) {
+    say(`Czytam slajd ${i + 1} z ${order.length}…`);
+    const xml = await read(order[i]);
+    if (!xml) continue;
+    const lines = xmlParas(parseXml(xml), 'a:p', 'a:t');
+    let notes = [];
+    const rx = await read(order[i].replace(/slides\/(slide\d+\.xml)$/, 'slides/_rels/$1.rels'));
+    if (rx) {
+      for (const r of parseXml(rx).getElementsByTagName('Relationship')) {
+        if (/notesSlide$/.test(r.getAttribute('Type') || '')) {
+          const nx = await read('ppt/' + String(r.getAttribute('Target')).replace(/^\.\.\//, ''));
+          if (nx) notes = xmlParas(parseXml(nx), 'a:p', 'a:t').filter(l => !/^\d+$/.test(l));
+        }
+      }
+    }
+    out.push(`--- Slajd ${i + 1} ---\n${lines.join('\n')}${notes.length ? `\n[Notatki prowadzącego] ${notes.join(' ')}` : ''}`);
+  }
+  return out.join('\n\n');
+}
+async function pdfText(file, say) {
+  await loadScript(LIB.pdfw);   // definiuje globalny pdfjsWorker, więc pdf.js działa bez osobnego wątku
+  await loadScript(LIB.pdf);
+  const lib = window.pdfjsLib;
+  lib.GlobalWorkerOptions.workerSrc = LIB.pdfw;
+  const pdf = await lib.getDocument({data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false, disableFontFace: true}).promise;
+  const out = [];
+  for (let i = 1; i <= pdf.numPages; i++) {
+    say(`Czytam stronę ${i} z ${pdf.numPages}…`);
+    const tc = await (await pdf.getPage(i)).getTextContent();
+    let t = '';
+    for (const it of tc.items) t += (it.str || '') + (it.hasEOL ? '\n' : ' ');
+    out.push(`--- Strona ${i} ---\n` + t.replace(/[ \t]+/g, ' ').replace(/\n\s*\n+/g, '\n').trim());
+  }
+  return out.join('\n\n');
+}
+async function docxText(file) {
+  await loadScript(LIB.jszip);
+  const zip = await window.JSZip.loadAsync(await file.arrayBuffer());
+  const f = zip.file('word/document.xml');
+  if (!f) throw new Error('Nie znaleziono treści dokumentu.');
+  return xmlParas(parseXml(await f.async('string')), 'w:p', 'w:t').join('\n');
+}
+async function extractText(file, say) {
+  const name = file.name.toLowerCase();
+  if (file.size > 80 * 1048576) throw new Error('Plik jest za duży (ponad 80 MB).');
+  if (/\.(ppt|doc)$/.test(name)) throw new Error('To stary format pliku (.ppt lub .doc). Zapisz go jako .pptx albo PDF i spróbuj ponownie.');
+  if (name.endsWith('.pptx')) return pptxText(file, say);
+  if (name.endsWith('.pdf')) return pdfText(file, say);
+  if (name.endsWith('.docx')) { say('Czytam dokument…'); return docxText(file); }
+  return file.text();
+}
+function genPrompt(s, fname, text) {
+  return `Jesteś asystentem studenta. Na podstawie tekstu prezentacji z wykładu przygotuj notatki do nauki w języku polskim.
+
+Przedmiot: ${s.name}
+Plik: ${fname}
+
+Zasady:
+- Trzymaj się treści prezentacji i zachowaj kolejność tematów. Oczywiste luki możesz krótko uzupełnić wiedzą podręcznikową, ale niczego nie zmyślaj. Pomiń slajdy bez treści (tytułowe, podziękowania, bibliografia).
+- Pisz zwięźle, w punktach. Kluczowe pojęcia i wartości liczbowe wyróżniaj **pogrubieniem**. Porównania i klasyfikacje podawaj jako tabele Markdown.
+- Fiszki: jedno pytanie to jeden konkretny fakt; odpowiedź krótka.
+- Pytania testowe: jednokrotnego wyboru, 4 odpowiedzi, wiarygodne błędne odpowiedzi, krótkie wyjaśnienie poprawnej. Zmieniaj pozycję poprawnej odpowiedzi.
+- "clinical": znaczenie kliniczne lub praktyczne, tylko jeśli pasuje do przedmiotu; inaczej pusta lista.
+- "mnemonics": tylko jeśli naprawdę pomagają zapamiętać; inaczej pusta lista.
+
+Odpowiedz WYŁĄCZNIE jednym obiektem JSON o kształcie:
+{"title": "krótki tytuł wykładu",
+ "summary": "2–4 zdania: o czym jest wykład",
+ "highYield": ["5–10 najważniejszych faktów na egzamin"],
+ "sections": [{"heading": "tytuł części", "body": "treść w Markdown: listy, pogrubienia, tabele"}],
+ "terms": [{"term": "pojęcie", "def": "krótka definicja"}],
+ "mnemonics": ["..."],
+ "clinical": ["..."],
+ "flashcards": [{"q": "pytanie", "a": "odpowiedź"}],
+ "quiz": [{"q": "pytanie", "options": ["...", "...", "...", "..."], "answer": 0, "why": "wyjaśnienie"}],
+ "tags": ["2–5 krótkich tagów"]}
+Liczebność: sections 4–10, terms 5–15, flashcards 10–25, quiz 6–12. "answer" to indeks poprawnej odpowiedzi (0–3).
+
+TEKST PREZENTACJI:
+"""
+${text}
+"""`;
+}
+function normNote(r) {
+  r = r && typeof r === 'object' && !Array.isArray(r) ? r : {};
+  const str = v => typeof v === 'string' ? v.trim() : (v == null ? '' : String(v));
+  const strs = v => arr(v).map(x => typeof x === 'string' ? x : (x && (x.text || x.content)) || '').map(str).filter(Boolean);
+  return {
+    title: str(r.title).slice(0, 200),
+    summary: str(r.summary),
+    highYield: strs(r.highYield),
+    sections: arr(r.sections).map(x => ({heading: str(x && x.heading), body: str(x && x.body)})).filter(x => x.heading || x.body),
+    terms: arr(r.terms).map(x => ({term: str(x && x.term), def: str(x && x.def)})).filter(x => x.term),
+    mnemonics: strs(r.mnemonics),
+    clinical: strs(r.clinical),
+    flashcards: arr(r.flashcards).map(x => ({q: str(x && x.q), a: str(x && x.a)})).filter(x => x.q && x.a),
+    quiz: arr(r.quiz).map(x => {
+      const options = arr(x && x.options).map(str).filter(Boolean).slice(0, 6);
+      const answer = Number(x && x.answer);
+      return {q: str(x && x.q), options, answer: Number.isInteger(answer) && answer >= 0 && answer < options.length ? answer : -1, why: str(x && x.why)};
+    }).filter(x => x.q && x.options.length >= 2 && x.answer >= 0),
+    tags: strs(r.tags).slice(0, 8),
+  };
+}
+async function runImport() {
+  const o = S.ov;
+  if (!o || !S.sample) return;
+  const s = subjectById(o.sid);
+  if (!s) return;
+  let text = '';
+  try {
+    if (o.file) {
+      o.stage = 'extract';
+      o.status = 'Czytam plik…';
+      renderOv();
+      text = await extractText(o.file, setLive);
+    }
+    if ((o.text || '').trim()) text = (text ? text + '\n\n' : '') + o.text.trim();
+  } catch (e) {
+    if (S.ov === o) impError((e && e.message) || 'Nie udało się odczytać pliku.');
+    return;
+  }
+  if (S.ov !== o) return;
+  text = text.trim();
+  if (text.length < 200) {
+    impError(o.file ? 'W pliku prawie nie ma tekstu, slajdy to pewnie obrazy albo skany. Wyślij plik Claude\'owi w czacie: tam odczyta też obrazy.' : 'Za mało tekstu, żeby zrobić z niego notatki.');
+    return;
+  }
+  o.cut = text.length > MAX_SOURCE_CHARS;
+  if (o.cut) text = text.slice(0, MAX_SOURCE_CHARS);
+  o.stage = 'gen';
+  o.status = 'Claude czyta prezentację…';
+  const ctl = new AbortController();
+  o.ctl = ctl;
+  renderOv();
+  try {
+    const raw = await S.sample.json(genPrompt(s, o.file ? o.file.name : 'wklejony tekst', text), {
+      signal: ctl.signal,
+      cache: false,
+      onText: ({text: t}) => setLive(`Claude pisze notatki… ${(t.length / 1000).toFixed(1).replace('.', ',')} tys. znaków`),
+    });
+    if (S.ov !== o) return;
+    const note = normNote(raw);
+    if (!note.title && !note.sections.length) throw {code: 'invalid_json'};
+    if (!note.title) note.title = (o.file ? o.file.name.replace(/\.[^.]+$/, '') : 'Wykład');
+    o.result = note;
+    o.stage = 'preview';
+    o.ctl = null;
+    renderOv();
+  } catch (e) {
+    if (S.ov !== o) return;
+    o.ctl = null;
+    if (e && e.code === 'cancelled') { o.stage = 'pick'; renderOv(); return; }
+    impError(sampleErr(e));
+  }
+}
+async function saveImport() {
+  const o = S.ov, s = o && subjectById(o.sid);
+  if (!o || !o.result || !s || o.saving) return;
+  const title = (($('#imp-title') || {}).value || o.result.title || 'Wykład').trim();
+  const nr = nextNr(s.id);
+  const ref = S.db.collection('notes').doc();
+  o.saving = true;
+  renderOv();
+  try {
+    await ref.set({...o.result, title, subjectId: s.id, nr, source: o.file ? o.file.name : 'wklejony tekst', lectureDate: null, addedAt: new Date().toISOString(), addedBy: 'strona'});
+    closeOv();
+    toast(`Dodano Wykład ${nr} do: ${s.name}`);
+    go({name: 'note', id: ref.id});
+  } catch (e) {
+    o.saving = false;
+    renderOv();
+    toast(dbErr(e));
+  }
+}
+function copyPrompt() {
+  const ta = $('#copy-src');
+  if (!ta) return;
+  const fallback = () => { ta.focus(); ta.select(); toast('Zaznaczono polecenie. Skopiuj je skrótem Ctrl+C lub ⌘C.'); };
+  try {
+    navigator.clipboard.writeText(ta.value).then(() => toast('Skopiowano. Wklej je w czacie razem z plikiem.'), fallback);
+  } catch (e) { fallback(); }
+}
+
+/* ---------- pytania do Claude'a ---------- */
+function noteText(n) {
+  const L = ['# ' + (n.title || '')];
+  if (n.summary) L.push(n.summary);
+  if (arr(n.highYield).length) L.push('## Najważniejsze\n' + arr(n.highYield).map(x => '- ' + x).join('\n'));
+  for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || ''));
+  if (arr(n.terms).length) L.push('## Pojęcia\n' + arr(n.terms).map(t => `- ${t && t.term}: ${t && t.def}`).join('\n'));
+  if (arr(n.clinical).length) L.push('## Znaczenie kliniczne\n' + arr(n.clinical).map(x => '- ' + x).join('\n'));
+  return L.join('\n\n');
+}
+function ovAsk(o) {
+  const n = noteById(o.noteId);
+  const convo = o.turns.length
+    ? o.turns.map(t => t.role === 'user' ? `<div class="msg user">${esc(t.content)}</div>` : `<div class="msg assistant"><div class="md">${md(t.content)}</div></div>`).join('')
+    : `<p class="muted">Claude zna treść tych notatek. Zapytaj o coś, czego nie rozumiesz, albo wybierz:</p><div class="sugg">${SUGG.map(x => `<button class="chip-b" data-act="ask-sugg" data-q="${esc(x)}">${esc(x)}</button>`).join('')}</div>`;
+  return ovHead(n ? n.title : 'Pytanie do wykładu', !o.busy) + `<div class="chat" id="chat">${convo}
+    ${o.busy ? '<div class="msg assistant"><div class="md" id="ask-live"><p class="muted">Myślę…</p></div></div>' : ''}
+    ${o.err ? `<p class="form-err">${esc(o.err)}</p>` : ''}</div>
+    <form id="ask-form" class="ask-form"><label for="ask-q" class="sr">Pytanie</label><textarea id="ask-q" rows="2" placeholder="Napisz pytanie…" ${o.busy ? 'disabled' : 'autofocus'}>${esc(o.draft || '')}</textarea>${o.busy ? '<button type="button" class="btn" data-act="ask-stop">Zatrzymaj</button>' : '<button type="submit" class="btn primary">Wyślij</button>'}</form>`;
+}
+function scrollChat() { const p = $('#ov .panel'); if (p) p.scrollTop = p.scrollHeight; }
+async function askSend(q) {
+  const o = S.ov;
+  q = String(q || '').trim();
+  if (!o || o.type !== 'ask' || o.busy || !S.sample || !q) return;
+  const n = noteById(o.noteId);
+  if (!n) return;
+  o.turns.push({role: 'user', content: q});
+  o.busy = true;
+  o.err = null;
+  o.draft = '';
+  const ctl = new AbortController();
+  o.ctl = ctl;
+  renderOv();
+  scrollChat();
+  const ctx = `Jesteś korepetytorem studenta. Poniżej są jego notatki z wykładu. Odpowiadaj po polsku, konkretnie i zwięźle (zwykle do 200 słów), w Markdown. Opieraj się na notatkach; jeśli dodajesz wiedzę spoza nich, krótko to zaznacz.\n\nNOTATKI:\n${noteText(n).slice(0, 60000)}`;
+  try {
+    const {text} = await S.sample([{role: 'user', content: ctx}].concat(o.turns.slice(-10)), {
+      signal: ctl.signal,
+      cache: false,
+      onText: ({text: t}) => { const el = $('#ask-live'); if (el) { el.innerHTML = md(t); scrollChat(); } },
+    });
+    if (S.ov !== o) return;
+    o.turns.push({role: 'assistant', content: text});
+  } catch (e) {
+    if (S.ov !== o) return;
+    if (e && e.text) o.turns.push({role: 'assistant', content: e.text});
+    if (!(e && e.code === 'cancelled')) o.err = sampleErr(e);
+  }
+  o.busy = false;
+  o.ctl = null;
+  renderOv();
+  scrollChat();
+}
+
+/* ================= zdarzenia ================= */
+const A = {
+  'go-home': () => go({name: 'home'}),
+  'go-subject': el => go({name: 'subject', id: el.dataset.id}),
+  'go-note': el => openNote(el.dataset.id),
+  'toc': el => { const t = document.getElementById(el.dataset.id); if (t) t.scrollIntoView({behavior: reduced() ? 'auto' : 'smooth', block: 'start'}); },
+  'set-status': el => setStatus(S.view.id, el.dataset.val),
+  'toggle-recall': () => { S.recall = !S.recall; S.revealed.clear(); renderMain(); },
+  'reveal': el => { S.revealed.add(el.dataset.id); renderMain(); },
+  'new-subject': () => { S.ov = {type: 'subject'}; openOv(); },
+  'edit-subject': el => { S.ov = {type: 'subject', id: el.dataset.id}; openOv(); },
+  'subj-del': el => {
+    $('#del-zone').innerHTML = `<span>Na pewno? Tego nie da się cofnąć.</span><button type="button" class="btn danger sm" data-act="subj-del-yes" data-id="${esc(el.dataset.id)}">Tak, usuń</button><button type="button" class="btn ghost sm" data-act="subj-del-no" data-id="${esc(el.dataset.id)}">Nie</button>`;
+  },
+  'subj-del-yes': el => deleteSubject(el.dataset.id),
+  'subj-del-no': el => { const s = subjectById(el.dataset.id); if (s) $('#del-zone').outerHTML = delZone(s); },
+  'open-import': el => {
+    const sid = el.dataset.id || (S.view.name === 'subject' ? S.view.id : S.view.name === 'note' ? (noteById(S.view.id) || {}).subjectId : (subjectsSorted()[0] || {}).id);
+    S.ov = {type: 'import', sid, tab: el.dataset.tab || 'chat', stage: 'pick'};
+    openOv();
+  },
+  'imp-tab': el => { const o = S.ov; o.tab = el.dataset.tab; if (o.stage === 'error') o.stage = 'pick'; renderOv(); },
+  'imp-run': () => runImport(),
+  'imp-stop': () => { if (S.ov && S.ov.ctl) S.ov.ctl.abort(); },
+  'imp-save': () => saveImport(),
+  'imp-reset': () => { Object.assign(S.ov, {stage: 'pick', result: null, err: null, saving: false}); renderOv(); },
+  'copy-prompt': () => copyPrompt(),
+  'review': el => startReview(el.dataset.kind, el.dataset.id),
+  'flip': () => { S.ov.flipped = true; renderOv(); },
+  'rate': el => rate(Number(el.dataset.r)),
+  'quiz': el => startQuiz(el.dataset.kind, el.dataset.id),
+  'quiz-pick': el => pick(Number(el.dataset.k)),
+  'quiz-next': () => quizNext(),
+  'quiz-again': () => { const o = S.ov; startQuiz(o.kind, o.id); },
+  'close-ov': () => closeOv(),
+  'ask-open': el => { S.ov = {type: 'ask', noteId: el.dataset.id, turns: [], busy: false}; openOv(); },
+  'ask-sugg': el => askSend(el.dataset.q),
+  'ask-stop': () => { if (S.ov && S.ov.ctl) S.ov.ctl.abort(); },
+  'note-move': el => moveNote(el.dataset.id, Number(el.dataset.dir)),
+  'note-del': el => { S.confirmDel = el.dataset.id; renderMain(); },
+  'note-del-no': () => { S.confirmDel = null; renderMain(); },
+  'note-del-yes': el => deleteNote(el.dataset.id),
+  'clear-examples': () => { S.confirmClear = true; renderMain(); },
+  'clear-examples-no': () => { S.confirmClear = false; renderMain(); },
+  'clear-examples-yes': () => clearExamples(),
+};
+
+function bindEvents() {
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-act]');
+    if (!el || el.disabled) return;
+    const f = A[el.dataset.act];
+    if (f) { e.preventDefault(); f(el, e); }
+  });
+  document.addEventListener('submit', e => {
+    e.preventDefault();
+    if (e.target.id === 'subj-form') submitSubject();
+    else if (e.target.id === 'ask-form') askSend(($('#ask-q') || {}).value);
+  });
+  document.addEventListener('input', e => {
+    const t = e.target, o = S.ov;
+    if (t.id === 'q') {
+      S.q = t.value;
+      if (S.q.trim()) { if (S.view.name !== 'search') S.prevView = S.view; S.view = {name: 'search'}; }
+      else if (S.view.name === 'search') S.view = S.prevView || {name: 'home'};
+      render();
+    } else if (t.id === 'imp-text' && o) {
+      o.text = t.value;
+      const b = $('#imp-run');
+      if (b) b.disabled = !(o.file || t.value.trim());
+    } else if (t.id === 'imp-title' && o && o.result) {
+      o.result.title = t.value;
+    } else if (t.id === 'ask-q' && o) {
+      o.draft = t.value;
+    }
+  });
+  document.addEventListener('change', e => {
+    const t = e.target, o = S.ov;
+    if (t.id === 'imp-file' && o) { o.file = t.files[0] || null; renderOv(); }
+    else if (t.id === 'imp-sub' && o) { o.sid = t.value; renderOv(); }
+    else if (t.id === 'mv-sub') transferNote(t.dataset.id, t.value);
+  });
+  document.addEventListener('toggle', e => {
+    const k = e.target && e.target.dataset && e.target.dataset.k;
+    if (k) { if (e.target.open) S.openDetails.add(k); else S.openDetails.delete(k); }
+  }, true);
+  document.addEventListener('dragover', e => {
+    if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault();
+  });
+  document.addEventListener('drop', e => {
+    if (!(e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length)) return;
+    e.preventDefault();
+    const o = S.ov;
+    if (o && o.type === 'import' && (o.stage === 'pick' || o.stage === 'error') && S.sample) {
+      o.file = e.dataTransfer.files[0];
+      o.tab = 'file';
+      o.stage = 'pick';
+      renderOv();
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    const t = e.target, o = S.ov;
+    if (t && t.id === 'ask-q' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askSend(t.value); return; }
+    if (!o) {
+      if ((e.key === 'Enter' || e.key === ' ') && t && t.classList && t.classList.contains('veil')) { e.preventDefault(); A.reveal(t); }
+      return;
+    }
+    const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy);
+    if (e.key === 'Escape') { if (!locked) { e.preventDefault(); closeOv(); } return; }
+    if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if (o.type === 'review' && o.i < o.q.length) {
+      if (!o.flipped && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); o.flipped = true; renderOv(); }
+      else if (o.flipped && /^[123]$/.test(e.key)) { e.preventDefault(); rate(Number(e.key)); }
+    } else if (o.type === 'quiz' && o.i < o.qs.length) {
+      if (o.picked === null) {
+        let k = '1234'.indexOf(e.key);
+        if (k < 0) k = 'abcd'.indexOf(e.key.toLowerCase());
+        if (k >= 0 && k < arr(o.qs[o.i].options).length) { e.preventDefault(); pick(k); }
+      } else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); quizNext(); }
+    }
+  });
+}
+
+boot();
+})();
+</script>
