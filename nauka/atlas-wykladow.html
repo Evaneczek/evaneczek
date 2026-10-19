@@ -145,7 +145,7 @@ button:disabled{cursor:not-allowed}
   .today-side,.act{align-items:stretch}
 }
 .block{margin-bottom:42px}
-.block-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.block-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 12px;margin-bottom:14px}
 .h2{margin:0 0 14px;font-family:var(--f-read);font-size:21px;font-weight:600;letter-spacing:-.01em}
 .block-head .h2{margin:0}
 .exams{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -205,15 +205,15 @@ button.cls:hover{border-color:color-mix(in srgb,var(--c) 65%,var(--line))}
 .cls-type{font-weight:600;color:var(--ink)}
 .week{margin-bottom:36px}
 .week .h2{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.week-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.week-grid{display:grid;grid-template-columns:repeat(var(--cols,5),minmax(0,1fr));gap:10px}
 .wday{min-width:0}
 .wday.past{opacity:.5}
 .wday.is-today .day-t{color:var(--accent)}
 .week-grid .cls{grid-template-columns:minmax(0,1fr)}
-.week-grid .cls-name{align-items:flex-start}
+.week-grid .cls-name{align-items:flex-start;overflow-wrap:anywhere}
 .week-grid .cls-name .sw{margin-top:4px}
 .past-weeks summary{cursor:pointer;color:var(--muted);font-weight:500;margin-bottom:16px}
-@media (max-width:1000px){
+@media (max-width:1080px){
   .week-grid{grid-template-columns:minmax(0,1fr)}
   .week-grid .cls{grid-template-columns:auto minmax(0,1fr)}
 }
@@ -576,7 +576,8 @@ function mdi(s) {
 }
 
 /* ================= dane ================= */
-const stainOf = k => STAINS.find(s => s.k === k) || STAINS[0];
+const LEGACY_STAIN = {eozyna: 'malina', hema: 'indygo', trichrom: 'morski', sudan: 'pomarancz', pruski: 'granat', pas: 'sliwka', ziel: 'oliwka', srebro: 'braz'};
+const stainOf = k => STAINS.find(s => s.k === (LEGACY_STAIN[k] || k)) || STAINS[0];
 const cvar = k => `--c:var(--s-${stainOf(k).k})`;
 const subjectsSorted = () => S.subjects.slice().sort((a, b) =>
   (Number(a.order) || 999) - (Number(b.order) || 999) || String(a.name).localeCompare(String(b.name), 'pl'));
@@ -628,10 +629,10 @@ function classRow(x, opts = {}) {
   if (x.room) meta.push(esc(x.room));
   if (x.who) meta.push(esc(x.who));
   const time = `${opts.withDay ? esc(dayShort(x.d)) + '<br>' : ''}${esc(x.s)}–${esc(x.e || '')}`;
-  const inner = `<span class="cls-time">${time}</span><span class="cls-main"><span class="cls-name"><span class="sw"></span>${esc(s ? s.name : (x.name || 'Zajęcia'))}</span><span class="cls-meta">${meta.join(' · ')}</span></span>`;
+  const inner = `<span class="cls-time">${time}</span><span class="cls-main"><span class="cls-name"><span class="sw"></span>${esc(s ? s.name : (x.sid || 'Zajęcia'))}</span><span class="cls-meta">${meta.join(' · ')}</span></span>`;
   return s && !opts.static
     ? `<li><button class="cls" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}">${inner}</button></li>`
-    : `<li><div class="cls" style="${cvar(s && s.stain)}">${inner}</div></li>`;
+    : `<li><div class="cls" style="${s ? cvar(s.stain) : '--c:var(--faint)'}">${inner}</div></li>`;
 }
 function nextClassesBlock() {
   const days = [];
@@ -651,13 +652,13 @@ function viewPlan() {
   const weeks = new Map();
   for (const x of items) { const w = weekStart(x.d); if (!weeks.has(w)) weeks.set(w, []); weeks.get(w).push(x); }
   const weekBlock = (w, xs) => {
+    const shown = [0, 1, 2, 3, 4, 5, 6].filter(i => i < 5 || xs.some(x => x.d === addDays(w, i)));
     let days = '';
-    for (let i = 0; i < 7; i++) {
+    for (const i of shown) {
       const d = addDays(w, i), ds = xs.filter(x => x.d === d);
-      if (i >= 5 && !ds.length) continue;
       days += `<div class="wday ${d < t ? 'past' : ''} ${d === t ? 'is-today' : ''}"><p class="day-t">${esc(cap(fmtDay(d, {weekday: 'short', day: 'numeric', month: 'numeric'})))}${d === t ? ' · dziś' : ''}</p>${ds.length ? `<ul class="cls-list">${ds.map(x => classRow(x)).join('')}</ul>` : '<p class="muted small" style="margin:0">wolne</p>'}</div>`;
     }
-    return `<section class="week"><h2 class="h2">${esc(fmtDay(w))} – ${esc(fmtDay(addDays(w, 4)))}${w === cur ? ' <span class="pill neutral">ten tydzień</span>' : ''}</h2><div class="week-grid">${days}</div></section>`;
+    return `<section class="week"><h2 class="h2">${esc(fmtDay(w))} – ${esc(fmtDay(addDays(w, shown[shown.length - 1])))}${w === cur ? ' <span class="pill neutral">ten tydzień</span>' : ''}</h2><div class="week-grid" style="--cols:${shown.length}">${days}</div></section>`;
   };
   const all = [...weeks];
   h += all.filter(([w]) => w >= cur).map(([w, xs]) => weekBlock(w, xs)).join('');
@@ -768,7 +769,9 @@ function ready() { if (S.got.subjects && S.got.notes) S.phase = 'ready'; schedul
 /* ================= render ================= */
 let rq = 0;
 function scheduleRender() { if (rq) return; rq = requestAnimationFrame(() => { rq = 0; render(); }); }
-function render() { renderRail(); renderMain(); }
+let lastClock = '';
+const clockKey = () => today() + '|' + upcoming().length;
+function render() { renderRail(); renderMain(); lastClock = clockKey(); }
 
 function renderRail() {
   const v = S.view;
@@ -877,7 +880,9 @@ function viewHome() {
 function subjCard(s) {
   const ns = notesOf(s.id), c = statusCount(ns), cs = cardStats(ns);
   const next = upcoming(s.id)[0];
+  const live = next && next.d === today() && next.s <= nowHM();
   const exam = isYmd(s.exam) && daysUntil(s.exam) >= 0 ? `Egzamin ${inDays(daysUntil(s.exam))}`
+    : live ? `Trwają zajęcia, do ${next.e || ''}`
     : next ? `Następne zajęcia: ${whenShort(next)}` : 'Bez daty egzaminu';
   return `<button class="subj-card" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}">
     <span class="subj-top"><span class="sw lg"></span>${s.example ? '<span class="tag-ex">przykład</span>' : ''}</span>
@@ -1167,8 +1172,10 @@ async function deleteNote(id) {
 }
 async function deleteSubject(id) {
   const ns = notesOf(id);
+  const items = arr(S.plan && S.plan.items);
   try {
     for (const n of ns) await S.db.doc('notes/' + n.id).delete();
+    if (items.some(x => x && x.sid === id)) await S.db.doc('meta/plan').update({items: items.filter(x => !x || x.sid !== id)});
     await S.db.doc('subjects/' + id).delete();
     closeOv();
     go({name: 'home'});
@@ -1354,9 +1361,9 @@ function ovQuiz(o) {
 /* ---------- przedmiot: dodaj / edytuj ---------- */
 function ovSubject(o) {
   const s = o.id ? subjectById(o.id) : null;
-  const stain = (s && s.stain) || STAINS[S.subjects.length % STAINS.length].k;
+  const stain = s ? stainOf(s.stain).k : STAINS[S.subjects.length % STAINS.length].k;
   return ovHead(s ? 'Edytuj przedmiot' : 'Nowy przedmiot') + `<form id="subj-form" class="form" novalidate>
-    <div class="field"><label for="sf-name">Nazwa</label><input id="sf-name" type="text" maxlength="80" value="${esc(s ? s.name : '')}" placeholder="np. Anatomia" autocomplete="off" autofocus></div>
+    <div class="field"><label for="sf-name">Nazwa</label><input id="sf-name" type="text" maxlength="80" value="${esc(s ? s.name : '')}" placeholder="np. Podstawy zarządzania" autocomplete="off" autofocus></div>
     <fieldset class="field"><legend>Kolor</legend><div class="stains">${STAINS.map(x => `<label class="stain-opt" style="--c:var(--s-${x.k})"><input class="sr" type="radio" name="sf-stain" id="sf-st-${x.k}" value="${x.k}" ${x.k === stain ? 'checked' : ''}><span class="sw"></span><span>${x.n}</span></label>`).join('')}</div>
 </fieldset>
     <div class="field"><label for="sf-exam">Data egzaminu <span class="muted">(opcjonalnie)</span></label><input id="sf-exam" type="date" value="${esc(s && isYmd(s.exam) ? s.exam : '')}"></div>
@@ -1366,8 +1373,11 @@ function ovSubject(o) {
   </form>`;
 }
 function delZone(s) {
-  const n = notesOf(s.id).length;
-  return `<div class="danger-zone" id="del-zone"><button type="button" class="btn ghost sm danger-text" data-act="subj-del" data-id="${esc(s.id)}">Usuń przedmiot${n ? ` razem z ${pl(n, 'wykładem', 'wykładami', 'wykładami')}` : ''}</button></div>`;
+  const n = notesOf(s.id).length, c = planItems().filter(x => x.sid === s.id).length;
+  const parts = [];
+  if (n) parts.push(pl(n, 'wykładem', 'wykładami', 'wykładami'));
+  if (c) parts.push(`${c} ${plural(c, 'terminem', 'terminami', 'terminami')} z planu`);
+  return `<div class="danger-zone" id="del-zone"><button type="button" class="btn ghost sm danger-text" data-act="subj-del" data-id="${esc(s.id)}">Usuń przedmiot${parts.length ? ' razem z ' + parts.join(' i ') : ''}</button></div>`;
 }
 async function submitSubject() {
   const o = S.ov;
@@ -1850,6 +1860,12 @@ function bindEvents() {
       renderOv();
     }
   });
+  setInterval(() => {
+    if (S.phase === 'ready' && document.visibilityState === 'visible' && clockKey() !== lastClock) scheduleRender();
+  }, 30000);
+  const onShow = () => { if (S.phase === 'ready' && document.visibilityState === 'visible') scheduleRender(); };
+  document.addEventListener('visibilitychange', onShow);
+  window.addEventListener('pageshow', onShow);
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const t = e.target, o = S.ov;
