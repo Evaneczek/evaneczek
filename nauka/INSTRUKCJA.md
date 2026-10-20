@@ -9,10 +9,13 @@ Zmiany w wyglądzie publikuj z tego pliku pod ten sam adres.
 ## Jak Claude dodaje nowy wykład
 
 Kolekcje w bazie tej strony:
-- subjects/{id}: {name, stain, exam: "RRRR-MM-DD" | null, order: liczba, createdAt: ISO}
+- subjects/{id}: {name, stain, exam: "RRRR-MM-DD" | null, order: liczba, unit: "wyklad" | "zajecia", createdAt: ISO}
   stain: indygo | morski | granat | malina | sliwka | pomarancz | miod | oliwka | grafit | braz
-  Obecne przedmioty (id): podstawy-zarzadzania, podstawy-finansow, podstawy-prawa, podstawy-psychologii,
-  podstawy-filozofii, generatywna-ai, profesjonalna-komunikacja, jezyk-angielski, jezyk-niemiecki.
+  unit: jak strona nazywa kolejne notatki („Wykład 3” albo „Zajęcia 3”); "zajecia" dla ćwiczeń i lektoratów.
+  Obecne przedmioty (id): podstawy-zarzadzania (Podstawy zarządzania – wykład, dr Anna Królikowska-Tomczak),
+  podstawy-zarzadzania-cw (Podstawy zarządzania – ćwiczenia, dr Paweł Zawiślak; pliki „Zajęcia N. …”),
+  podstawy-finansow, podstawy-prawa, podstawy-psychologii, podstawy-filozofii, generatywna-ai, profesjonalna-komunikacja,
+  jezyk-angielski, jezyk-niemiecki (unit "zajecia"; pliki „ALK … Termin N”).
 - notes/{id}: {subjectId, nr, title, source (nazwa pliku), lectureDate: "RRRR-MM-DD" | null, addedAt: ISO, addedBy: "claude",
   summary (Markdown, 2–4 zdania),
   examInfo: [{text, src}] — wskazówki prowadzącego: notatki prowadzącego, slajdy „na egzamin”, co znać na pamięć, typowe błędy; src np. "slajd 3",

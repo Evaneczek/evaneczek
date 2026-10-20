@@ -167,6 +167,8 @@ button:disabled{cursor:not-allowed}
 .subj-meta{font-size:13.5px;color:var(--muted)}
 .subj-meta b{color:var(--accent);font-weight:600}
 .subj-foot{margin-top:auto;font-size:12.5px;color:var(--muted)}
+.radio{display:inline-flex;align-items:center;gap:7px;min-height:32px;font-size:14.5px;cursor:pointer}
+.radio input{accent-color:var(--accent);width:16px;height:16px;margin:0}
 @media (max-width:640px){
   .subj-grid{gap:8px}
   .subj-card{min-height:0;gap:5px;padding:12px 14px 12px 14px;border-left:4px solid var(--c)}
@@ -898,8 +900,14 @@ function mcqOf(n) {
   if (!p || !p.cards) return [];
   return arr(n.quiz).filter(q => q && q.q && arr(q.options).length > 1 && p.cards['q:' + qkey(q)]).map(q => ({noteId: n.id, key: 'q:' + qkey(q), kind: 'mcq', q: q.q, quiz: q}));
 }
+// jak nazywać kolejne notatki w przedmiocie: wykłady albo zajęcia (ćwiczenia, lektorat)
+const UNITS = {wyklad: ['Wykład', 'wykład', 'wykłady', 'wykładów'], zajecia: ['Zajęcia', 'zajęcia', 'zajęcia', 'zajęć']};
+const unitOf = sid => UNITS[(subjectById(sid) || {}).unit] || UNITS.wyklad;
+const unitN = (sid, nr) => `${unitOf(sid)[0]} ${nr}`;
 const vocabLabel = v => `${v.art ? v.art + ' ' : ''}${String(v.w).replace('|', '')}${v.plural ? ', ' + v.plural : ''}${v.forms ? ' (' + v.forms + ')' : ''}`;
-const vocabOf = n => arr(n.vocab).filter(v => v && v.w && v.pl).map(v => ({noteId: n.id, key: 'v:' + hash(v.w), kind: 'vocab', q: `${v.pl}${v.pos === 'n' ? ' (z rodzajnikiem i l. mn.)' : ''}`, a: vocabLabel(v)}));
+// podpowiedź tylko o tym, co słówko naprawdę ma (nazwy krajów zwykle nie mają rodzajnika ani liczby mnogiej)
+const vocabHint = v => { const h = [v.art ? 'rodzajnikiem' : '', v.plural ? 'l. mn.' : '', v.forms ? (v.pos === 'v' ? 'formą er/sie' : 'formą') : ''].filter(Boolean); return h.length ? ` (z ${h.join(', ').replace(/, ([^,]*)$/, ' i $1')})` : ''; };
+const vocabOf = n => arr(n.vocab).filter(v => v && v.w && v.pl).map(v => ({noteId: n.id, key: 'v:' + hash(v.w), kind: 'vocab', q: v.pl + vocabHint(v), a: vocabLabel(v)}));
 const peopleOf = n => arr(n.people).filter(x => x && x.name && x.idea).flatMap(x => [
   {noteId: n.id, key: 'p:' + hash(x.name), kind: 'person', q: `Kto to? ${x.idea}`, a: x.name + (x.years ? ` (${x.years})` : '')},
   {noteId: n.id, key: 'pi:' + hash(x.name), kind: 'person', q: `Z czym kojarzysz: ${x.name}?`, a: x.idea + (x.work ? ` · ${x.work}` : '')},
@@ -914,7 +922,7 @@ function cardStats(notes) {
     for (const c of itemsOf(n)) {
       const st = cardSt(c);
       if (c.kind !== 'mcq') total++;
-      if (c.kind === 'card') cards++;
+      if (c.kind === 'card' || c.kind === 'vocab') cards++;   // słówka też są fiszkami
       if (st && st.sus) continue;
       if (!st) { if (c.kind !== 'mcq') { fresh++; if (opened) freshOk++; } }
       else { if (st.d <= t) due++; if (st.s >= 21) known++; }
@@ -1028,7 +1036,7 @@ function evRow(e) {
   const ck = arr(e.checklist);
   if (ck.length) meta.push(`kroki ${ck.filter(x => x && x.done).length}/${ck.length}`);
   const nl = arr(e.lectureIds).map(noteById).filter(Boolean).length;
-  if (nl) meta.push(`zakres: ${pl(nl, 'wykład', 'wykłady', 'wykładów')}`);
+  if (nl) meta.push(`zakres: ${pl(nl, ...unitOf(e.subjectId).slice(1))}`);
   if (e.done && e.grade) meta.push('wynik: ' + esc(e.grade));
   return `<li><button class="ev-row ${e.done ? 'done' : ''}" data-act="ev-open" data-id="${esc(e.id)}" style="${evColor(e)}">
     <span class="ev-date"><b>${d.getDate()}</b><span>${esc(d.toLocaleDateString('pl-PL', {month: 'short'}).replace('.', ''))}</span></span>
@@ -1040,7 +1048,7 @@ function prepCard() {
   if (!e) return '';
   const ns = eventNotes(e), items = ns.reduce((a, n) => a + itemsOf(n).filter(c => c.kind !== 'mcq').length, 0), qs = ns.reduce((a, n) => a + arr(n.quiz).length, 0);
   if (!items && !qs) return '';
-  return `<div class="prep-card" style="${evColor(e)}"><div><p class="label">Przygotuj się</p><p class="prep-t">${esc(evTitle(e))} · ${inDays(daysUntil(e.date))}</p><p class="muted small">Zakres: ${pl(ns.length, 'wykład', 'wykłady', 'wykładów')}</p></div>
+  return `<div class="prep-card" style="${evColor(e)}"><div><p class="label">Przygotuj się</p><p class="prep-t">${esc(evTitle(e))} · ${inDays(daysUntil(e.date))}</p><p class="muted small">Zakres: ${pl(ns.length, ...unitOf(e.subjectId).slice(1))}</p></div>
     <div class="row wrap">${items ? `<button class="btn primary sm" data-act="review" data-kind="event" data-id="${esc(e.id)}">Powtórz materiał</button>` : ''}${qs ? `<button class="btn sm" data-act="quiz" data-kind="event" data-id="${esc(e.id)}">Test z zakresu</button>` : ''}</div></div>`;
 }
 function eventsBlock() {
@@ -1298,7 +1306,7 @@ function viewHome() {
   if (recent.length) {
     h += `<section class="block"><h2 class="h2">Ostatnio dodane</h2><ul class="recent">${recent.map(n => {
       const s = subjectById(n.subjectId);
-      return `<li><button class="recent-row" data-act="go-note" data-id="${esc(n.id)}" style="${cvar(s && s.stain)}"><span class="sw"></span><span class="recent-title">${esc(n.title || 'Bez tytułu')}</span><span class="muted small">${esc(s ? s.name : 'bez przedmiotu')} · Wykład ${esc(n.nr)}${n.addedAt ? ' · ' + esc(fmtIso(n.addedAt)) : ''}</span></button></li>`;
+      return `<li><button class="recent-row" data-act="go-note" data-id="${esc(n.id)}" style="${cvar(s && s.stain)}"><span class="sw"></span><span class="recent-title">${esc(n.title || 'Bez tytułu')}</span><span class="muted small">${esc(s ? s.name : 'bez przedmiotu')} · ${esc(unitN(n.subjectId, n.nr))}${n.addedAt ? ' · ' + esc(fmtIso(n.addedAt)) : ''}</span></button></li>`;
     }).join('')}</ul></section>`;
   }
   return S.notes.length ? h + howTo() : h;
@@ -1315,7 +1323,7 @@ function subjCard(s) {
   return `<button class="subj-card" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}">
     <span class="subj-top"><span class="sw lg"></span>${s.example ? '<span class="tag-ex">przykład</span>' : ''}</span>
     <span class="subj-name">${esc(s.name)}</span>
-    <span class="subj-meta">${pl(ns.length, 'wykład', 'wykłady', 'wykładów')}${cs.due ? ` · <b>${cs.due} do powtórki</b>` : ''}</span>
+    <span class="subj-meta">${pl(ns.length, ...unitOf(s.id).slice(1))}${cs.due ? ` · <b>${cs.due} do powtórki</b>` : ''}</span>
     ${bar(c.umiem, c.czytam, ns.length)}
     <span class="subj-foot">${esc(exam)}</span>
   </button>`;
@@ -1372,7 +1380,7 @@ function viewSubject(id) {
   let h = `<header class="head" style="${cvar(s.stain)}">
     <p class="eyebrow"><span class="sw"></span>Przedmiot${s.example ? ' · przykład' : ''}</p>
     <h1>${esc(s.name)}</h1>
-    <p class="head-meta"><span>${pl(ns.length, 'wykład', 'wykłady', 'wykładów')} · ${pl(cs.cards, 'fiszka', 'fiszki', 'fiszek')} · ${pl(qn, 'pytanie', 'pytania', 'pytań')} ·</span>${examLine}</p>
+    <p class="head-meta"><span>${pl(ns.length, ...unitOf(id).slice(1))} · ${pl(cs.cards, 'fiszka', 'fiszki', 'fiszek')} · ${pl(qn, 'pytanie', 'pytania', 'pytań')} ·</span>${examLine}</p>
     ${whoLine ? `<p class="head-meta">${whoLine}</p>` : ''}
     <div class="actions">
       <button class="btn primary" data-act="review" data-kind="subject" data-id="${esc(id)}" ${cs.total ? '' : 'disabled'}>${sessionCount ? `Powtórka (${sessionCount})` : 'Przegląd fiszek'}</button>
@@ -1386,7 +1394,7 @@ function viewSubject(id) {
     ${ns.length ? `<div class="subj-prog">${bar(c.umiem, c.czytam, ns.length)}<span class="muted small">Umiesz ${c.umiem} z ${ns.length} · w trakcie ${c.czytam}${cs.total ? ` · opanowane ${Math.round(cs.known / cs.total * 100)}% materiału do powtórek` : ''}</span></div>` : ''}
   </header>`;
   if (!ns.length) {
-    h += `<div class="empty"><p class="empty-title">Brak wykładów</p><p class="muted">Wyślij prezentację Claude'owi w czacie albo wgraj ją tutaj. Każdy nowy wykład dopisze się na końcu listy z kolejnym numerem.</p>${canWrite() ? `<div class="row wrap"><button class="btn primary" data-act="open-import" data-id="${esc(id)}">Dodaj pierwszy wykład</button><button class="btn" data-act="ed-new" data-id="${esc(id)}">Napisz własną notatkę</button></div>` : ''}</div>`;
+    h += `<div class="empty"><p class="empty-title">Brak ${unitOf(id)[3]}</p><p class="muted">Wyślij prezentację Claude'owi w czacie albo wgraj ją tutaj. Każdy nowy wykład dopisze się na końcu listy z kolejnym numerem.</p>${canWrite() ? `<div class="row wrap"><button class="btn primary" data-act="open-import" data-id="${esc(id)}">Dodaj pierwszy wykład</button><button class="btn" data-act="ed-new" data-id="${esc(id)}">Napisz własną notatkę</button></div>` : ''}</div>`;
   } else {
     h += `<ol class="lectures" style="${cvar(s.stain)}">${ns.map(lecRow).join('')}</ol>`;
   }
@@ -1457,7 +1465,7 @@ function viewNote(id) {
   if (n.source && !n.own) meta.push(`źródło: ${esc(n.source)}`);
 
   let h = `<header class="head" style="${cvar(s && s.stain)}">
-    <nav class="crumbs" aria-label="Ścieżka">${s ? `<button class="crumb" data-act="go-subject" data-id="${esc(s.id)}"><span class="sw"></span>${esc(s.name)}</button><span aria-hidden="true">/</span>` : ''}<span>Wykład ${esc(n.nr)}</span>${n.example ? '<span class="tag-ex">przykład</span>' : ''}${n.own ? '<span class="tag-own">własna notatka</span>' : ''}</nav>
+    <nav class="crumbs" aria-label="Ścieżka">${s ? `<button class="crumb" data-act="go-subject" data-id="${esc(s.id)}"><span class="sw"></span>${esc(s.name)}</button><span aria-hidden="true">/</span>` : ''}<span>${esc(unitN(n.subjectId, n.nr))}</span>${n.example ? '<span class="tag-ex">przykład</span>' : ''}${n.own ? '<span class="tag-own">własna notatka</span>' : ''}</nav>
     <h1>${esc(n.title || 'Bez tytułu')}</h1>
     ${meta.length ? `<p class="head-meta">${cap(meta.join(' · '))}</p>` : ''}
     <div class="note-bar">
@@ -1481,7 +1489,7 @@ function viewNote(id) {
     }).join('')}</article>
     <aside class="toc" aria-label="Spis treści"><p class="label">Spis treści</p>${secs.map(x => `<button class="toc-i" data-act="toc" data-id="${x.id}">${esc(x.t)}</button>`).join('')}</aside>
   </div>
-  ${prev || next ? `<nav class="pn" aria-label="Sąsiednie wykłady">${prev ? `<button class="pn-b" data-act="go-note" data-id="${esc(prev.id)}"><span class="label">← Wykład ${esc(prev.nr)}</span><span>${esc(prev.title)}</span></button>` : '<span></span>'}${next ? `<button class="pn-b r" data-act="go-note" data-id="${esc(next.id)}"><span class="label">Wykład ${esc(next.nr)} →</span><span>${esc(next.title)}</span></button>` : '<span></span>'}</nav>` : ''}
+  ${prev || next ? `<nav class="pn" aria-label="Sąsiednie wykłady">${prev ? `<button class="pn-b" data-act="go-note" data-id="${esc(prev.id)}"><span class="label">← ${esc(unitN(n.subjectId, prev.nr))}</span><span>${esc(prev.title)}</span></button>` : '<span></span>'}${next ? `<button class="pn-b r" data-act="go-note" data-id="${esc(next.id)}"><span class="label">${esc(unitN(n.subjectId, next.nr))} →</span><span>${esc(next.title)}</span></button>` : '<span></span>'}</nav>` : ''}
   ${canWrite() ? manageNote(n, idx, ns) : ''}`;
   return h;
 }
@@ -1618,7 +1626,7 @@ function viewSearch() {
     const a = Math.max(0, f.i - 70), b = Math.min(f.txt.length, f.i + fq.length + 90);
     const snip = (a > 0 ? '…' : '') + esc(f.txt.slice(a, f.i)) + '<mark>' + esc(f.txt.slice(f.i, f.i + fq.length)) + '</mark>' + esc(f.txt.slice(f.i + fq.length, b)) + (b < f.txt.length ? '…' : '');
     h += `<li><button class="res" data-act="go-note" data-id="${esc(r.n.id)}" style="${cvar(s && s.stain)}">
-      <span class="res-src"><span class="sw"></span>${esc(s ? s.name : '')} · Wykład ${esc(r.n.nr)} · ${pl(r.hits, 'trafienie', 'trafienia', 'trafień')}</span>
+      <span class="res-src"><span class="sw"></span>${esc(s ? s.name : '')} · ${esc(unitN(r.n.subjectId, r.n.nr))} · ${pl(r.hits, 'trafienie', 'trafienia', 'trafień')}</span>
       <span class="res-title">${esc(r.n.title)}</span><span class="res-snip">${esc(f.label || '')}: ${snip}</span></button></li>`;
   }
   return h + '</ul>';
@@ -1678,7 +1686,7 @@ async function moveNote(id, dir) {
   const ns = notesOf(n.subjectId), i = ns.findIndex(x => x.id === id), j = i + dir;
   if (j < 0 || j >= ns.length) return;
   [ns[i], ns[j]] = [ns[j], ns[i]];
-  try { await renumber(ns); toast(`Teraz to Wykład ${j + 1}`); } catch (e) { toast(dbErr(e)); }
+  try { await renumber(ns); toast(`Teraz to ${unitN(n.subjectId, j + 1)}`); } catch (e) { toast(dbErr(e)); }
 }
 async function transferNote(id, sid) {
   const n = noteById(id), s = subjectById(sid);
@@ -1689,7 +1697,7 @@ async function transferNote(id, sid) {
     await S.db.doc('notes/' + id).update({subjectId: sid, nr});
     await renumber(oldList);
     await unlinkLecture(id);
-    toast(`Przeniesiono do: ${s.name} (Wykład ${nr})`);
+    toast(`Przeniesiono do: ${s.name} (${unitN(s.id, nr)})`);
   } catch (e) { toast(dbErr(e)); }
 }
 async function deleteNote(id) {
@@ -1794,7 +1802,7 @@ function scopeNotes(kind, id) {
 }
 function scopeLabel(kind, id, what) {
   if (kind === 'subject') { const s = subjectById(id); return `${what} · ${s ? s.name : ''}`; }
-  if (kind === 'note') { const n = noteById(id); return `${what} · Wykład ${n ? n.nr : ''}`; }
+  if (kind === 'note') { const n = noteById(id); return `${what}${n ? ' · ' + unitN(n.subjectId, n.nr) : ''}`; }
   if (kind === 'event') { const e = eventById(id); return `${what} · ${e ? evTitle(e) : ''}`; }
   return `${what} · wszystkie przedmioty`;
 }
@@ -1873,7 +1881,7 @@ function ovReview(o) {
   let h = ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${total}</span>`) +
     `<div class="prog"><i style="width:${o.i / total * 100}%"></i></div>
     <div class="card" style="${cvar(s && s.stain)}">
-      <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')} · Wykład ${esc(n ? n.nr : '')} ${tags.join(' ')}</p>
+      <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')}${n ? ' · ' + esc(unitN(n.subjectId, n.nr)) : ''} ${tags.join(' ')}</p>
       <div class="card-q">${mdi(c.q)}</div>`;
   if (c.kind === 'mcq') {
     const q = c.quiz, ans = Number(q.answer);
@@ -2020,7 +2028,7 @@ function ovQuiz(o) {
   return ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${o.qs.length}</span>`) +
     `<div class="prog"><i style="width:${o.i / o.qs.length * 100}%"></i></div>
     <div class="qz">
-      ${o.kind !== 'note' && n ? `<p class="label">Wykład ${esc(n.nr)} · ${esc(n.title)}</p>` : ''}
+      ${o.kind !== 'note' && n ? `<p class="label">${esc(unitN(n.subjectId, n.nr))} · ${esc(n.title)}</p>` : ''}
       <p class="qz-q">${mdi(q.q)}</p>
       <div class="qz-opts">${q.order.map((k, j) => {
         const cls = !answered ? '' : k === ans ? 'ok' : k === o.picked ? 'no' : 'dim';
@@ -2039,6 +2047,7 @@ function ovSubject(o) {
     <div class="field"><label for="sf-name">Nazwa</label><input id="sf-name" type="text" maxlength="80" value="${esc(s ? s.name : '')}" placeholder="np. Podstawy zarządzania" autocomplete="off" autofocus></div>
     <fieldset class="field"><legend>Kolor</legend><div class="stains">${STAINS.map(x => `<label class="stain-opt" style="--c:var(--s-${x.k})"><input class="sr" type="radio" name="sf-stain" id="sf-st-${x.k}" value="${x.k}" ${x.k === stain ? 'checked' : ''}><span class="sw"></span><span>${x.n}</span></label>`).join('')}</div>
 </fieldset>
+    <fieldset class="field"><legend>Kolejne notatki to</legend><div class="row wrap">${Object.entries({wyklad: 'wykłady', zajecia: 'zajęcia (ćwiczenia, lektorat)'}).map(([k, t]) => `<label class="radio"><input type="radio" name="sf-unit" value="${k}" ${((s && s.unit) || 'wyklad') === k ? 'checked' : ''}> ${t}</label>`).join('')}</div></fieldset>
     <p class="muted small" style="margin:0">Egzaminy, kolokwia, zaliczenia i projekty dodasz w kalendarzu albo przyciskiem „Dodaj termin” w przedmiocie.</p>
     <p class="form-err" id="sf-err" hidden></p>
     <div class="row end"><button type="button" class="btn ghost" data-act="close-ov">Anuluj</button><button type="submit" class="btn primary">${s ? 'Zapisz' : 'Dodaj przedmiot'}</button></div>
@@ -2058,17 +2067,19 @@ async function submitSubject() {
   const name = $('#sf-name').value.trim();
   const stainEl = document.querySelector('input[name="sf-stain"]:checked');
   const stain = stainEl ? stainEl.value : STAINS[0].k;
+  const unitEl = document.querySelector('input[name="sf-unit"]:checked');
+  const unit = unitEl && UNITS[unitEl.value] ? unitEl.value : 'wyklad';
   const err = $('#sf-err');
   if (!name) { err.textContent = 'Podaj nazwę przedmiotu.'; err.hidden = false; return; }
   try {
     if (o.id) {
-      await S.db.doc('subjects/' + o.id).update({name, stain, example: false});
+      await S.db.doc('subjects/' + o.id).update({name, stain, unit, example: false});
       closeOv();
       toast('Zapisano zmiany.');
     } else {
       const order = S.subjects.reduce((m, s) => Math.max(m, Number(s.order) || 0), 0) + 1;
       const id = slug(name);
-      await S.db.collection('subjects').doc(id).set({name, stain, exam: null, order, createdAt: new Date().toISOString()});
+      await S.db.collection('subjects').doc(id).set({name, stain, unit, exam: null, order, createdAt: new Date().toISOString()});
       closeOv();
       go({name: 'subject', id});
       toast(`Dodano przedmiot: ${name}`);
@@ -2132,7 +2143,7 @@ function ovEvent(o) {
   let h = ovHead(evTitle(e)) + `<p class="ev-when" style="${evColor(e)}"><span class="sw"></span>${bits.join('<span aria-hidden="true">·</span>')}${evPill(e)}</p>`;
   if (e.done && e.grade) h += `<p style="margin:0">Wynik: <b>${esc(e.grade)}</b></p>`;
   if (arr(e.lectureIds).length || (s && scope.length)) {
-    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="lec-link" data-act="ov-go-note" data-id="${esc(n.id)}">Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
+    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="lec-link" data-act="ov-go-note" data-id="${esc(n.id)}">${esc(unitN(n.subjectId, n.nr))}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
       ${cards || qs ? `<div class="row wrap">${cards ? `<button class="btn primary" data-act="review" data-kind="event" data-id="${esc(e.id)}">Przygotuj się: fiszki (${cards})</button>` : ''}${qs ? `<button class="btn" data-act="quiz" data-kind="event" data-id="${esc(e.id)}">Test z zakresu (${qs})</button>` : ''}</div>` : ''}</div>`;
   }
   if (e.notes) h += `<div class="ev-sec"><p class="label">Notatki</p><div class="md">${md(e.notes)}</div></div>`;
@@ -2163,7 +2174,7 @@ function ovEventEdit(o) {
     <div class="field"><label for="ev-place">Miejsce lub forma <span class="muted">(opcjonalnie)</span></label><input id="ev-place" type="text" maxlength="120" value="${esc(d.place || '')}" placeholder="np. sala A/142, online, oddanie przez Moodle"></div>`;
   if (lecs.length) {
     const sel = new Set(arr(d.lectureIds));
-    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(bez zaznaczenia: cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
+    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(bez zaznaczenia: cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>${esc(unitN(n.subjectId, n.nr))}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
       <div class="row"><button type="button" class="btn ghost sm" data-act="ev-all-lec">Zaznacz wszystkie</button></div></fieldset>`;
   }
   h += `<div class="field"><label for="ev-notes">Notatki <span class="muted">(opcjonalnie)</span></label><textarea id="ev-notes" rows="3" placeholder="np. wymagania, kryteria oceny, co przynieść">${esc(d.notes || '')}</textarea></div>`;
@@ -2366,7 +2377,7 @@ const edLines = (id, f, list, rows, ph) => `<textarea id="${id}" data-f="${f}" d
 function ovEditor(o) {
   const d = o.draft, s = subjectById(o.sid), busy = !!o.busy;
   const tabs = [['content', 'Treść'], ['cards', `Fiszki (${d.flashcards.length})`], ['quiz', `Test (${d.quiz.length})`], ['preview', 'Podgląd']];
-  const where = s ? `<span class="muted small">${esc(s.name)} · Wykład ${o.id ? esc((noteById(o.id) || {}).nr) : nextNr(o.sid)}</span>` : '';
+  const where = s ? `<span class="muted small">${esc(s.name)} · ${esc(unitN(s.id, o.id ? (noteById(o.id) || {}).nr : nextNr(o.sid)))}</span>` : '';
   let h = ovHead(o.id ? 'Edytuj wykład' : 'Nowa własna notatka', !busy, where);
   if (o.restorable) h += `<div class="ed-bar"><span>Masz niezapisany szkic z ${esc(new Date(o.restorable.at).toLocaleString('pl-PL', {day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'}))}.</span><button class="btn sm" data-act="ed-draft-load">Wczytaj szkic</button><button class="btn ghost sm" data-act="ed-draft-drop">Odrzuć</button></div>`;
   h += `<div class="tabs ed-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" class="tab ${o.tab === k ? 'on' : ''}" aria-selected="${o.tab === k}" data-act="ed-tab" data-tab="${k}" ${busy ? 'disabled' : ''}>${n}</button>`).join('')}</div><form id="ed-form" class="ed" novalidate>`;
@@ -2666,12 +2677,12 @@ function ovImport(o) {
   if (!s) return h + `<p style="margin:0">Najpierw dodaj przedmiot, do którego trafi wykład.</p><div class="row end"><button class="btn primary" data-act="new-subject">Dodaj przedmiot</button></div>`;
   const nr = nextNr(s.id);
   h += `<div class="imp-sub"><div class="field"><label for="imp-sub">Przedmiot</label><select id="imp-sub" ${busy ? 'disabled' : ''}>${subs.map(x => `<option value="${esc(x.id)}" ${x.id === o.sid ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}</select></div>
-    <p class="imp-nr" style="${cvar(s.stain)}"><span class="sw"></span>zapisze się jako <b>Wykład ${nr}</b>${o.sidGuessed ? ' · przedmiot rozpoznany z treści' : ''}</p></div>`;
+    <p class="imp-nr" style="${cvar(s.stain)}"><span class="sw"></span>zapisze się jako <b>${esc(unitN(s.id, nr))}</b>${o.sidGuessed ? ' · przedmiot rozpoznany z treści' : ''}</p></div>`;
   const tab = S.sample ? o.tab : 'chat';
   h += `<div class="tabs" role="tablist"><button role="tab" class="tab ${tab === 'chat' ? 'on' : ''}" aria-selected="${tab === 'chat'}" data-act="imp-tab" data-tab="chat" ${busy ? 'disabled' : ''}>Wyślij w czacie</button>${S.sample ? `<button role="tab" class="tab ${tab === 'file' ? 'on' : ''}" aria-selected="${tab === 'file'}" data-act="imp-tab" data-tab="file" ${busy ? 'disabled' : ''}>Wgraj plik tutaj</button>` : ''}</div>`;
 
   if (tab === 'chat') {
-    return h + `<ol class="steps"><li>Skopiuj polecenie.</li><li>W rozmowie z Claude załącz prezentację (.pptx lub .pdf) i wklej polecenie. Plik może też leżeć na Dysku Google, wtedy wystarczy podać jego nazwę.</li><li>Notatki, fiszki i pytania pojawią się tutaj same jako Wykład ${nr}.</li></ol>
+    return h + `<ol class="steps"><li>Skopiuj polecenie.</li><li>W rozmowie z Claude załącz prezentację (.pptx lub .pdf) i wklej polecenie. Plik może też leżeć na Dysku Google, wtedy wystarczy podać jego nazwę.</li><li>Notatki, fiszki i pytania pojawią się tutaj same jako ${esc(unitN(s.id, nr))}.</li></ol>
       <div class="copybox"><label for="copy-src" class="label">Polecenie</label><textarea id="copy-src" rows="3" readonly>${esc(o.multi ? chatPromptMulti() : chatPrompt(s))}</textarea>
         <div class="row wrap"><button class="btn primary" data-act="copy-prompt">Kopiuj polecenie</button><button class="btn ghost sm" data-act="imp-multi">${o.multi ? 'Polecenie dla jednego przedmiotu' : 'Mam kilka plików z różnych przedmiotów'}</button></div></div>
       <p class="muted small" style="margin:0">To najlepsza droga: w czacie Claude widzi też obrazy, schematy i tabele ze slajdów.</p>
@@ -2692,7 +2703,7 @@ function ovImport(o) {
       <p class="muted small" style="margin:0">${pl(r.sections.length, 'część', 'części', 'części')} · ${pl(r.flashcards.length, 'fiszka', 'fiszki', 'fiszek')} · ${pl(r.quiz.length, 'pytanie', 'pytania', 'pytań')} · ${pl(r.terms.length, 'pojęcie', 'pojęcia', 'pojęć')}</p>
       <div class="md">${md(r.summary)}</div>
       ${r.highYield.length ? `<ul class="hy-list">${r.highYield.slice(0, 5).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}
-      <div class="row end"><button class="btn ghost" data-act="imp-reset">Od nowa</button><button class="btn primary" data-act="imp-save" ${o.saving ? 'disabled' : ''}>${o.saving ? 'Zapisuję…' : `Zapisz jako Wykład ${nr}`}</button></div>
+      <div class="row end"><button class="btn ghost" data-act="imp-reset">Od nowa</button><button class="btn primary" data-act="imp-save" ${o.saving ? 'disabled' : ''}>${o.saving ? 'Zapisuję…' : `Zapisz jako ${esc(unitN(s.id, nr))}`}</button></div>
     </div>`;
   }
   const f = o.file;
@@ -3127,7 +3138,7 @@ async function saveImport() {
     await ref.set(data);
     if (!noteById(ref.id)) S.notes = S.notes.concat([{...data, id: ref.id}]);
     closeOv();
-    toast(`Dodano Wykład ${nr} do: ${s.name}`);
+    toast(`Dodano ${unitN(s.id, nr)} do: ${s.name}`);
     openNote(ref.id);
   } catch (e) {
     o.saving = false;
