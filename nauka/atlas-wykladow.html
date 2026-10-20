@@ -167,6 +167,14 @@ button:disabled{cursor:not-allowed}
 .subj-meta{font-size:13.5px;color:var(--muted)}
 .subj-meta b{color:var(--accent);font-weight:600}
 .subj-foot{margin-top:auto;font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){
+  .subj-grid{gap:8px}
+  .subj-card{min-height:0;gap:5px;padding:12px 14px 12px 14px;border-left:4px solid var(--c)}
+  .subj-top{display:none}
+  .subj-top:has(.tag-ex){display:flex}
+  .subj-top:has(.tag-ex) .sw{display:none}
+  .subj-name{font-size:17.5px}
+}
 .bar{display:flex;width:100%;height:6px;border-radius:999px;background:var(--sunk);overflow:hidden}
 .bar i{display:block;height:100%}
 .b-good{background:var(--good)}
@@ -231,7 +239,7 @@ button.cls:hover{border-color:color-mix(in srgb,var(--c) 65%,var(--line))}
 .ev-main{display:flex;flex-direction:column;gap:2px;min-width:0}
 .ev-title{font-weight:600;line-height:1.3}
 .ev-meta{font-size:12.5px;color:var(--muted)}
-@media (max-width:480px){ .ev-row{grid-template-columns:auto minmax(0,1fr)} .ev-row .pill{grid-column:2;justify-self:start} }
+@media (max-width:480px){ .ev-row{gap:10px;padding:8px 10px 8px 8px} .ev-row .pill{font-size:11.5px;padding:2px 7px} .ev-date{width:42px} }
 .cal-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
 .cal-title{margin:0 6px;font-family:var(--f-read);font-size:22px;font-weight:600;min-width:9ch;text-align:center}
 .cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);gap:1px}
@@ -242,8 +250,8 @@ button.cls:hover{border-color:color-mix(in srgb,var(--c) 65%,var(--line))}
 .cal-day.out{background:var(--bg)}
 .cal-day.out .cal-num{color:var(--faint)}
 .cal-num{align-self:flex-start;display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 6px;border-radius:999px;font-size:12.5px;font-variant-numeric:tabular-nums}
-.cal-day.today .cal-num{background:var(--accent);color:var(--accent-ink);font-weight:600}
-.cal-ev{display:block;width:100%;padding:2px 6px;border:0;border-radius:5px;background:color-mix(in srgb,var(--c) 17%,var(--surface));color:var(--ink);font-size:12px;line-height:1.35;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-day.cal-today .cal-num{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.cal-ev{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;width:100%;padding:2px 6px;border:0;border-radius:5px;background:color-mix(in srgb,var(--c) 17%,var(--surface));color:var(--ink);font-size:12px;line-height:1.3;text-align:left;overflow:hidden;overflow-wrap:anywhere}
 .cal-ev:hover{background:color-mix(in srgb,var(--c) 30%,var(--surface))}
 .cal-ev.done{opacity:.55;text-decoration:line-through}
 @media (max-width:640px){
@@ -275,6 +283,38 @@ button.cls:hover{border-color:color-mix(in srgb,var(--c) 65%,var(--line))}
 .check input{width:18px;height:18px;accent-color:var(--accent)}
 input[type="time"]{max-width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
 .subj-events{margin-top:36px}
+.menu{position:relative}
+.menu > summary{list-style:none}
+.menu > summary::-webkit-details-marker{display:none}
+.menu-list{position:absolute;z-index:20;top:calc(100% + 6px);left:0;display:flex;flex-direction:column;min-width:250px;padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--surface);box-shadow:var(--shadow)}
+.menu-list button{min-height:40px;padding:8px 12px;border:0;border-radius:7px;background:transparent;color:var(--ink);text-align:left;font-size:14.5px}
+.menu-list button:hover{background:var(--sunk)}
+.menu-list .muted{display:block;font-size:12.5px}
+.prep-card{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;justify-content:space-between;margin-bottom:14px;padding:14px 16px;border:1px solid color-mix(in srgb,var(--c) 30%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--c) 8%,var(--surface))}
+.prep-card p{margin:0}
+.prep-t{font-family:var(--f-read);font-size:18px;font-weight:600}
+.lec-link{display:inline-block;min-height:36px;padding:7px 0;border:0;background:transparent;color:var(--accent);text-align:left;font:inherit;font-weight:500}
+.lec-link:hover{text-decoration:underline}
+.read-bar{display:none}
+@media (max-width:1100px){
+  .read-bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;flex-direction:column;gap:6px;margin:-14px 0 18px;padding:8px 0 6px;background:var(--bg)}
+  .read-bar select{width:100%}
+  .read-prog{height:3px;border-radius:2px;background:var(--sunk);overflow:hidden}
+  .read-prog i{display:block;width:0;height:100%;background:var(--accent)}
+}
+@media (min-width:881px){ .nav-name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3} }
+@media (max-width:640px){
+  .btn{min-height:42px}
+  .btn.sm{min-height:38px}
+  .seg-b{min-height:38px}
+  .tool{min-width:38px;min-height:38px}
+  .x{width:42px;height:42px}
+  .crumb{min-height:38px}
+  .chip-opt{padding:9px 14px}
+  .manage summary,.paste summary,.past-weeks summary,.fc-more summary{padding:10px 0}
+  .lec-checks input,.ck-list input,.check input{width:22px;height:22px}
+  .panel-review .rate,.panel-quiz .rate{position:sticky;bottom:calc(-1 * max(24px,env(safe-area-inset-bottom,0px)));margin-bottom:calc(-1 * max(24px,env(safe-area-inset-bottom,0px)));padding:10px 0 max(14px,env(safe-area-inset-bottom,0px));background:var(--bg)}
+}
 
 /* ---------- edytor ---------- */
 .panel-editor,.panel-mynotes{max-width:880px}
@@ -345,6 +385,69 @@ input[type="time"]{max-width:100%;padding:8px 10px;border:1px solid var(--line);
 .seg-b.on[data-val="czytam"]{background:var(--warn-soft);color:var(--warn)}
 .seg-b.on[data-val="umiem"]{background:var(--good-soft);color:var(--good)}
 .recall-hint{margin:4px 0 0;font-size:13.5px;color:var(--accent)}
+/* zakreślacz, uzupełnienia spoza slajdów, tabele */
+.md mark,.hy-list mark{background:linear-gradient(transparent 55%,var(--mark) 55%);color:inherit;padding:0 1px}
+.md del,.md s{color:var(--bad);text-decoration-thickness:1.5px}
+.xs{font-family:var(--f-ui);font-size:11.5px;font-weight:600;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 6px;white-space:nowrap}
+.md h3{margin:1.4em 0 .5em;font-family:var(--f-ui);font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.md td:first-child{font-weight:600}
+.tbl{max-width:100%;overflow-x:auto;margin:.4em 0 1em;
+  background:linear-gradient(to right,var(--bg) 30%,transparent) left/24px 100% no-repeat local,
+             linear-gradient(to left,var(--bg) 30%,transparent) right/24px 100% no-repeat local,
+             linear-gradient(to right,color-mix(in srgb,var(--ink) 14%,transparent),transparent) left/10px 100% no-repeat scroll,
+             linear-gradient(to left,color-mix(in srgb,var(--ink) 14%,transparent),transparent) right/10px 100% no-repeat scroll}
+.tbl > table{display:table;margin:0}
+@media (max-width:560px){
+  .md table.stack,.md table.stack tbody,.md table.stack tr,.md table.stack td{display:block;width:auto}
+  .md table.stack thead{display:none}
+  .md table.stack tr{margin:0 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+  .md table.stack td{border:0;padding:2px 0}
+  .md table.stack td:first-child{font-size:15.5px;padding-bottom:4px}
+  .md table.stack td:not(:first-child)::before{content:attr(data-label);display:block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+}
+/* tryb przypominania: luki zamiast rozmycia */
+.note.recall .cz:not(.on){color:transparent!important;background:var(--sunk)!important;border-radius:4px;box-shadow:inset 0 -2px 0 var(--line);cursor:pointer;user-select:none}
+.note.recall .cz:not(.on) *{color:transparent!important;background:transparent!important;border-color:transparent!important}
+/* nowe części notatek */
+.nsec.exam{padding:16px 18px;border-radius:12px;background:color-mix(in srgb,var(--s-malina) 7%,var(--surface));border:1px solid color-mix(in srgb,var(--s-malina) 30%,var(--line))}
+.nsec.exam + .nsec{border-top:0}
+.nsec.exam .dl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0 0 10px;font-family:var(--f-ui);font-size:15px}
+.src{font-family:var(--f-ui);font-size:12px;color:var(--muted)}
+.quote{margin:0 0 14px}
+.quote figcaption{font-family:var(--f-ui);font-weight:600;font-size:14px}
+.quote blockquote{margin:4px 0;padding:8px 14px;border-left:3px solid var(--accent);background:var(--sunk);border-radius:0 8px 8px 0}
+.vocab{list-style:none;margin:0;padding:0;font-family:var(--f-ui);font-size:15px}
+.vocab li{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:2px 14px;padding:8px 0;border-bottom:1px solid var(--line)}
+.vocab .v-w{font-weight:600}
+.vocab .v-ex{grid-column:1/-1;font-size:13.5px;color:var(--muted)}
+.vocab .sep{color:var(--accent);font-weight:400}
+.v-pl2{font-weight:400;color:var(--muted)}
+.art{display:inline-block;min-width:3ch;padding:0 5px;border-radius:5px;font-size:12.5px;font-weight:700;text-align:center;color:var(--surface)}
+.art-der{background:var(--s-indygo)}
+.art-die{background:var(--s-malina)}
+.art-das{background:var(--s-oliwka)}
+@media (max-width:560px){ .vocab li{grid-template-columns:minmax(0,1fr)} }
+.rule{font-size:17px}
+.slots{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0;font-family:var(--f-ui);font-size:13px}
+.slots span{padding:4px 10px;border:1px dashed var(--line);border-radius:8px;background:var(--surface)}
+.ex-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px}
+.ex-list li{display:flex;flex-direction:column}
+.mist{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;font-family:var(--f-ui);font-size:15px}
+.mist li{display:flex;flex-direction:column;gap:2px}
+.mist .no{color:var(--bad)}
+.mist .ok{color:var(--good);font-weight:600}
+.tl{list-style:none;padding:0;margin:0}
+.tl li{display:grid;grid-template-columns:86px minmax(0,1fr);gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-family:var(--f-ui);font-size:15px}
+.tl-y{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);padding-top:2px}
+.formula,.worked,.exr,.txt{display:flex;flex-direction:column;gap:6px;margin:0 0 14px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-family:var(--f-ui);font-size:15px}
+.formula .expr{margin:0;font-family:var(--f-mono);font-size:16px}
+.formula ul,.worked ol,.exr ol{margin:0;padding-left:1.3em}
+.formula p,.worked p,.exr p,.txt p{margin:0}
+.worked details summary,.exr details summary,.eq details summary,.txt details summary{cursor:pointer;color:var(--accent);font-weight:500;padding:4px 0}
+.eq{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:10px}
+.eq p{margin:0}
+.fc-more summary{cursor:pointer;color:var(--accent);font-family:var(--f-ui);font-weight:500;font-size:14.5px;padding:8px 0}
+.fc-more .fc-list{margin-top:8px}
 .note-grid{display:grid;grid-template-columns:minmax(0,1fr) 196px;gap:48px;align-items:start}
 .toc{position:sticky;top:28px;display:flex;flex-direction:column;gap:1px;max-height:calc(100vh - 56px);overflow:auto}
 .toc .label{margin-bottom:8px}
@@ -432,6 +535,8 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .panel:focus{outline:none}
 .ov-head{display:flex;align-items:center;gap:12px}
 .ov-head > :first-child{flex:1;min-width:0}
+.ov-head{flex-wrap:wrap}
+.ov-sub{order:3;flex-basis:100%;margin-top:-8px}
 .ov-title{margin:0;font-family:var(--f-read);font-size:22px;font-weight:600;letter-spacing:-.01em;text-wrap:balance}
 .x{display:grid;place-items:center;flex:none;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:var(--muted)}
 .x:hover{background:var(--sunk);color:var(--ink)}
@@ -665,15 +770,36 @@ if (window.marked) marked.setOptions({gfm: true, breaks: false, mangle: false, h
 if (window.DOMPurify) DOMPurify.addHook('afterSanitizeAttributes', n => {
   if (n.tagName === 'A') { n.setAttribute('target', '_blank'); n.setAttribute('rel', 'noopener noreferrer'); }
 });
+const preMd = v => String(v ?? '')
+  .replace(/==([^=\n]{1,160})==/g, '<mark>$1</mark>')
+  .replace(/\((spoza slajdów)\)/g, '<span class="xs">$1</span>');
+// szerokie tabele dostają ramkę z cieniem przewijania, a na telefonie zamieniają się w karty
+function tableify(html) {
+  if (!html.includes('<table')) return html;
+  const t = document.createElement('template');
+  t.innerHTML = html;
+  for (const tb of t.content.querySelectorAll('table')) {
+    const hs = [...tb.querySelectorAll('thead th')].map(th => th.textContent.trim());
+    const cells = [...tb.querySelectorAll('tbody td')];
+    const avg = cells.reduce((m, td) => m + td.textContent.trim().length, 0) / (cells.length || 1);
+    if (hs.length >= 4 && avg > 14) tb.classList.add('stack');
+    tb.querySelectorAll('tbody tr').forEach(tr => [...tr.cells].forEach((td, i) => { if (hs[i]) td.setAttribute('data-label', hs[i]); }));
+    const w = document.createElement('div');
+    w.className = 'tbl';
+    tb.replaceWith(w);
+    w.appendChild(tb);
+  }
+  return t.innerHTML;
+}
 function md(s) {
   s = String(s ?? '');
   if (!s.trim()) return '';
-  try { if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parse(s)); } catch (e) {}
+  try { if (window.marked && window.DOMPurify) return tableify(DOMPurify.sanitize(marked.parse(preMd(s)))); } catch (e) {}
   return '<p>' + esc(s).replace(/\n{2,}/g, '</p><p>').replace(/\n/g, '<br>') + '</p>';
 }
 function mdi(s) {
   s = String(s ?? '');
-  try { if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parseInline(s)); } catch (e) {}
+  try { if (window.marked && window.DOMPurify) return DOMPurify.sanitize(marked.parseInline(preMd(s))); } catch (e) {}
   return esc(s);
 }
 
@@ -772,7 +898,13 @@ function mcqOf(n) {
   if (!p || !p.cards) return [];
   return arr(n.quiz).filter(q => q && q.q && arr(q.options).length > 1 && p.cards['q:' + qkey(q)]).map(q => ({noteId: n.id, key: 'q:' + qkey(q), kind: 'mcq', q: q.q, quiz: q}));
 }
-const itemsOf = n => cardsOf(n).map(c => ({...c, kind: 'card'})).concat(clozeOf(n), termRevOf(n), mcqOf(n));
+const vocabLabel = v => `${v.art ? v.art + ' ' : ''}${String(v.w).replace('|', '')}${v.plural ? ', ' + v.plural : ''}${v.forms ? ' (' + v.forms + ')' : ''}`;
+const vocabOf = n => arr(n.vocab).filter(v => v && v.w && v.pl).map(v => ({noteId: n.id, key: 'v:' + hash(v.w), kind: 'vocab', q: `${v.pl}${v.pos === 'n' ? ' (z rodzajnikiem i l. mn.)' : ''}`, a: vocabLabel(v)}));
+const peopleOf = n => arr(n.people).filter(x => x && x.name && x.idea).flatMap(x => [
+  {noteId: n.id, key: 'p:' + hash(x.name), kind: 'person', q: `Kto to? ${x.idea}`, a: x.name + (x.years ? ` (${x.years})` : '')},
+  {noteId: n.id, key: 'pi:' + hash(x.name), kind: 'person', q: `Z czym kojarzysz: ${x.name}?`, a: x.idea + (x.work ? ` · ${x.work}` : '')},
+]);
+const itemsOf = n => cardsOf(n).map(c => ({...c, kind: 'card'})).concat(vocabOf(n), clozeOf(n), termRevOf(n), peopleOf(n), mcqOf(n));
 
 function cardStats(notes) {
   const t = today();
@@ -895,7 +1027,7 @@ function evRow(e) {
   if (e.place) meta.push(esc(e.place));
   const ck = arr(e.checklist);
   if (ck.length) meta.push(`kroki ${ck.filter(x => x && x.done).length}/${ck.length}`);
-  const nl = arr(e.lectureIds).length;
+  const nl = arr(e.lectureIds).map(noteById).filter(Boolean).length;
   if (nl) meta.push(`zakres: ${pl(nl, 'wykład', 'wykłady', 'wykładów')}`);
   if (e.done && e.grade) meta.push('wynik: ' + esc(e.grade));
   return `<li><button class="ev-row ${e.done ? 'done' : ''}" data-act="ev-open" data-id="${esc(e.id)}" style="${evColor(e)}">
@@ -903,10 +1035,18 @@ function evRow(e) {
     <span class="ev-main"><span class="ev-title">${esc(evTitle(e))}</span><span class="ev-meta">${meta.join(' · ')}</span></span>
     ${evPill(e)}</button></li>`;
 }
+function prepCard() {
+  const e = upcomingEvents().find(x => EXAM_TYPES.includes(x.type) && daysUntil(x.date) <= 7 && eventNotes(x).length);
+  if (!e) return '';
+  const ns = eventNotes(e), items = ns.reduce((a, n) => a + itemsOf(n).filter(c => c.kind !== 'mcq').length, 0), qs = ns.reduce((a, n) => a + arr(n.quiz).length, 0);
+  if (!items && !qs) return '';
+  return `<div class="prep-card" style="${evColor(e)}"><div><p class="label">Przygotuj się</p><p class="prep-t">${esc(evTitle(e))} · ${inDays(daysUntil(e.date))}</p><p class="muted small">Zakres: ${pl(ns.length, 'wykład', 'wykłady', 'wykładów')}</p></div>
+    <div class="row wrap">${items ? `<button class="btn primary sm" data-act="review" data-kind="event" data-id="${esc(e.id)}">Powtórz materiał</button>` : ''}${qs ? `<button class="btn sm" data-act="quiz" data-kind="event" data-id="${esc(e.id)}">Test z zakresu</button>` : ''}</div></div>`;
+}
 function eventsBlock() {
   const list = overdueEvents().concat(upcomingEvents()).slice(0, 6);
   const more = upcomingEvents().length + overdueEvents().length - list.length;
-  return `<section class="block"><div class="block-head"><h2 class="h2">Najbliższe terminy</h2><div class="row">${canWrite() ? '<button class="btn ghost sm" data-act="ev-new">+ Dodaj termin</button>' : ''}<button class="btn ghost sm" data-act="go-cal">Kalendarz</button></div></div>
+  return `<section class="block"><div class="block-head"><h2 class="h2">Najbliższe terminy</h2><div class="row">${canWrite() ? '<button class="btn ghost sm" data-act="ev-new">+ Dodaj termin</button>' : ''}<button class="btn ghost sm" data-act="go-cal">Kalendarz</button></div></div>${prepCard()}
     ${list.length ? `<ul class="ev-list">${list.map(evRow).join('')}</ul>${more > 0 ? `<p class="muted small" style="margin:8px 0 0">i jeszcze ${pl(more, 'termin', 'terminy', 'terminów')} w kalendarzu</p>` : ''}`
       : `<p class="muted" style="margin:0">Brak zaplanowanych sprawdzianów, kolokwiów, zaliczeń i projektów. Dodaj termin, a pojawi się tutaj z odliczaniem dni.</p>`}</section>`;
 }
@@ -924,7 +1064,8 @@ function viewCalendar() {
   let cells = ['pon', 'wt', 'śr', 'czw', 'pt', 'sob', 'niedz'].map(d => `<div class="cal-dow">${d}</div>`).join('');
   for (let i = 0; i < cellsCount; i++) {
     const d = addDays(start, i), es = byDay[d] || [];
-    cells += `<div class="cal-day ${d.slice(0, 7) !== ym ? 'out' : ''} ${d === t ? 'today' : ''}" ${canWrite() ? `data-act="ev-new" data-date="${d}" title="Dodaj termin ${esc(fmtDay(d))}"` : ''}>
+    const dayLabelTxt = `${fmtDay(d, {weekday: 'long', day: 'numeric', month: 'long'})}${es.length ? ', ' + pl(es.length, 'termin', 'terminy', 'terminów') : ''}`;
+    cells += `<div class="cal-day ${d.slice(0, 7) !== ym ? 'out' : ''} ${d === t ? 'cal-today' : ''}" ${es.length || canWrite() ? `data-act="cal-day" data-date="${d}" role="button" tabindex="0" aria-label="${esc(dayLabelTxt)}"` : ''}>
       <span class="cal-num">${Number(d.slice(8))}</span>${es.map(e => `<button class="cal-ev ${e.done ? 'done' : ''}" data-act="ev-open" data-id="${esc(e.id)}" style="${evColor(e)}" title="${esc(evTitle(e))}">${esc(evTitle(e))}</button>`).join('')}</div>`;
   }
   const monthEvs = evs.filter(e => e.date.slice(0, 7) === ym);
@@ -1013,6 +1154,7 @@ const use = name => {
 };
 
 async function boot() {
+  document.documentElement.lang = 'pl';
   bindEvents();
   render();
   use('sample').then(s => { S.sample = s || null; scheduleRender(); });
@@ -1062,7 +1204,7 @@ function renderRail() {
   const v = S.view;
   const activeSid = v.name === 'subject' ? v.id : v.name === 'note' ? (noteById(v.id) || {}).subjectId : null;
   let h = `<button class="nav-item ${v.name === 'home' ? 'on' : ''}" data-act="go-home"><span class="sw ring"></span><span class="nav-name">Pulpit</span></button>`;
-  h += `<button class="nav-item ${v.name === 'calendar' ? 'on' : ''}" data-act="go-cal"><span class="sw cal"></span><span class="nav-name">Kalendarz</span>${upcomingEvents().length ? `<span class="nav-count">${upcomingEvents().length}</span>` : ''}</button>`;
+  h += `<button class="nav-item ${v.name === 'calendar' ? 'on' : ''}" data-act="go-cal"><span class="sw cal"></span><span class="nav-name">Kalendarz</span>${upcomingEvents().length ? `<span class="nav-count" title="Nadchodzące terminy">${upcomingEvents().length}</span>` : ''}</button>`;
   if (planItems().length) h += `<button class="nav-item ${v.name === 'plan' ? 'on' : ''}" data-act="go-plan"><span class="sw cal"></span><span class="nav-name">Plan zajęć</span></button>`;
   const subs = subjectsSorted();
   if (subs.length) h += `<p class="label nav-label">Przedmioty</p>`;
@@ -1070,7 +1212,14 @@ function renderRail() {
     h += `<button class="nav-item ${activeSid === s.id ? 'on' : ''}" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}"><span class="sw"></span><span class="nav-name">${esc(s.name)}</span><span class="nav-count">${notesOf(s.id).length}</span></button>`;
   }
   if (S.phase === 'ready' && canWrite()) h += `<button class="nav-item add" data-act="new-subject">+ Dodaj przedmiot</button>`;
-  $('#rail-nav').innerHTML = h;
+  const nav = $('#rail-nav');
+  nav.innerHTML = h;
+  // na telefonie menu jest poziomym paskiem: aktywna pozycja ma być widoczna
+  const on = nav.querySelector('.nav-item.on');
+  if (on && nav.scrollWidth > nav.clientWidth) {
+    const a = on.getBoundingClientRect(), b = nav.getBoundingClientRect();
+    if (a.left < b.left || a.right > b.right) nav.scrollLeft += a.left - b.left - 16;
+  }
 }
 
 function renderMain() {
@@ -1085,6 +1234,7 @@ function renderMain() {
     : v.name === 'plan' ? viewPlan()
     : v.name === 'calendar' ? viewCalendar()
     : viewHome();
+  if (v.name === 'note' && S.recall) applyRecall(m.querySelector('.note'));
 }
 
 const dateLine = () => esc(cap(new Date().toLocaleDateString('pl-PL', {weekday: 'long', day: 'numeric', month: 'long'})));
@@ -1129,7 +1279,7 @@ function viewHome() {
   if (st.total) h += `<section class="today" aria-label="Powtórka na dziś">
     <div>
       <p class="label">Na dziś</p>
-      <p class="today-num"><span class="big">${st.due}</span>do powtórki${newToday ? ` <span class="muted">+ ${newToday} ${plural(newToday, 'nowa', 'nowe', 'nowych')}</span>` : ''}</p>
+      <p class="today-num">${!st.due && newToday ? `<span class="big">${newToday}</span>${plural(newToday, 'nowa fiszka', 'nowe fiszki', 'nowych fiszek')} do poznania` : `<span class="big">${st.due}</span>do powtórki${newToday ? ` <span class="muted">+ ${newToday} ${plural(newToday, 'nowa', 'nowe', 'nowych')}</span>` : ''}`}</p>
       <p class="muted small">${todo ? `Około ${mins} min. Najpierw to, co najłatwiej zapomnieć, potem nowe.` : st.fresh > st.freshOk && newLeft() ? 'Na dziś wszystko. Nowe fiszki pojawią się, gdy otworzysz kolejny wykład.' : st.total ? 'Na dziś wszystko powtórzone.' : 'Fiszki pojawią się razem z pierwszym wykładem.'}</p>
     </div>
     <div class="today-side">
@@ -1227,7 +1377,11 @@ function viewSubject(id) {
     <div class="actions">
       <button class="btn primary" data-act="review" data-kind="subject" data-id="${esc(id)}" ${cs.total ? '' : 'disabled'}>${sessionCount ? `Powtórka (${sessionCount})` : 'Przegląd fiszek'}</button>
       <button class="btn" data-act="quiz" data-kind="subject" data-id="${esc(id)}" ${qn ? '' : 'disabled'}>Test z przedmiotu</button>
-      ${canWrite() ? `<button class="btn" data-act="open-import" data-id="${esc(id)}">Dodaj wykład</button><button class="btn" data-act="ed-new" data-id="${esc(id)}">Napisz własną notatkę</button><button class="btn" data-act="ev-new" data-id="${esc(id)}">Dodaj termin</button><button class="btn ghost" data-act="edit-subject" data-id="${esc(id)}">Edytuj</button>` : ''}
+      ${canWrite() ? `<details class="menu" data-k="add-menu"><summary class="btn">Dodaj…</summary><div class="menu-list">
+        <button data-act="open-import" data-id="${esc(id)}">Wykład z prezentacji<span class="muted">notatki, fiszki i test od Claude'a</span></button>
+        <button data-act="ed-new" data-id="${esc(id)}">Własną notatkę<span class="muted">piszesz sam albo sama</span></button>
+        <button data-act="ev-new" data-id="${esc(id)}">Termin<span class="muted">kolokwium, egzamin, projekt…</span></button></div></details>
+        <button class="btn ghost" data-act="edit-subject" data-id="${esc(id)}">Edytuj</button>` : ''}
     </div>
     ${ns.length ? `<div class="subj-prog">${bar(c.umiem, c.czytam, ns.length)}<span class="muted small">Umiesz ${c.umiem} z ${ns.length} · w trakcie ${c.czytam}${cs.total ? ` · opanowane ${Math.round(cs.known / cs.total * 100)}% materiału do powtórek` : ''}</span></div>` : ''}
   </header>`;
@@ -1277,17 +1431,21 @@ function viewNote(id) {
   const ns = s ? notesOf(s.id) : [n];
   const idx = ns.findIndex(x => x.id === id);
   const prev = ns[idx - 1], next = ns[idx + 1];
-  const st = statusOf(id), p = P(id), cards = cardsOf(n), qs = arr(n.quiz);
+  const st = statusOf(id), p = P(id), cards = cardsOf(n), qs = arr(n.quiz), revN = itemsOf(n).filter(c => c.kind !== 'mcq').length;
   const secs = noteSections(n);
   if (n.myNotes || (canWrite() && !n.own)) {
-    secs.splice(n.summary ? 1 : 0, 0, {id: 's-my', t: 'Moje notatki', cls: 'mine',
+    let at = secs.findIndex(x => x.id === 's-exam');
+    if (at < 0) at = secs.findIndex(x => x.id === 's-hy');
+    if (at < 0) at = secs.findIndex(x => x.id === 's-sum');
+    secs.splice(at + 1, 0, {id: 's-my', t: 'Moje notatki', cls: 'mine',
       tool: canWrite() ? `<button class="tool" data-act="my-open" data-id="${esc(id)}">${n.myNotes ? 'Edytuj' : 'Dodaj'}</button>` : '',
       html: n.myNotes ? `<div class="md">${md(n.myNotes)}</div>` : '<p class="muted" style="margin:0;font-family:var(--f-ui);font-size:14.5px">Dopisz własne uwagi, przykłady z zajęć albo to, co prowadzący mówił poza slajdami.</p>'});
   }
   if (cards.length) secs.push({id: 's-fc', t: `Fiszki (${cards.length})`, html: inlineCards(n, cards)});
   if (qs.length) secs.push({id: 's-qz', t: `Sprawdź się · ${pl(qs.length, 'pytanie', 'pytania', 'pytań')}`, html: `<div class="qz-teaser"><p>${p.quiz ? `Ostatni wynik: <b>${p.quiz.last}%</b> · najlepszy: ${p.quiz.best}%` : 'Ten test nie był jeszcze rozwiązywany.'}</p><button class="btn primary sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Rozwiąż test</button></div>`});
-  if ((!cards.length || !qs.length) && S.sample && canWrite()) {
-    const what = !cards.length && !qs.length ? 'fiszek ani testu' : !cards.length ? 'fiszek' : 'testu';
+  const hasCards = cards.length || arr(n.vocab).length;   // słówka same są fiszkami
+  if ((!hasCards || !qs.length) && S.sample && canWrite()) {
+    const what = !hasCards && !qs.length ? 'fiszek ani testu' : !hasCards ? 'fiszek' : 'testu';
     secs.push({id: 's-gen', t: 'Fiszki i test', html: `<div class="gen-box"><p>${S.genBusy === id ? 'Claude tworzy fiszki i pytania…' : `Ten wykład nie ma jeszcze ${what}.`}</p><button class="btn primary sm" data-act="gen-tools" data-id="${esc(id)}" ${S.genBusy ? 'disabled' : ''}>${S.genBusy === id ? 'Tworzę…' : 'Wygeneruj z treści notatek'}</button></div>`});
   }
 
@@ -1306,18 +1464,18 @@ function viewNote(id) {
       <div class="seg" role="group" aria-label="Jak dobrze znasz ten wykład">${['nowe', 'czytam', 'umiem'].map(k => `<button class="seg-b ${st === k ? 'on' : ''}" data-act="set-status" data-val="${k}" aria-pressed="${st === k}">${STATUS[k]}</button>`).join('')}</div>
       <div class="row wrap">
         <button class="btn sm ${rec ? 'on' : ''}" data-act="toggle-recall" aria-pressed="${rec}">${rec ? 'Odsłoń wszystko' : 'Tryb przypominania'}</button>
-        ${cards.length ? `<button class="btn sm" data-act="review" data-kind="note" data-id="${esc(id)}">Fiszki</button>` : ''}
+        ${revN ? `<button class="btn sm" data-act="review" data-kind="note" data-id="${esc(id)}">Fiszki</button>` : ''}
         ${qs.length ? `<button class="btn sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Test</button>` : ''}
         ${S.sample ? `<button class="btn sm" data-act="ask-open" data-id="${esc(id)}">Zapytaj Claude'a</button>` : ''}
         ${canWrite() ? `<button class="btn sm" data-act="ed-open" data-id="${esc(id)}">Edytuj</button>` : ''}
       </div>
     </div>
-    ${rec ? '<p class="recall-hint">Najpierw spróbuj z pamięci odtworzyć każdą część, a dopiero potem ją odsłoń.</p>' : ''}
+    ${rec ? '<p class="recall-hint">Szare pola to luki. Najpierw spróbuj sobie przypomnieć, co tam jest, potem kliknij, żeby sprawdzić.</p>' : ''}
   </header>
+  <div class="read-bar"><label class="sr" for="toc-sel">Przejdź do części</label><select id="toc-sel"><option value="">Przejdź do części…</option>${secs.map(x => `<option value="${x.id}">${esc(x.t)}</option>`).join('')}</select><div class="read-prog" aria-hidden="true"><i id="read-i"></i></div></div>
   <div class="note-grid">
-    <article class="note">${secs.map(x => {
-      const veiled = rec && x.recall && !S.revealed.has(x.id);
-      const body = veiled ? `<div class="veil" data-act="reveal" data-id="${x.id}" role="button" tabindex="0" aria-label="Odsłoń: ${esc(x.t)}">${x.html}<span class="veil-cta"><span>Odsłoń</span></span></div>` : x.html;
+    <article class="note ${rec ? 'recall' : ''}">${secs.map(x => {
+      const body = x.html;
       const title = `<h2 class="nsec-t ${x.h ? 'h' : ''}">${esc(x.t)}</h2>`;
       return `<section class="nsec ${x.cls || ''}" id="${x.id}">${x.tool ? `<div class="nsec-tools">${title}${x.tool}</div>` : title}${body}</section>`;
     }).join('')}</article>
@@ -1327,19 +1485,77 @@ function viewNote(id) {
   ${canWrite() ? manageNote(n, idx, ns) : ''}`;
   return h;
 }
+function deadlineEvent(n, d) {
+  const t = String(d.title || '').trim().toLowerCase();
+  return S.events.find(e => e.subjectId === n.subjectId && (String(e.title || '').trim().toLowerCase() === t || (d.date && e.date === d.date && e.type === d.type)));
+}
+function examSection(n) {
+  const info = arr(n.examInfo).map(x => typeof x === 'string' ? {text: x} : x).filter(x => x && x.text);
+  const dl = arr(n.deadlines).filter(d => d && d.title);
+  if (!info.length && !dl.length) return null;
+  const rows = dl.map((d, i) => {
+    const have = deadlineEvent(n, d), type = EV_TYPES[d.type] || 'Termin';
+    const btn = have ? '<span class="pill good">w kalendarzu</span>' : canWrite() ? `<button class="btn sm" data-act="dl-add" data-id="${esc(n.id)}" data-i="${i}">${d.date ? 'Dodaj do kalendarza' : 'Ustal datę i dodaj'}</button>` : '';
+    const label = d.title.toLowerCase().startsWith(type.toLowerCase()) ? d.title : `${type}: ${d.title}`;
+    return `<p class="dl"><b>${esc(label)}</b>${d.date ? `<span>${esc(fmtDay(d.date, {day: 'numeric', month: 'long'}))}</span>` : ''}${d.scope ? `<span class="muted">${esc(d.scope)}</span>` : ''}${btn}</p>`;
+  }).join('');
+  return {id: 's-exam', t: 'Prowadzący mówi', cls: 'exam', html: rows + (info.length ? `<ul class="dot-list">${info.map(x => `<li>${mdi(x.text)}${x.src ? ` <span class="src">${esc(x.src)}</span>` : ''}</li>`).join('')}</ul>` : '')};
+}
 function noteSections(n) {
   const secs = [];
   if (n.summary) secs.push({id: 's-sum', t: 'W skrócie', html: `<div class="md lead">${md(n.summary)}</div>`});
-  if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Najważniejsze na egzamin', recall: true, html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Najważniejsze na egzamin', html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  const ex = examSection(n);
+  if (ex) secs.push(ex);
+  const quotes = arr(n.terms).filter(t => t && t.quote);
+  if (quotes.length) secs.push({id: 's-def', t: 'Definicje na pamięć', html: quotes.map(t => `<figure class="quote"><figcaption>${mdi(t.term)}</figcaption><blockquote class="md">${mdi(t.quote)}</blockquote>${t.source ? `<p class="src">${esc(t.source)}</p>` : ''}</figure>`).join('')});
+  const vocab = arr(n.vocab).filter(v => v && v.w);
+  if (vocab.length) secs.push({id: 's-voc', t: `Słownictwo (${vocab.length})`, html: `<ul class="vocab">${vocab.map(v => `<li>
+    <span class="v-w">${v.art ? `<span class="art art-${esc(v.art)}">${esc(v.art)}</span> ` : ''}${esc(v.w).replace('|', '<span class="sep">|</span>')}${v.plural ? ` <span class="v-pl2">${esc(v.plural)}</span>` : ''}</span>
+    <span class="v-pl cz-t">${esc(v.pl || '')}</span>
+    ${v.forms || v.ex ? `<span class="v-ex">${v.forms ? esc(v.forms) + (v.ex ? ' · ' : '') : ''}${v.ex ? `<i>${esc(v.ex)}</i>` : ''}</span>` : ''}</li>`).join('')}</ul>`});
+  arr(n.grammar).forEach((g, i) => { if (g && g.rule) secs.push({id: 's-gr' + i, t: g.title || 'Gramatyka', h: true, html:
+    `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${esc(x.trim())}</span>`).join('')}</div>` : ''}
+    <ul class="ex-list">${arr(g.examples).map(e => `<li><span>${mdi(e.t)}</span>${e.pl ? `<span class="muted">${esc(e.pl)}</span>` : ''}</li>`).join('')}</ul>
+    ${arr(g.exceptions).length ? `<p class="label" style="margin-top:10px">Wyjątki</p><ul class="dot-list">${g.exceptions.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}`}); });
+  if (arr(n.mistakes).length) secs.push({id: 's-mis', t: 'Typowe błędy', html: `<ul class="mist">${n.mistakes.map(m => `<li>
+    ${m.wrong ? `<span class="no"><span aria-hidden="true">✗</span> <s>${mdi(m.wrong)}</s></span>` : ''}<span class="ok"><span aria-hidden="true">✓</span> ${mdi(m.right)}</span>${m.why ? `<span class="muted">${mdi(m.why)}</span>` : ''}</li>`).join('')}</ul>`});
   const parts = arr(n.sections).filter(x => x && (x.heading || x.body));
-  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, recall: true, html: `<div class="md">${md(x.body)}</div>`}));
-  if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', recall: true, html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
+  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}</div>`}));
+  if (arr(n.people).length) secs.push({id: 's-ppl', t: 'Kto jest kim', html: `<ol class="tl">${n.people.filter(x => x && x.name).map(x => `<li><span class="tl-y">${esc(x.years || '')}</span>
+    <span><b>${esc(x.name)}</b>${x.school ? ` <span class="pill neutral">${esc(x.school)}</span>` : ''}<br><span class="cz-t">${mdi(x.idea || '')}</span>${x.work ? `<br><span class="muted"><i>${esc(x.work)}</i></span>` : ''}</span></li>`).join('')}</ol>`});
+  if (arr(n.formulas).length) secs.push({id: 's-fx', t: 'Wzory', html: n.formulas.filter(f => f && f.expr).map(f => `<div class="formula">${f.name ? `<p class="label">${esc(f.name)}</p>` : ''}<p class="expr">${esc(f.expr)}</p>
+    ${arr(f.vars).length ? `<ul>${f.vars.map(v => `<li><b>${esc(v.sym)}</b> – ${mdi(v.def || '')}</li>`).join('')}</ul>` : ''}${f.when ? `<p class="muted">${mdi(f.when)}</p>` : ''}</div>`).join('')});
+  if (arr(n.worked).length) secs.push({id: 's-wk', t: 'Przykłady krok po kroku', html: n.worked.filter(w => w && w.problem).map(w => `<div class="worked"><p><b>${esc(w.title || 'Przykład')}</b></p><div class="md">${md(w.problem)}</div>
+    <details><summary>Pokaż rozwiązanie</summary><ol>${arr(w.steps).map(x => `<li>${mdi(x)}</li>`).join('')}</ol>${w.result ? `<p><b>Wynik:</b> ${mdi(w.result)}</p>` : ''}</details></div>`).join('')});
+  if (arr(n.exercises).length) secs.push({id: 's-exr', t: 'Ćwiczenia', html: n.exercises.filter(x => x && arr(x.items).length).map(x => `<div class="exr"><p><b>${esc(x.title || 'Ćwiczenie')}</b>${x.instr ? ' · ' + mdi(x.instr) : ''}</p>
+    <ol>${x.items.map(it => `<li><span>${mdi(it.q)}</span> <details><summary>Pokaż rozwiązanie</summary>${mdi(it.a)}</details></li>`).join('')}</ol></div>`).join('')});
+  if (arr(n.texts).length) secs.push({id: 's-txt', t: 'Teksty', html: n.texts.filter(x => x && x.text).map(x => `<div class="txt">${x.title ? `<p><b>${esc(x.title)}</b></p>` : ''}<div class="md">${md(x.text)}</div>${x.pl ? `<details><summary>Tłumaczenie</summary><div class="md">${md(x.pl)}</div></details>` : ''}</div>`).join('')});
+  if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
+  if (arr(n.examQuestions).length) secs.push({id: 's-eq', t: 'Typowe pytania egzaminacyjne', html: `<ol class="eq">${n.examQuestions.filter(q => q && q.q).map(q => `<li><p>${mdi(q.q)}${q.fromSlides ? ' <span class="pill neutral">ze slajdów</span>' : ''}</p>
+    ${q.outline ? `<details><summary>Plan odpowiedzi</summary><div class="md">${md(q.outline)}</div></details>` : ''}</li>`).join('')}</ol>`});
   if (arr(n.mnemonics).length) secs.push({id: 's-mn', t: 'Mnemotechniki', html: `<ul class="dot-list">${arr(n.mnemonics).map(x => `<li>${mdi(typeof x === 'string' ? x : (x && x.text))}</li>`).join('')}</ul>`});
   const practice = practiceOf(n);
-  if (practice.length) secs.push({id: 's-pr', t: 'W praktyce', recall: true, html: `<ul class="dot-list">${practice.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  if (practice.length) secs.push({id: 's-pr', t: 'W praktyce', html: `<ul class="dot-list">${practice.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
+  if (arr(n.literature).length) secs.push({id: 's-lit', t: 'Literatura', html: `<ul class="dot-list">${n.literature.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
   return secs;
 }
+// tryb przypominania: kluczowe pojęcia, definicje i drugie kolumny tabel stają się lukami do kliknięcia
+function applyRecall(root) {
+  if (!root) return;
+  for (const el of root.querySelectorAll('.md li > strong, .md p > strong, .hy-list li > strong, .md li > mark, .md p > mark, .hy-list li > mark')) {
+    // pogrubienie na samym początku punktu to podpowiedź (np. „Taylor (1911):”) i zostaje widoczne
+    let prev = el.previousSibling;
+    while (prev && prev.nodeType === 3 && !prev.textContent.trim()) prev = prev.previousSibling;
+    if (prev) el.classList.add('cz');
+  }
+  root.querySelectorAll('.md td:not(:first-child), .terms dd, .cz-t, .mist .ok, .quote blockquote').forEach(el => el.classList.add('cz'));
+}
 function inlineCards(n, cards) {
+  if (cards.length > 6) {
+    const k = 'fc-all-' + n.id;
+    return inlineCards(n, cards.slice(0, 5)) + `<details class="fc-more" data-k="${esc(k)}" ${S.openDetails.has(k) ? 'open' : ''}><summary>Pokaż wszystkie fiszki (${cards.length})</summary>${inlineCards(n, cards.slice(5))}</details>`;
+  }
   const t = today();
   return `<div class="fc-list">${cards.map(c => {
     const k = 'fc-' + n.id + '-' + c.key, st = cardSt(c);
@@ -1378,6 +1594,12 @@ function viewSearch() {
       .concat(arr(n.terms).map(x => ['Pojęcia', `${x && x.term} — ${x && x.def}`]))
       .concat(practiceOf(n).map(x => ['W praktyce', x]))
       .concat(arr(n.flashcards).map(x => ['Fiszka', `${x && x.q} — ${x && x.a}`]))
+      .concat(n.myNotes ? [['Moje notatki', n.myNotes]] : [])
+      .concat(arr(n.mnemonics).map(x => ['Mnemotechniki', x]))
+      .concat(arr(n.examInfo).map(x => ['Prowadzący mówi', typeof x === 'string' ? x : x && x.text]))
+      .concat(arr(n.vocab).map(v => ['Słownictwo', v && `${v.w} — ${v.pl}`]))
+      .concat(arr(n.people).map(x => ['Kto jest kim', x && `${x.name} — ${x.idea || ''}`]))
+      .concat(arr(n.examQuestions).map(q => ['Pytania egzaminacyjne', q && q.q]))
       .concat(arr(n.tags).map(x => ['Tag', x]));
     let hits = 0, first = null;
     for (const [label, raw] of fields) {
@@ -1414,7 +1636,7 @@ function go(view) {
 }
 function openNote(id) {
   go({name: 'note', id});
-  if (noteById(id) && statusOf(id) === 'nowe') {
+  if (statusOf(id) === 'nowe') {
     const p = clone(P(id));
     p.status = 'czytam';
     p.readAt = new Date().toISOString();
@@ -1466,6 +1688,7 @@ async function transferNote(id, sid) {
   try {
     await S.db.doc('notes/' + id).update({subjectId: sid, nr});
     await renumber(oldList);
+    await unlinkLecture(id);
     toast(`Przeniesiono do: ${s.name} (Wykład ${nr})`);
   } catch (e) { toast(dbErr(e)); }
 }
@@ -1475,6 +1698,8 @@ async function deleteNote(id) {
   const sid = n.subjectId, rest = notesOf(sid).filter(x => x.id !== id);
   try {
     await S.db.doc('notes/' + id).delete();
+    if (n.hasBackup) await S.db.doc('noteBackups/' + id).delete();
+    await unlinkLecture(id);
     await renumber(rest);
     toast('Usunięto wykład.');
     go(subjectById(sid) ? {name: 'subject', id: sid} : {name: 'home'});
@@ -1484,7 +1709,10 @@ async function deleteSubject(id) {
   const ns = notesOf(id);
   const items = arr(S.plan && S.plan.items);
   try {
-    for (const n of ns) await S.db.doc('notes/' + n.id).delete();
+    for (const n of ns) {
+      await S.db.doc('notes/' + n.id).delete();
+      if (n.hasBackup) await S.db.doc('noteBackups/' + n.id).delete();
+    }
     for (const e of S.events.filter(x => x.subjectId === id)) await S.db.doc('events/' + e.id).delete();
     if (items.some(x => x && x.sid === id)) await S.db.doc('meta/plan').update({items: items.filter(x => !x || x.sid !== id)});
     await S.db.doc('subjects/' + id).delete();
@@ -1528,21 +1756,35 @@ function renderOv() {
   const o = S.ov;
   if (!o) return;
   const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy) || ((o.type === 'editor' || o.type === 'mynotes') && !!o.busy);
-  const body = o.type === 'review' ? ovReview(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : o.type === 'event' ? ovEvent(o) : o.type === 'editor' ? ovEditor(o) : o.type === 'mynotes' ? ovMyNotes(o) : ovAsk(o);
+  const body = o.type === 'review' ? ovReview(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : o.type === 'event' ? ovEvent(o) : o.type === 'day' ? ovDay(o) : o.type === 'editor' ? ovEditor(o) : o.type === 'mynotes' ? ovMyNotes(o) : ovAsk(o);
   const el = $('#ov');
+  // przy ponownym rysowaniu tej samej nakładki zostajemy w tym samym miejscu i przy tym samym polu
+  const prev = el.querySelector('.panel'), same = el.__ov === o && prev;
+  const top = same ? prev.scrollTop : 0;
+  const act = document.activeElement;
+  const fk = same && act && prev.contains(act) ? (act.id ? '#' + act.id : act.dataset && act.dataset.ck != null ? `[data-ck="${act.dataset.ck}"]` : null) : null;
   el.innerHTML = `<div class="ov-scrim" ${locked ? '' : 'data-act="close-ov"'}></div><div class="panel panel-${o.type}" role="dialog" aria-modal="true" tabindex="-1">${body}</div>`;
-  const af = el.querySelector('[autofocus]') || el.querySelector('.panel');
+  el.__ov = o;
+  const panel = el.querySelector('.panel');
+  if (top) panel.scrollTop = top;
+  const af = (fk && el.querySelector(fk)) || el.querySelector('[autofocus]') || panel;
   if (af) af.focus({preventScroll: true});
 }
 const ovHead = (title, closable = true, extra = '') =>
-  `<div class="ov-head"><h2 class="ov-title">${esc(title)}</h2>${extra}${closable ? `<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button>` : ''}</div>`;
+  `<div class="ov-head"><h2 class="ov-title">${esc(title)}</h2>${closable ? `<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button>` : ''}${extra ? `<div class="ov-sub">${extra}</div>` : ''}</div>`;
 const ovHeadLabel = (label, extra = '') =>
   `<div class="ov-head"><p class="label">${esc(label)}</p>${extra}<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button></div>`;
 
 function eventNotes(e) {
   if (!e) return [];
-  const ids = arr(e.lectureIds);
-  return ids.length ? ids.map(noteById).filter(Boolean) : (e.subjectId ? notesOf(e.subjectId) : []);
+  const found = arr(e.lectureIds).map(noteById).filter(n => n && (!e.subjectId || n.subjectId === e.subjectId));
+  return found.length ? found : (e.subjectId ? notesOf(e.subjectId) : []);
+}
+// usuwa wykład z zakresu terminów (po usunięciu albo przeniesieniu wykładu)
+async function unlinkLecture(noteId) {
+  for (const e of S.events.filter(x => arr(x.lectureIds).includes(noteId))) {
+    await S.db.doc('events/' + e.id).update({lectureIds: arr(e.lectureIds).filter(x => x !== noteId)});
+  }
 }
 function scopeNotes(kind, id) {
   if (kind === 'event') return eventNotes(eventById(id));
@@ -1558,7 +1800,7 @@ function scopeLabel(kind, id, what) {
 }
 
 /* ---------- powtórka: fiszki, luki, pojęcia, błędy z testów ---------- */
-const KIND_TAG = {cloze: 'luka', term: 'pojęcie od tyłu', mcq: 'błąd z testu'};
+const KIND_TAG = {cloze: 'luka', term: 'pojęcie od tyłu', mcq: 'błąd z testu', vocab: 'słówko', person: 'osoba'};
 function startReview(kind, id) {
   const notes = scopeNotes(kind, id), t = today();
   const due = [], fresh = [];
@@ -1597,10 +1839,14 @@ function rate(g) {
   const p = clone(P(c.noteId));
   if (!p.cards) p.cards = {};
   const prev = p.cards[c.key], n = noteById(c.noteId);
-  p.cards[c.key] = schedule(prev, g, n && examDateFor(n.subjectId));
-  S.prog[c.noteId] = p;
-  saveProg(c.noteId);
-  bumpStats(!prev);
+  if (o.cram && !prev) {
+    bumpStats(false);   // przegląd: nowa fiszka nie trafia do harmonogramu ani do dziennego limitu
+  } else {
+    p.cards[c.key] = schedule(prev, g, n && examDateFor(n.subjectId));
+    S.prog[c.noteId] = p;
+    saveProg(c.noteId);
+    bumpStats(!prev);
+  }
   if (g === 1) o.q.splice(Math.min(o.i + 4, o.q.length), 0, {...c, order: null});
   o.tally[g]++;
   o.i++;
@@ -1661,7 +1907,7 @@ function startQuiz(kind, id, only) {
     qs = shuffle(qs).sort((x, y) => rank(x) - rank(y)).slice(0, 25);
   }
   qs = shuffle(qs).map(q => ({...q, order: shuffle(arr(q.options).map((_, i) => i))}));
-  S.ov = {type: 'quiz', kind, id, qs, i: 0, picked: null, correct: 0, per: {}, wrong: [], more: null, label: scopeLabel(kind, id, only ? 'Poprawa błędów' : 'Test')};
+  S.ov = {type: 'quiz', kind, id, qs, only: !!only, i: 0, picked: null, correct: 0, per: {}, wrong: [], more: null, label: scopeLabel(kind, id, only ? 'Poprawa błędów' : 'Test')};
   openOv();
 }
 function recordAnswer(noteId, q, ok) {
@@ -1698,6 +1944,9 @@ function quizNext() {
   o.more = null;
   if (o.i >= o.qs.length) {
     for (const [nid, r] of Object.entries(o.per)) {
+      const n = noteById(nid);
+      // wynik wykładu zapisujemy tylko po teście z całego wykładu (nie po „Powtórz błędne” ani próbce z przedmiotu)
+      if (o.only || !n || r.t < arr(n.quiz).filter(q => q && q.q && arr(q.options).length > 1).length) continue;
       const p = clone(P(nid)), pct = Math.round(r.c / r.t * 100);
       p.quiz = {last: pct, best: Math.max(pct, (p.quiz && p.quiz.best) || 0), at: today()};
       S.prog[nid] = p;
@@ -1777,7 +2026,7 @@ function ovQuiz(o) {
         const cls = !answered ? '' : k === ans ? 'ok' : k === o.picked ? 'no' : 'dim';
         return `<button class="qz-o ${cls}" data-act="quiz-pick" data-k="${k}" ${answered ? 'disabled' : ''}><span class="qz-l">${L[j]}</span><span>${mdi(q.options[k])}</span></button>`;
       }).join('')}</div>
-      ${answered ? `<div class="qz-why"><p><b>${o.picked === ans ? 'Dobrze.' : 'Niestety nie.'}</b> ${mdi(q.why || '')}</p>${expl}</div>${more}
+      ${answered ? `<div class="qz-why"><p><b>${o.picked === ans ? 'Dobrze.' : 'Niestety nie.'}</b> ${mdi(q.why || '')}</p>${expl}${wrong && n && Number.isInteger(q.sec) && arr(n.sections)[q.sec] ? `<button class="btn ghost sm" style="margin-top:6px" data-act="quiz-goto" data-id="${esc(n.id)}" data-sec="${q.sec}">Wróć do części: ${esc(n.sections[q.sec].heading || 'Notatki')}</button>` : ''}</div>${more}
       <div class="rate"><button class="btn primary wide" data-act="quiz-next" ${o.moreBusy ? '' : 'autofocus'}>${o.i + 1 < o.qs.length ? 'Następne pytanie' : 'Zobacz wynik'} <span class="kbd">Enter</span></button></div>` : ''}
     </div>`;
 }
@@ -1828,10 +2077,17 @@ async function submitSubject() {
 }
 
 /* ---------- termin: podgląd i edycja ---------- */
+function ovDay(o) {
+  const es = allEvents().filter(e => e.date === o.date);
+  return ovHead(cap(fmtDay(o.date, {weekday: 'long', day: 'numeric', month: 'long'}))) +
+    (es.length ? `<ul class="ev-list">${es.map(evRow).join('')}</ul>` : '<p class="muted" style="margin:0">Brak terminów tego dnia.</p>') +
+    (canWrite() ? `<div class="row end"><button class="btn primary" data-act="ev-new" data-date="${esc(o.date)}">Dodaj termin tego dnia</button></div>` : '');
+}
 function newEvent(date, sid) {
   const v = S.view;
   const subjectId = sid || (v.name === 'subject' ? v.id : v.name === 'note' ? ((noteById(v.id) || {}).subjectId || '') : '');
   S.ov = {type: 'event', id: null, mode: 'edit', draft: {type: 'kolokwium', subjectId, date: date || '', time: '', title: '', place: '', notes: '', lectureIds: [], checklist: [], done: false, grade: ''}};
+  S.ov.base = evSig(S.ov.draft);
   openOv();
 }
 function openEvent(id) {
@@ -1846,15 +2102,16 @@ function readEvForm() {
   const typeEl = document.querySelector('input[name="ev-type"]:checked');
   if (typeEl) d.type = typeEl.value;
   const sub = val('ev-sub');
+  const switched = sub !== undefined && sub !== d.subjectId;
   if (sub !== undefined) {
-    if (sub !== d.subjectId) d.lectureIds = [];
+    if (switched) d.lectureIds = [];
     d.subjectId = sub;
   }
   for (const [k, id] of [['title', 'ev-title'], ['date', 'ev-date'], ['time', 'ev-time'], ['place', 'ev-place'], ['notes', 'ev-notes'], ['grade', 'ev-grade']]) {
     const v = val(id);
     if (v !== undefined) d[k] = v;
   }
-  if (document.getElementById('ev-sub') && document.querySelector('.lec-checks')) {
+  if (!switched && document.getElementById('ev-sub') && document.querySelector('.lec-checks')) {
     d.lectureIds = [...document.querySelectorAll('input[name="ev-lec"]:checked')].map(x => x.value);
   }
   const rows = document.querySelectorAll('.ck-edit');
@@ -1871,14 +2128,19 @@ function ovEvent(o) {
   const s = subjectById(e.subjectId), scope = eventNotes(e);
   const cards = scope.reduce((a, n) => a + cardsOf(n).length, 0), qs = scope.reduce((a, n) => a + arr(n.quiz).length, 0);
   const when = cap(fmtDay(e.date, {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'})) + (e.time ? ', ' + e.time : '');
-  let h = ovHead(evTitle(e)) + `<p class="ev-when" style="${evColor(e)}"><span class="sw"></span><b>${esc(evTypeName(e.type))}</b>${s ? `<span>${esc(s.name)}</span>` : ''}<span>${esc(when)}</span>${e.place ? `<span>${esc(e.place)}</span>` : ''}${evPill(e)}</p>`;
+  const bits = [`<b>${esc(evTypeName(e.type))}</b>`, s ? esc(s.name) : '', esc(when), e.place ? esc(e.place) : ''].filter(Boolean);
+  let h = ovHead(evTitle(e)) + `<p class="ev-when" style="${evColor(e)}"><span class="sw"></span>${bits.join('<span aria-hidden="true">·</span>')}${evPill(e)}</p>`;
   if (e.done && e.grade) h += `<p style="margin:0">Wynik: <b>${esc(e.grade)}</b></p>`;
   if (arr(e.lectureIds).length || (s && scope.length)) {
-    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="btn ghost sm" style="padding:0;min-height:0" data-act="ov-go-note" data-id="${esc(n.id)}">Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
+    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="lec-link" data-act="ov-go-note" data-id="${esc(n.id)}">Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
       ${cards || qs ? `<div class="row wrap">${cards ? `<button class="btn primary" data-act="review" data-kind="event" data-id="${esc(e.id)}">Przygotuj się: fiszki (${cards})</button>` : ''}${qs ? `<button class="btn" data-act="quiz" data-kind="event" data-id="${esc(e.id)}">Test z zakresu (${qs})</button>` : ''}</div>` : ''}</div>`;
   }
   if (e.notes) h += `<div class="ev-sec"><p class="label">Notatki</p><div class="md">${md(e.notes)}</div></div>`;
-  const ck = arr(e.checklist);
+  let ck = arr(e.checklist);
+  if (o.pendingSteps) {
+    if (JSON.stringify(o.pendingSteps.map(x => !!x.done)) === JSON.stringify(ck.map(x => !!x.done))) o.pendingSteps = null;
+    else ck = o.pendingSteps;
+  }
   if (ck.length) {
     const doneN = ck.filter(x => x && x.done).length;
     h += `<div class="ev-sec"><p class="label">Kroki · ${doneN}/${ck.length}</p>${bar(doneN, 0, ck.length)}<ul class="ck-list">${ck.map((x, i) => `<li><label class="${x && x.done ? 'is-done' : ''}"><input type="checkbox" data-ck="${i}" ${x && x.done ? 'checked' : ''} ${canWrite() ? '' : 'disabled'}><span>${esc(x && x.t)}</span></label></li>`).join('')}</ul></div>`;
@@ -1901,7 +2163,7 @@ function ovEventEdit(o) {
     <div class="field"><label for="ev-place">Miejsce lub forma <span class="muted">(opcjonalnie)</span></label><input id="ev-place" type="text" maxlength="120" value="${esc(d.place || '')}" placeholder="np. sala A/142, online, oddanie przez Moodle"></div>`;
   if (lecs.length) {
     const sel = new Set(arr(d.lectureIds));
-    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(pusty = cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
+    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(bez zaznaczenia: cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>Wykład ${esc(n.nr)}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
       <div class="row"><button type="button" class="btn ghost sm" data-act="ev-all-lec">Zaznacz wszystkie</button></div></fieldset>`;
   }
   h += `<div class="field"><label for="ev-notes">Notatki <span class="muted">(opcjonalnie)</span></label><textarea id="ev-notes" rows="3" placeholder="np. wymagania, kryteria oceny, co przynieść">${esc(d.notes || '')}</textarea></div>`;
@@ -1911,6 +2173,7 @@ function ovEventEdit(o) {
   }
   if (o.id) h += `<div class="field-row"><label class="check"><input type="checkbox" id="ev-done" ${d.done ? 'checked' : ''}>Zrobione</label><div class="field"><label for="ev-grade">Wynik lub ocena <span class="muted">(opcjonalnie)</span></label><input id="ev-grade" type="text" maxlength="40" value="${esc(d.grade || '')}" placeholder="np. 4,5 albo 18/20"></div></div>`;
   h += `<p class="form-err" id="ev-err" hidden></p>
+    ${o.confirmClose ? `<div class="ed-bar"><span>Masz niezapisane zmiany.</span><button type="button" class="btn primary sm" data-act="ev-save">Zapisz</button><button type="button" class="btn ghost sm danger-text" data-act="ed-discard">Odrzuć zmiany</button><button type="button" class="btn ghost sm" data-act="ed-keep">Wróć do edycji</button></div>` : ''}
     <div class="row end"><button type="button" class="btn ghost" data-act="${o.id ? 'ev-cancel-edit' : 'close-ov'}">Anuluj</button><button type="submit" class="btn primary">${o.id ? 'Zapisz' : 'Dodaj termin'}</button></div>
     ${o.id ? '<div class="danger-zone" id="ev-del-zone"><button type="button" class="btn ghost sm danger-text" data-act="ev-del">Usuń termin</button></div>' : ''}
   </form>`;
@@ -1928,7 +2191,7 @@ async function submitEvent() {
     subjectId: subjectById(d.subjectId) ? d.subjectId : null,
     title: String(d.title || '').trim(), date: d.date, time: d.time || null,
     place: String(d.place || '').trim(), notes: String(d.notes || '').trim(),
-    lectureIds: arr(d.lectureIds).filter(id => noteById(id)),
+    lectureIds: arr(d.lectureIds).filter(id => { const n = noteById(id); return n && n.subjectId === d.subjectId; }),
     checklist: arr(d.checklist).map(x => ({t: String(x.t || '').trim(), done: !!x.done})).filter(x => x.t),
     done: !!d.done, grade: String(d.grade || '').trim(),
     createdAt: d.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
@@ -1948,18 +2211,38 @@ async function submitEvent() {
     }
   } catch (e) { err.textContent = dbErr(e); err.hidden = false; }
 }
-async function toggleEventStep(i, done) {
-  const e = eventById(S.ov && S.ov.id);
+let stepChain = Promise.resolve();
+function toggleEventStep() {
+  const o = S.ov, e = eventById(o && o.id);
   if (!e) return;
-  const checklist = clone(arr(e.checklist));
-  if (!checklist[i]) return;
-  checklist[i].done = done;
-  try { await S.db.doc('events/' + e.id).update({checklist, updatedAt: new Date().toISOString()}); } catch (err) { toast(dbErr(err)); renderOv(); }
+  // stan bierzemy z widocznych pól, więc szybkie klikanie kilku kroków niczego nie cofa
+  const boxes = [...document.querySelectorAll('.ck-list input[data-ck]')];
+  const checklist = arr(e.checklist).map((x, i) => ({...x, done: boxes[i] ? boxes[i].checked : !!x.done}));
+  o.pendingSteps = checklist;
+  stepChain = stepChain.then(() => S.db.doc('events/' + e.id).update({checklist, updatedAt: nowIso()})).catch(err => { toast(dbErr(err)); o.pendingSteps = null; renderOv(); });
 }
 async function toggleEventDone() {
   const e = eventById(S.ov && S.ov.id);
   if (!e) return;
   try { await S.db.doc('events/' + e.id).update({done: !e.done, updatedAt: new Date().toISOString()}); toast(e.done ? 'Termin znowu aktywny.' : 'Oznaczono jako zrobione.'); } catch (err) { toast(dbErr(err)); }
+}
+async function addDeadline(noteId, i) {
+  const n = noteById(noteId), d = n && arr(n.deadlines).filter(x => x && x.title)[i];
+  if (!d || deadlineEvent(n, d)) return;
+  if (!d.date) {
+    // bez daty: otwieramy wypełniony formularz, datę wpisuje użytkownik
+    newEvent('', n.subjectId);
+    Object.assign(S.ov.draft, {type: EV_TYPES[d.type] ? d.type : 'inne', title: d.title, notes: d.scope || ''});
+    S.ov.base = evSig(S.ov.draft);
+    renderOv();
+    const f = $('#ev-date');
+    if (f) f.focus();
+    return;
+  }
+  try {
+    await S.db.collection('events').doc().set({type: EV_TYPES[d.type] ? d.type : 'inne', subjectId: n.subjectId, title: d.title, date: d.date, time: null, place: '', notes: d.scope || '', lectureIds: [], checklist: [], done: false, grade: '', createdAt: nowIso(), updatedAt: nowIso()});
+    toast(`Dodano do kalendarza: ${d.title}`);
+  } catch (e) { toast(dbErr(e)); }
 }
 async function deleteEvent() {
   const o = S.ov;
@@ -1980,31 +2263,47 @@ function draftFrom(n) {
   return {
     title: n.title || '', lectureDate: isYmd(n.lectureDate) ? n.lectureDate : '', summary: n.summary || '',
     highYield: strs(n.highYield), practice: strs(practiceOf(n)), mnemonics: strs(n.mnemonics),
-    sections: arr(n.sections).map(x => ({heading: (x && x.heading) || '', body: (x && x.body) || ''})),
-    terms: arr(n.terms).map(x => ({term: (x && x.term) || '', def: (x && x.def) || ''})),
-    flashcards: arr(n.flashcards).filter(c => c && c.q).map(c => ({id: c.id || hash(c.q), q: c.q || '', a: c.a || ''})),
+    sections: arr(n.sections).map((x, i) => ({heading: (x && x.heading) || '', body: (x && x.body) || '', _o: i})),
+    terms: arr(n.terms).filter(Boolean).map(x => ({...x, term: x.term || '', def: x.def || ''})),
+    flashcards: arr(n.flashcards).filter(c => c && c.q).map(c => ({...c, id: c.id || hash(c.q), q: c.q || '', a: c.a || ''})),
     quiz: arr(n.quiz).filter(q => q && q.q).map(q => {
-      const options = arr(q.options).map(String);
+      const options = arr(q.options).map(String), explain = arr(q.explain).map(String);
       while (options.length < 4) options.push('');
-      return {q: q.q || '', options, answer: Number(q.answer) || 0, why: q.why || ''};
+      while (explain.length < options.length) explain.push('');
+      return {...q, q: q.q || '', options, explain, answer: Number(q.answer) || 0, why: q.why || ''};
     }),
     tags: arr(n.tags).join(', '), myNotes: n.myNotes || '',
   };
 }
+// sec w fiszkach, pytaniach itd. wskazuje część po indeksie: po przestawieniu lub usunięciu części trzeba go przeliczyć
+function secRemap(d) {
+  const m = new Map();
+  arr(d.sections).filter(x => String(x.heading || '').trim() || String(x.body || '').trim()).forEach((x, j) => { if (Number.isInteger(x._o)) m.set(x._o, j); });
+  return list => arr(list).map(x => {
+    if (!x || !Number.isInteger(x.sec)) return x;
+    const {sec, ...rest} = x;
+    return m.has(sec) ? {...rest, sec: m.get(sec)} : rest;
+  });
+}
 function cleanDraft(d) {
   const lines = v => arr(v).map(x => String(x).trim()).filter(Boolean);
+  const fixSec = secRemap(d);
   return {
     title: String(d.title || '').trim(), lectureDate: isYmd(d.lectureDate) ? d.lectureDate : null, summary: String(d.summary || '').trim(),
     highYield: lines(d.highYield), practice: lines(d.practice), clinical: [], mnemonics: lines(d.mnemonics),
     sections: arr(d.sections).map(x => ({heading: String(x.heading || '').trim(), body: String(x.body || '').trim()})).filter(x => x.heading || x.body),
-    terms: arr(d.terms).map(x => ({term: String(x.term || '').trim(), def: String(x.def || '').trim()})).filter(x => x.term),
-    flashcards: arr(d.flashcards).map(c => ({id: c.id || newCardId(), q: String(c.q || '').trim(), a: String(c.a || '').trim()})).filter(c => c.q && c.a),
-    quiz: arr(d.quiz).map(q => {
-      const opts = arr(q.options).map(x => String(x || '').trim());
-      const correct = opts[Number(q.answer) || 0];
-      const options = opts.filter(Boolean);
-      return {q: String(q.q || '').trim(), options, answer: Math.max(0, options.indexOf(correct)), why: String(q.why || '').trim(), ok: !!correct};
-    }).filter(q => q.q && q.options.length >= 2 && q.ok).map(({ok, ...q}) => q),
+    terms: arr(d.terms).map(x => ({...x, term: String(x.term || '').trim(), def: String(x.def || '').trim()})).filter(x => x.term),
+    flashcards: fixSec(arr(d.flashcards).map(c => ({...c, id: c.id || newCardId(), q: String(c.q || '').trim(), a: String(c.a || '').trim()})).filter(c => c.q && c.a)),
+    quiz: fixSec(arr(d.quiz).map(q => {
+      // odpowiedzi i ich wyjaśnienia filtrujemy parami, żeby indeksy się nie rozjechały
+      const ex = arr(q.explain);
+      const pairs = arr(q.options).map((o, i) => ({o: String(o || '').trim(), e: String(ex[i] || '').trim(), i})).filter(x => x.o);
+      const answer = pairs.findIndex(x => x.i === (Number(q.answer) || 0));
+      const {explain, ...rest} = q;
+      const out = {...rest, q: String(q.q || '').trim(), options: pairs.map(x => x.o), answer, why: String(q.why || '').trim()};
+      if (pairs.some(x => x.e)) out.explain = pairs.map(x => x.e);
+      return out;
+    }).filter(q => q.q && q.options.length >= 2 && q.answer >= 0)),
     tags: String(d.tags || '').split(',').map(x => x.trim()).filter(Boolean).slice(0, 8),
     myNotes: String(d.myNotes || '').trim(),
   };
@@ -2016,7 +2315,7 @@ let draftTimer = 0;
 function saveLocalDraft(o) {
   clearTimeout(draftTimer);
   if (o.type !== 'editor') return;
-  draftTimer = setTimeout(() => { try { localStorage.setItem(draftKey(o), JSON.stringify({draft: o.draft, at: nowIso()})); } catch (e) {} }, 500);
+  draftTimer = setTimeout(() => { try { localStorage.setItem(draftKey(o), JSON.stringify({draft: o.draft, at: nowIso(), sig: o.baseSig})); } catch (e) {} }, 500);
 }
 const isDirty = o => !!o && !!o.draft && JSON.stringify(o.draft) !== o.base;
 
@@ -2088,7 +2387,7 @@ function ovEditor(o) {
         <button type="button" class="tool" data-act="ed-sec-move" data-i="${i}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Przesuń wyżej">↑</button>
         <button type="button" class="tool" data-act="ed-sec-move" data-i="${i}" data-dir="1" ${i === d.sections.length - 1 ? 'disabled' : ''} aria-label="Przesuń niżej">↓</button>
         <button type="button" class="tool" data-act="ed-sec-del" data-i="${i}" aria-label="Usuń część">${X_ICON}</button></div>
-        <div class="ed-block-head">${mdTools('ed-sec-' + i)}${ai ? `<button type="button" class="tool ai" data-act="ed-ai-section" data-i="${i}">Popraw i uzupełnij z Claude</button>` : ''}</div>
+        <div class="ed-block-head">${mdTools('ed-sec-' + i)}${ai ? `<button type="button" class="tool ai" data-act="ed-ai-section" data-i="${i}">Popraw z pomocą Claude'a</button>` : ''}</div>
         ${edTextarea('ed-sec-' + i, `sections.${i}.body`, x.body, 8, 'Treść w punktach, np.\n- **pojęcie**: wyjaśnienie\n- kolejny punkt')}
         ${undo ? `<div class="ed-undo"><span>Claude poprawił tę część.</span><button type="button" class="tool" data-act="ed-undo">Cofnij</button></div>` : ''}</div>`;
     });
@@ -2123,24 +2422,43 @@ function ovEditor(o) {
     : `<span class="grow" id="ed-state">${isDirty(o) ? 'Niezapisane zmiany' : ''}</span><button class="btn ghost" data-act="close-ov">Anuluj</button><button class="btn primary" data-act="ed-save" ${o.saving ? 'disabled' : ''}>${o.saving ? 'Zapisuję…' : o.id ? 'Zapisz' : 'Zapisz notatkę'}</button>`;
   return h + '</div>';
 }
-function requestCloseOv() {
+const evSig = d => JSON.stringify([d.type, d.subjectId || '', d.title || '', d.date || '', d.time || '', d.place || '', d.notes || '', arr(d.lectureIds).slice().sort(), arr(d.checklist).map(x => [x.t || '', !!x.done]), !!d.done, d.grade || '']);
+function askToKeep(o) {
+  o.confirmClose = true;
+  renderOv();
+  const f = $('#ov .ed-bar .btn.primary');
+  if (f) f.focus();
+}
+function requestCloseOv(toView) {
   const o = S.ov;
   if (o && (o.type === 'editor' || o.type === 'mynotes')) {
     if (o.busy) return;
-    if (isDirty(o)) {
-      o.confirmClose = true;
-      renderOv();
-      const f = $('#ov .ed-bar .btn.primary');
-      if (f) f.focus();
-      return;
-    }
-    clearLocalDraft(o);
+    if (isDirty(o)) return askToKeep(o);
+  }
+  if (o && o.type === 'event' && o.mode === 'edit') {
+    readEvForm();
+    if (evSig(o.draft) !== o.base) return askToKeep(o);
+    if (toView && o.id) { o.mode = 'view'; renderOv(); return; }
   }
   closeOv();
+}
+function incompleteItems(d) {
+  const out = [], t = v => String(v || '').trim();
+  d.flashcards.forEach((c, i) => { if ((t(c.q) || t(c.a)) && !(t(c.q) && t(c.a))) out.push({tab: 'cards', msg: `fiszka ${i + 1} (brak ${t(c.q) ? 'odpowiedzi' : 'pytania'})`}); });
+  d.quiz.forEach((q, i) => {
+    const opts = arr(q.options).map(t), filled = opts.filter(Boolean).length;
+    if (!t(q.q) && !filled) return;
+    const why = !t(q.q) ? 'brak treści pytania' : filled < 2 ? 'za mało odpowiedzi' : !opts[Number(q.answer) || 0] ? 'zaznaczona poprawna odpowiedź jest pusta' : '';
+    if (why) out.push({tab: 'quiz', msg: `pytanie ${i + 1} (${why})`});
+  });
+  d.terms.forEach((x, i) => { if (!t(x.term) && t(x.def)) out.push({tab: 'content', msg: `pojęcie ${i + 1} (brak nazwy)`}); });
+  return out;
 }
 async function saveEditor(force) {
   const o = S.ov;
   if (!o || o.type !== 'editor' || o.saving || o.busy) return;
+  const bad = incompleteItems(o.draft);
+  if (bad.length) { o.confirmClose = false; o.err = 'Uzupełnij albo usuń: ' + bad.map(b => b.msg).join(', ') + '.'; o.tab = bad[0].tab; renderOv(); return; }
   const c = cleanDraft(o.draft);
   o.confirmClose = false;
   if (!c.title) { o.err = 'Podaj tytuł wykładu.'; o.tab = 'content'; renderOv(); return; }
@@ -2151,13 +2469,16 @@ async function saveEditor(force) {
   try {
     let id = o.id;
     if (cur) {
-      const {id: _id, ...rest} = cur;
+      const {id: _id, ...rest} = cur, fixSec = secRemap(o.draft);
       if (!cur.own && !cur.hasBackup) { await S.db.doc('noteBackups/' + o.id).set({...rest, savedAt: nowIso()}); rest.hasBackup = true; }
+      for (const k of ['grammar', 'worked', 'examQuestions']) if (Array.isArray(rest[k])) rest[k] = fixSec(rest[k]);
       await S.db.doc('notes/' + o.id).set({...rest, ...c, editedAt: nowIso()});
     } else {
       const ref = S.db.collection('notes').doc();
       id = ref.id;
-      await ref.set({...c, subjectId: o.sid, nr: nextNr(o.sid), own: true, source: 'własna notatka', addedBy: 'ja', addedAt: nowIso()});
+      const data = {...c, subjectId: o.sid, nr: nextNr(o.sid), own: true, source: 'własna notatka', addedBy: 'ja', addedAt: nowIso()};
+      await ref.set(data);
+      if (!noteById(id)) S.notes = S.notes.concat([{...data, id}]);
     }
     clearLocalDraft(o);
     closeOv();
@@ -2244,15 +2565,17 @@ ${draftContext(o, 8000)}`, {signal, cache: false});
     if (S.ov !== o) return;
     const body = v && typeof v.body === 'string' ? v.body.trim() : '';
     if (!body) throw {code: 'invalid_json'};
-    o.undo = {i, prev: {...o.draft.sections[i]}};
-    o.draft.sections[i] = {heading: (v.heading && String(v.heading).trim()) || x.heading, body};
+    const j = o.draft.sections.indexOf(x);
+    if (j < 0) return;
+    o.undo = {i: j, prev: {...x}};
+    o.draft.sections[j] = {heading: (v.heading && String(v.heading).trim()) || x.heading, body};
     saveLocalDraft(o);
   });
 }
 function aiCards() {
   edAi('Claude tworzy fiszki…', async (signal, o) => {
     const have = o.draft.flashcards.map(c => c.q).filter(Boolean);
-    const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj fiszki do nauki po polsku. Jedna fiszka to jeden konkretny fakt; odpowiedź krótka (do 2 zdań). Nie powtarzaj istniejących fiszek.
+    const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj fiszki do nauki po polsku. Jedna fiszka to jeden fakt (nie łącz „kto i kiedy”); odpowiedź najwyżej 15 słów; przy listach podaj w pytaniu liczbę elementów. Nie powtarzaj istniejących fiszek.
 Odpowiedz WYŁĄCZNIE tablicą JSON 10–20 obiektów {"q": "pytanie", "a": "odpowiedź"}.
 
 ISTNIEJĄCE FISZKI: ${JSON.stringify(have.slice(0, 60))}
@@ -2271,8 +2594,8 @@ ${draftContext(o)}`, {signal, cache: false});
 function aiQuiz() {
   edAi('Claude tworzy pytania…', async (signal, o) => {
     const have = o.draft.quiz.map(q => q.q).filter(Boolean);
-    const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj pytania testowe jednokrotnego wyboru po polsku: 4 odpowiedzi, wiarygodne błędne odpowiedzi, krótkie wyjaśnienie poprawnej. Zmieniaj pozycję poprawnej odpowiedzi. Nie powtarzaj istniejących pytań.
-Odpowiedz WYŁĄCZNIE tablicą JSON 6–10 obiektów {"q": "pytanie", "options": ["...", "...", "...", "..."], "answer": 0, "why": "wyjaśnienie"}; "answer" to indeks poprawnej odpowiedzi (0–3).
+    const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj pytania testowe jednokrotnego wyboru po polsku: dokładnie 4 odpowiedzi podobnej długości i w tej samej formie, bez „wszystkie/żadna z powyższych”; błędne odpowiedzi to pojęcia, które się myli, a nie absurdy; co najmniej 1/3 pytań na zastosowanie (krótka sytuacja z firmy albo z życia). Zmieniaj pozycję poprawnej odpowiedzi. Nie powtarzaj istniejących pytań.
+Odpowiedz WYŁĄCZNIE tablicą JSON 6–10 obiektów {"q": "pytanie", "options": ["...", "...", "...", "..."], "answer": 0, "why": "dlaczego ta", "explain": ["wyjaśnienie A", "B", "C", "D"]}; "answer" to indeks poprawnej odpowiedzi (0–3), "explain" mówi przy każdej odpowiedzi, czym ona jest albo dlaczego nie pasuje.
 
 ISTNIEJĄCE PYTANIA: ${JSON.stringify(have.slice(0, 40))}
 
@@ -2280,9 +2603,10 @@ NOTATKI:
 ${draftContext(o)}`, {signal, cache: false});
     if (S.ov !== o) return;
     const add = normNote({quiz: Array.isArray(v) ? v : (v && v.quiz)}).quiz.filter(q => !have.includes(q.q)).map(q => {
-      const options = q.options.slice(0, 4);
+      const options = q.options.slice(0, 4), explain = arr(q.explain).slice(0, 4);
       while (options.length < 4) options.push('');
-      return {q: q.q, options, answer: q.answer, why: q.why};
+      while (explain.length < options.length) explain.push('');
+      return {q: q.q, options, explain, answer: q.answer, why: q.why};
     });
     if (!add.length) throw {code: 'invalid_json'};
     o.draft.quiz.push(...add);
@@ -2309,8 +2633,8 @@ async function genStudyTools(id) {
   try {
     const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj materiały do nauki po polsku:
 - "flashcards": 10–20 fiszek, jedna fiszka to jeden konkretny fakt, krótka odpowiedź;
-- "quiz": 6–10 pytań jednokrotnego wyboru z 4 odpowiedziami, wiarygodnymi błędnymi odpowiedziami i krótkim wyjaśnieniem; zmieniaj pozycję poprawnej odpowiedzi.
-Odpowiedz WYŁĄCZNIE obiektem JSON: {"flashcards": [{"q": "...", "a": "..."}], "quiz": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0, "why": "..."}]}
+- "quiz": 6–10 pytań jednokrotnego wyboru, dokładnie 4 odpowiedzi podobnej długości i formy, wiarygodne błędne odpowiedzi, co najmniej 1/3 na zastosowanie; zmieniaj pozycję poprawnej odpowiedzi; "explain" to 4 krótkie wyjaśnienia w kolejności odpowiedzi.
+Odpowiedz WYŁĄCZNIE obiektem JSON: {"flashcards": [{"q": "...", "a": "..."}], "quiz": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0, "why": "...", "explain": ["...", "...", "...", "..."]}]}
 
 NOTATKI:
 ${noteText(n).slice(0, 40000)}`, {cache: false});
@@ -2578,59 +2902,158 @@ async function extractText(file, say) {
   if (name.endsWith('.docx')) { say('Czytam dokument…'); return docxText(file); }
   return file.text();
 }
+function subjKind(s) {
+  const n = fold((s && s.name) || '');
+  if (/jezyk|angielsk|niemieck|hiszpansk|francusk|wlosk|rosyjsk/.test(n)) return 'lang';
+  if (/finans|rachunkow|ekonom|statyst|matemat|mikro|makro|inwest/.test(n)) return 'calc';
+  if (/praw/.test(n)) return 'law';
+  return 'theory';
+}
+
+const KIND_RULES = {
+  theory: `- Każdą osobę z prezentacji wpisz do "people": imię i nazwisko, lata życia albo rok dzieła, szkoła lub nurt, dzieło, główna idea w jednym zdaniu. Osoby wymieniaj też w "sections" tam, gdzie są omawiane.
+- Klasyfikacje i porównania (szkoły, teorie, typy, modele, „X vs Y”) podawaj jako tabele Markdown: w wierszach porównywane obiekty, w kolumnach te same cechy.
+- Jeśli wykład ma studium przypadku, opisz je w "practice" i odpowiedz na pytanie postawione na slajdzie.`,
+  calc: `- Każdy wzór wpisz do "formulas": nazwa, wzór zwykłym tekstem z symbolami Unicode (np. FV = PV · (1 + r)ⁿ), objaśnienie każdej zmiennej, kiedy wzór stosować.
+- Do "worked" wpisz 2–4 przykłady liczbowe krok po kroku: najpierw te ze slajdów; jeśli slajdy ich nie mają, ułóż proste własne i dopisz w tytule „(przykład własny)”. Każdy krok: co liczymy, podstawienie liczb, wynik z jednostką. Przelicz każdy wynik dwa razy.
+- W teście co najmniej 1/3 pytań to krótkie zadania obliczeniowe; błędne odpowiedzi to wyniki typowych pomyłek (zła stopa, pominięty okres, odwrócony znak, procent zamiast punktów procentowych).`,
+  law: `- Przy każdej instytucji podaj podstawę prawną (akt, artykuł), jeśli jest na slajdach. Nie wymyślaj numerów artykułów.
+- Rozróżnienia (np. zdolność prawna vs zdolność do czynności prawnych) podawaj jako tabele Markdown.
+- Kazusy ze slajdów wpisz do "worked": stan faktyczny w "problem", a w "steps" kolejno: przepis, przesłanki, zastosowanie do faktów, wniosek.`,
+  lang: `- Notatki pisz po polsku, przykłady w języku kursu.
+- Wszystkie słówka i zwroty z lekcji (także te z dialogów, tekstów i ćwiczeń) wpisz do "vocab", a nie do tabel w "sections" ani do "flashcards" (strona sama zrobi z nich fiszki). Rzeczowniki z rodzajnikiem w "art" i liczbą mnogą w "plural" (np. "-e", "-n", "¨-e", "–" gdy brak). Czasowniki rozdzielnie złożone zapisuj z kreską (auf|stehen), a w "forms" podaj 3. os. lp. (steht auf); przy czasownikach ze zmianą samogłoski podaj ją (du siehst fern). Do każdego słowa krótki przykład z lekcji w "ex".
+- Każdy temat gramatyczny wpisz do "grammar": reguła w 1–3 zdaniach po polsku, schemat (np. "Pozycja 1 | czasownik | … | przedrostek"), 3–5 przykładów z tłumaczeniem. Części, które tworzą regułę (np. odmieniony czasownik i przedrostek), oznacz ==tak==.
+- Błędy, przed którymi ostrzega prowadzący, i typowe błędy Polaków w tym temacie wpisz do "mistakes": błędnie, poprawnie, dlaczego.
+- Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
+- Tekst wzorcowy (np. przykładowy opis dnia) wpisz do "texts" z tłumaczeniem.
+- W "sections" zostaw krótkie wyjaśnienia i tabele, których nie da się zapisać w polach powyżej (np. tabela godzin).
+- Fiszki i test sprawdzają produkcję (polski → język kursu), formy, rodzajniki i szyk zdania, a nie terminologię gramatyczną.`,
+};
+
+const KIND_SHAPE = {
+  theory: ` "people": [{"name": "F.W. Taylor", "years": "1856–1915", "school": "szkoła klasyczna", "work": "The Principles of Scientific Management (1911)", "idea": "jedno zdanie"}],`,
+  calc: ` "formulas": [{"name": "nazwa", "expr": "FV = PV · (1 + r)ⁿ", "vars": [{"sym": "r", "def": "stopa procentowa w okresie"}], "when": "kiedy stosować"}],
+ "worked": [{"title": "tytuł", "problem": "treść zadania (Markdown)", "steps": ["krok 1", "krok 2"], "result": "wynik z jednostką", "sec": 0}],`,
+  law: ` "worked": [{"title": "Kazus: …", "problem": "stan faktyczny (Markdown)", "steps": ["przepis", "przesłanki", "zastosowanie", "wniosek"], "result": "rozstrzygnięcie", "sec": 0}],`,
+  lang: ` "vocab": [{"w": "auf|stehen", "pl": "wstawać", "pos": "v", "art": null, "plural": null, "forms": "steht auf", "ex": "Ich stehe um 7 Uhr auf."}, {"w": "Vorlesung", "pl": "wykład", "pos": "n", "art": "die", "plural": "-en", "forms": null, "ex": "Ich habe eine Vorlesung."}],
+ "grammar": [{"title": "tytuł reguły", "rule": "1–3 zdania po polsku", "pattern": "Pozycja 1 | czasownik | … | przedrostek", "examples": [{"t": "Ich ==stehe== um 7 Uhr ==auf==.", "pl": "Wstaję o 7."}], "exceptions": ["…"], "sec": 0}],
+ "mistakes": [{"wrong": "Ich stehe auf um 7 Uhr.", "right": "Ich stehe um 7 Uhr auf.", "why": "przedrostek idzie na koniec zdania"}],
+ "exercises": [{"title": "Übung 1", "instr": "polecenie po polsku", "items": [{"q": "Ich ___ um 6:30 Uhr ___. (aufstehen)", "a": "stehe … auf"}]}],
+ "texts": [{"title": "tytuł", "text": "tekst w języku kursu", "pl": "tłumaczenie"}],`,
+};
+
 function genPrompt(s, fname, text) {
-  return `Jesteś asystentem studenta. Na podstawie tekstu prezentacji z wykładu przygotuj notatki do nauki w języku polskim.
+  const kind = subjKind(s);
+  return `Jesteś asystentem studenta 1. roku Akademii Leona Koźmińskiego. Z tekstu prezentacji przygotuj po polsku notatki do nauki na egzamin.
 
 Przedmiot: ${s.name}
 Plik: ${fname}
+Dzisiejsza data: ${today()}
 
-Zasady:
-- Trzymaj się treści prezentacji i zachowaj kolejność tematów. Oczywiste luki możesz krótko uzupełnić wiedzą podręcznikową, ale niczego nie zmyślaj. Pomiń slajdy bez treści (tytułowe, podziękowania, bibliografia).
-- Pisz zwięźle, w punktach. Kluczowe pojęcia i wartości liczbowe wyróżniaj **pogrubieniem**. Porównania i klasyfikacje podawaj jako tabele Markdown.
-- Fiszki: jedno pytanie to jeden konkretny fakt; odpowiedź krótka.
-- Pytania testowe: jednokrotnego wyboru, 4 odpowiedzi, wiarygodne błędne odpowiedzi, krótkie wyjaśnienie poprawnej. Zmieniaj pozycję poprawnej odpowiedzi.
-- "practice": krótkie przykłady zastosowania w praktyce (np. w firmie, w pracy, w życiu codziennym), tylko jeśli pasują do przedmiotu; inaczej pusta lista.
-- "mnemonics": tylko jeśli naprawdę pomagają zapamiętać; inaczej pusta lista.
+TREŚĆ
+- Trzymaj się prezentacji i zachowaj kolejność tematów. Każdy fakt, liczba, nazwisko i data ze slajdów ma trafić do notatek, chyba że jest naprawdę nieistotny.
+- Oczywiste luki możesz uzupełnić wiedzą podręcznikową (np. brakujący element znanej listy), ale każde takie uzupełnienie oznacz dopiskiem „(spoza slajdów)”. Niczego nie zmyślaj; jeśli nie masz pewności, pomiń.
+- Najcenniejsze są notatki prowadzącego (np. „[Notatki prowadzącego]”) i slajdy typu „Na egzamin”, „Przykładowe pytania”, „Hausaufgabe”, „Literatura”, terminy kolokwiów i prac. Nie pomijaj ich: wskazówki prowadzącego wpisz do "examInfo", pytania do "examQuestions", terminy do "deadlines", lektury do "literature". Pomiń tylko slajd tytułowy, plan wykładu, podziękowania i dane kontaktowe.
+- Gdy prowadzący każe znać definicję dosłownie albo slajd cytuje definicję ze źródłem, przepisz ją bez skracania w "quote" przy tym pojęciu w "terms" i podaj "source".
+- Liczby, daty i nazwy własne przepisuj dokładnie. Daty bez roku przypisz do najbliższego przyszłego terminu względem dzisiejszej daty.
 
-Odpowiedz WYŁĄCZNIE jednym obiektem JSON o kształcie:
-{"title": "krótki tytuł wykładu",
- "summary": "2–4 zdania: o czym jest wykład",
- "highYield": ["5–10 najważniejszych faktów na egzamin"],
- "sections": [{"heading": "tytuł części", "body": "treść w Markdown: listy, pogrubienia, tabele"}],
- "terms": [{"term": "pojęcie", "def": "krótka definicja"}],
- "mnemonics": ["..."],
- "practice": ["..."],
- "flashcards": [{"q": "pytanie", "a": "odpowiedź"}],
- "quiz": [{"q": "pytanie", "options": ["...", "...", "...", "..."], "answer": 0, "why": "wyjaśnienie"}],
+FORMA
+- Zwięźle, w punktach, poprawną polszczyzną. Bez wstępów typu „Wykład omawia…” poza "summary".
+- Pogrubiaj tylko pojęcie albo liczbę, której trzeba się nauczyć: najwyżej 2 pogrubienia na punkt, nigdy całe zdanie ani cała kolumna tabeli. 3–6 faktów najważniejszych w całej notatce możesz zaznaczyć ==tak==.
+- Porównania i klasyfikacje jako tabele Markdown: najwyżej 4 kolumny, krótkie komórki. Wyliczenia od 5 elementów jako lista numerowana, nie po przecinku.
+- Podtytuły wewnątrz części zapisuj jako „### Podtytuł”, nie pogrubionym akapitem.
+- Błędne formy zapisuj jako ~~błąd~~, żeby były przekreślone.
+- Mnemotechnika ma być słowem albo zdaniem, które łatwo zapamiętać (np. „Po Obiedzie Pij Kawę” = planowanie, organizowanie, przewodzenie, kontrolowanie), a nie samym ciągiem liter.
+
+${KIND_RULES[kind]}
+
+FISZKI ("flashcards")
+- Jedna fiszka to jeden fakt. Nie łącz „kto i kiedy” ani „co i ile” w jednej fiszce. Odpowiedź ma najwyżej 15 słów; wyjątek to definicje do nauki dosłownie (odpowiedź = pełne brzmienie z "quote").
+- Pytanie ma jedną poprawną odpowiedź. Przy listach podaj w pytaniu liczbę elementów („Wymień 4 funkcje…”).
+- O osoby i pojęcia pytaj w obie strony („Kto…?” oraz „Co zakłada…?”).
+- Pokryj każdy punkt z "highYield" i każde pojęcie z "terms".
+- "sec" to indeks (od 0) części w "sections", z której pochodzi fiszka.
+
+TEST ("quiz")
+- Jednokrotny wybór, dokładnie 4 odpowiedzi podobnej długości i w tej samej formie gramatycznej. Bez „wszystkie powyższe”, „żadna z powyższych” i odpowiedzi odwołujących się do innych odpowiedzi.
+- Błędne odpowiedzi mają być wiarygodne: pojęcia z tego samego wykładu, które się myli (np. sprawność i skuteczność), typowe pomyłki studentów, a nie absurdy.
+- Co najmniej 1/3 pytań to zastosowanie: krótka sytuacja z firmy albo z życia, którą trzeba rozpoznać lub zaklasyfikować. Nie kopiuj zadań z ćwiczeń ani z "examQuestions".
+- Poprawna odpowiedź stoi na różnych pozycjach; przy 8 lub więcej pytaniach każda pozycja 0–3 występuje co najmniej dwa razy.
+- "why": jedno zdanie, dlaczego poprawna odpowiedź jest poprawna.
+- "explain": 4 krótkie wyjaśnienia w tej samej kolejności co "options"; przy błędnej odpowiedzi napisz, czym ona naprawdę jest albo dlaczego nie pasuje (np. „Viertel nach elf to 11:15”).
+- "sec": indeks części w "sections", do której student ma wrócić po błędzie.
+
+Odpowiedz WYŁĄCZNIE jednym obiektem JSON, bez komentarzy i bez bloku kodu. Pole, które nie pasuje do wykładu, zostaw jako pustą listę.
+{"title": "krótki tytuł wykładu, bez numeru wykładu",
+ "summary": "2–4 zdania: o czym jest wykład i co z niego trzeba umieć",
+ "examInfo": [{"text": "co prowadzący mówi o egzaminie lub kolokwium, co znać na pamięć, typowe błędy", "src": "slajd 3"}],
+ "deadlines": [{"type": "kolokwium | egzamin | sprawdzian | zaliczenie | projekt | prezentacja | inne", "date": "RRRR-MM-DD albo null", "title": "Kolokwium 1", "scope": "zakres, np. Lektion 1–4"}],
+ "highYield": ["5–10 najważniejszych faktów na egzamin; każdy zrozumiały bez reszty notatek"],
+ "sections": [{"heading": "tytuł części", "body": "Markdown: listy, tabele, ### podtytuły"}],
+ "terms": [{"term": "pojęcie", "def": "definicja w 1 zdaniu", "quote": "dosłowne brzmienie ze slajdu albo pusty tekst", "source": "autor, rok, strona albo pusty tekst"}],
+${KIND_SHAPE[kind]}
+ "examQuestions": [{"q": "pytanie otwarte", "outline": "plan odpowiedzi w 3–6 punktach (Markdown)", "fromSlides": true, "sec": 0}],
+ "mnemonics": ["tylko jeśli naprawdę pomagają"],
+ "practice": ["krótkie przykłady z praktyki, jeśli pasują do przedmiotu"],
+ "literature": ["lektury podane na slajdach"],
+ "flashcards": [{"q": "pytanie", "a": "odpowiedź", "sec": 0}],
+ "quiz": [{"q": "pytanie", "options": ["…", "…", "…", "…"], "answer": 0, "why": "dlaczego ta", "explain": ["…", "…", "…", "…"], "sec": 0}],
  "tags": ["2–5 krótkich tagów"]}
-Liczebność: sections 4–10, terms 5–15, flashcards 10–25, quiz 6–12. "answer" to indeks poprawnej odpowiedzi (0–3).
+Liczebność: sections 4–10, highYield 5–10, terms 5–20, flashcards 15–40${kind === 'lang' ? ' (bez słówek z "vocab")' : ''}, quiz 8–15, examQuestions: wszystkie ze slajdów i 2–4 własne typowe pytania otwarte. "answer" to indeks poprawnej odpowiedzi (0–3).
 
 TEKST PREZENTACJI:
 """
 ${text}
 """`;
 }
+
 function normNote(r) {
   r = r && typeof r === 'object' && !Array.isArray(r) ? r : {};
   const str = v => typeof v === 'string' ? v.trim() : (v == null ? '' : String(v));
   const strs = v => arr(v).map(x => typeof x === 'string' ? x : (x && (x.text || x.content)) || '').map(str).filter(Boolean);
+  const idx = v => (v === '' || v == null || !Number.isInteger(Number(v)) || Number(v) < 0) ? null : Number(v);
+  const sections = arr(r.sections).map(x => ({heading: str(x && x.heading), body: str(x && x.body)})).filter(x => x.heading || x.body);
+  const sec = v => { const i = idx(v); return i != null && i < sections.length ? {sec: i} : {}; };
+  // obiekty z wybranymi polami tekstowymi; wiersz bez pola "need" odpada
+  const objs = (v, keys, need) => arr(v).filter(x => x && typeof x === 'object').map(x => {
+    const o = {};
+    for (const k of keys) { const s = str(x[k]); if (s) o[k] = s; }
+    return Object.assign(o, sec(x.sec));
+  }).filter(o => o[need]);
   return {
     title: str(r.title).slice(0, 200),
     summary: str(r.summary),
+    examInfo: arr(r.examInfo).map(x => typeof x === 'string' ? {text: str(x)} : objs([x], ['text', 'src'], 'text')[0]).filter(x => x && x.text),
+    deadlines: arr(r.deadlines).map(x => ({type: EV_TYPES[x && x.type] ? x.type : 'inne', date: isYmd(x && x.date) ? x.date : null, title: str(x && x.title), scope: str(x && x.scope)})).filter(x => x.title),
     highYield: strs(r.highYield),
-    sections: arr(r.sections).map(x => ({heading: str(x && x.heading), body: str(x && x.body)})).filter(x => x.heading || x.body),
-    terms: arr(r.terms).map(x => ({term: str(x && x.term), def: str(x && x.def)})).filter(x => x.term),
+    sections,
+    terms: objs(r.terms, ['term', 'def', 'quote', 'source'], 'term'),
+    people: objs(r.people, ['name', 'years', 'school', 'work', 'idea'], 'name'),
+    formulas: arr(r.formulas).map(x => ({...objs([x], ['name', 'expr', 'when'], 'expr')[0], vars: objs(x && x.vars, ['sym', 'def'], 'sym')})).filter(x => x.expr),
+    worked: arr(r.worked).map(x => ({...objs([x], ['title', 'problem', 'result'], 'problem')[0], steps: strs(x && x.steps)})).filter(x => x.problem),
+    vocab: objs(r.vocab, ['w', 'pl', 'pos', 'art', 'plural', 'forms', 'ex'], 'w').filter(x => x.pl),
+    grammar: arr(r.grammar).map(x => ({...objs([x], ['title', 'rule', 'pattern'], 'rule')[0], examples: objs(x && x.examples, ['t', 'pl'], 't'), exceptions: strs(x && x.exceptions)})).filter(x => x.rule),
+    mistakes: objs(r.mistakes, ['wrong', 'right', 'why'], 'right'),
+    exercises: arr(r.exercises).map(x => ({...objs([x], ['title', 'instr'], 'title')[0], items: objs(x && x.items, ['q', 'a'], 'q').filter(i => i.a)})).filter(x => x.items.length),
+    texts: objs(r.texts, ['title', 'text', 'pl'], 'text'),
+    examQuestions: arr(r.examQuestions).map(x => ({...objs([x], ['q', 'outline'], 'q')[0], fromSlides: !!(x && x.fromSlides)})).filter(x => x.q),
     mnemonics: strs(r.mnemonics),
     practice: strs(r.practice || r.clinical),
-    flashcards: arr(r.flashcards).map(x => ({q: str(x && x.q), a: str(x && x.a)})).filter(x => x.q && x.a),
+    literature: strs(r.literature),
+    flashcards: arr(r.flashcards).map(x => ({q: str(x && x.q), a: str(x && x.a), ...sec(x && x.sec)})).filter(x => x.q && x.a),
     quiz: arr(r.quiz).map(x => {
-      const options = arr(x && x.options).map(str).filter(Boolean).slice(0, 6);
-      const answer = Number(x && x.answer);
-      return {q: str(x && x.q), options, answer: Number.isInteger(answer) && answer >= 0 && answer < options.length ? answer : -1, why: str(x && x.why)};
+      // pary (odpowiedź, wyjaśnienie) filtrowane razem, żeby indeksy się nie rozjechały
+      const ex = arr(x && x.explain);
+      const pairs = arr(x && x.options).map((o, i) => ({o: str(o), e: str(ex[i]), i})).filter(p => p.o).slice(0, 6);
+      const answer = pairs.findIndex(p => p.i === Number(x && x.answer));
+      const q = {q: str(x && x.q), options: pairs.map(p => p.o), answer, why: str(x && x.why), ...sec(x && x.sec)};
+      if (pairs.some(p => p.e)) q.explain = pairs.map(p => p.e);
+      return q;
     }).filter(x => x.q && x.options.length >= 2 && x.answer >= 0),
     tags: strs(r.tags).slice(0, 8),
   };
 }
+
 async function runImport() {
   const o = S.ov;
   if (!o || !S.sample) return;
@@ -2692,17 +3115,20 @@ async function saveImport() {
   const o = S.ov, s = o && subjectById(o.sid);
   if (!o || !o.result || !s || o.saving) return;
   const title = (($('#imp-title') || {}).value || o.result.title || 'Wykład').trim();
+  const dateEl = $('#imp-date'), lectureDate = dateEl && isYmd(dateEl.value) ? dateEl.value : null;
+  if (o.meta) o.meta.lectureDate = lectureDate;
   const nr = nextNr(s.id);
   const ref = S.db.collection('notes').doc();
   o.saving = true;
   renderOv();
   try {
-    const dateEl = $('#imp-date'), lectureDate = dateEl && isYmd(dateEl.value) ? dateEl.value : null;
     const flashcards = arr(o.result.flashcards).map(c => ({...c, id: c.id || newCardId()}));
-    await ref.set({...o.result, flashcards, title, subjectId: s.id, nr, source: o.file ? o.file.name : 'wklejony tekst', lectureDate, addedAt: new Date().toISOString(), addedBy: 'strona'});
+    const data = {...o.result, flashcards, title, subjectId: s.id, nr, source: o.file ? o.file.name : 'wklejony tekst', lectureDate, addedAt: new Date().toISOString(), addedBy: 'strona'};
+    await ref.set(data);
+    if (!noteById(ref.id)) S.notes = S.notes.concat([{...data, id: ref.id}]);
     closeOv();
     toast(`Dodano Wykład ${nr} do: ${s.name}`);
-    go({name: 'note', id: ref.id});
+    openNote(ref.id);
   } catch (e) {
     o.saving = false;
     renderOv();
@@ -2721,11 +3147,21 @@ function copyPrompt() {
 /* ---------- pytania do Claude'a ---------- */
 function noteText(n) {
   const L = ['# ' + (n.title || '')];
+  const list = (title, xs) => { if (xs.length) L.push(`## ${title}\n` + xs.map(x => '- ' + x).join('\n')); };
   if (n.summary) L.push(n.summary);
   if (arr(n.highYield).length) L.push('## Najważniejsze\n' + arr(n.highYield).map(x => '- ' + x).join('\n'));
+  list('Prowadzący mówi', arr(n.examInfo).map(x => typeof x === 'string' ? x : (x && x.text) || '').filter(Boolean).concat(arr(n.deadlines).filter(d => d && d.title).map(d => `${EV_TYPES[d.type] || 'Termin'}: ${d.title}${d.date ? ' (' + d.date + ')' : ''}${d.scope ? ', zakres: ' + d.scope : ''}`)));
+  list('Definicje na pamięć', arr(n.terms).filter(t => t && t.quote).map(t => `${t.term}: „${t.quote}”${t.source ? ' (' + t.source + ')' : ''}`));
+  list('Słownictwo', arr(n.vocab).filter(v => v && v.w).map(v => `${vocabLabel(v)} = ${v.pl || ''}`));
+  for (const g of arr(n.grammar)) if (g && g.rule) L.push(`## ${g.title || 'Gramatyka'}\n${g.rule}${g.pattern ? '\nSchemat: ' + g.pattern : ''}\n` + arr(g.examples).map(e => `- ${e.t}${e.pl ? ' = ' + e.pl : ''}`).join('\n'));
+  list('Typowe błędy', arr(n.mistakes).filter(Boolean).map(m => `${m.wrong ? '✗ ' + m.wrong + ' → ' : ''}✓ ${m.right}${m.why ? ' (' + m.why + ')' : ''}`));
   for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || ''));
   if (arr(n.terms).length) L.push('## Pojęcia\n' + arr(n.terms).map(t => `- ${t && t.term}: ${t && t.def}`).join('\n'));
   if (practiceOf(n).length) L.push('## W praktyce\n' + practiceOf(n).map(x => '- ' + x).join('\n'));
+  list('Kto jest kim', arr(n.people).filter(x => x && x.name).map(x => `${x.name}${x.years ? ' (' + x.years + ')' : ''}: ${x.idea || ''}`));
+  list('Wzory', arr(n.formulas).filter(f => f && f.expr).map(f => `${f.name ? f.name + ': ' : ''}${f.expr}`));
+  list('Typowe pytania egzaminacyjne', arr(n.examQuestions).filter(q => q && q.q).map(q => q.q));
+  list('Literatura', arr(n.literature).filter(Boolean));
   if (n.myNotes) L.push('## Moje notatki\n' + n.myNotes);
   return L.join('\n\n');
 }
@@ -2789,9 +3225,17 @@ const A = {
   },
   'cal-today': () => { S.calMonth = ''; renderMain(); },
   'ev-new': el => newEvent(el.dataset.date, el.dataset.id),
+  'cal-day': el => {
+    const d = el.dataset.date, es = allEvents().filter(e => e.date === d);
+    if (!es.length) { if (canWrite()) newEvent(d); return; }
+    S.ov = {type: 'day', date: d};
+    openOv();
+  },
   'ev-open': el => openEvent(el.dataset.id),
-  'ev-edit': () => { const o = S.ov, e = eventById(o.id); if (!e) return; o.draft = clone(e); o.mode = 'edit'; renderOv(); },
-  'ev-cancel-edit': () => { S.ov.mode = 'view'; renderOv(); },
+  'ev-new-day': el => newEvent(el.dataset.date),
+  'ev-edit': () => { const o = S.ov, e = eventById(o.id); if (!e) return; o.draft = clone(e); o.base = evSig(o.draft); o.confirmClose = false; o.mode = 'edit'; renderOv(); },
+  'ev-cancel-edit': () => requestCloseOv(true),
+  'ev-save': () => { S.ov.confirmClose = false; submitEvent(); },
   'ev-ck-add': () => { readEvForm(); S.ov.draft.checklist.push({t: '', done: false}); renderOv(); const els = document.querySelectorAll('.ck-edit input[type="text"]'); if (els.length) els[els.length - 1].focus(); },
   'ev-ck-del': el => { readEvForm(); S.ov.draft.checklist.splice(Number(el.dataset.i), 1); renderOv(); },
   'ev-all-lec': () => { readEvForm(); const d = S.ov.draft; d.lectureIds = notesOf(d.subjectId).map(n => n.id); renderOv(); },
@@ -2832,6 +3276,8 @@ const A = {
   'quiz-again': () => { const o = S.ov; startQuiz(o.kind, o.id); },
   'quiz-wrong': () => { const o = S.ov; startQuiz(o.kind, o.id, new Set(o.wrong.map(w => w.noteId + '|' + w.key))); },
   'quiz-explain': () => explainMore(),
+  'quiz-goto': el => { const id = el.dataset.id, sec = el.dataset.sec; closeOv(); openNote(id); setTimeout(() => { const t = document.getElementById('s-' + sec); if (t) t.scrollIntoView({block: 'start'}); }, 60); },
+  'dl-add': el => addDeadline(el.dataset.id, Number(el.dataset.i)),
   'quiz-add-card': () => addErrorCard(),
   'rv-mcq': el => { const o = S.ov; if (o.mcq === null) { o.mcq = Number(el.dataset.k); renderOv(); } },
   'rv-mcq-next': () => { const o = S.ov, c = o.q[o.i]; if (o.mcq === null || !c) return; rate(o.mcq === Number(c.quiz.answer) ? 3 : 1); },
@@ -2841,22 +3287,34 @@ const A = {
   'ed-tab': el => { S.ov.tab = el.dataset.tab; renderOv(); const p = $('#ov .panel'); if (p) p.scrollTop = 0; },
   'ed-save': () => { if (S.ov && S.ov.type === 'mynotes') saveMyNotes(); else saveEditor(false); },
   'ed-save-force': () => saveEditor(true),
-  'ed-discard': () => { clearLocalDraft(S.ov); closeOv(); },
+  'ed-discard': () => {
+    const o = S.ov;
+    if (o.type === 'editor') clearLocalDraft(o);
+    if (o.type === 'event') { if (o.id) { o.mode = 'view'; o.confirmClose = false; renderOv(); } else closeOv(); return; }
+    closeOv();
+  },
   'ed-keep': () => { S.ov.confirmClose = false; S.ov.conflict = false; renderOv(); },
-  'ed-draft-load': () => { const o = S.ov; o.draft = o.restorable.draft; o.restorable = null; renderOv(); },
+  'ed-draft-load': () => {
+    const o = S.ov;
+    o.draft = o.restorable.draft;
+    // szkic powstał na starszej wersji wykładu: zapis pokaże ostrzeżenie, jeśli wykład się od tego czasu zmienił
+    if (o.id && o.restorable.sig != null) o.baseSig = o.restorable.sig;
+    o.restorable = null;
+    renderOv();
+  },
   'ed-draft-drop': () => { const o = S.ov; clearLocalDraft(o); o.restorable = null; renderOv(); },
   'ed-md': el => applyMd(el),
-  'ed-sec-add': () => { S.ov.draft.sections.push({heading: '', body: ''}); renderOv(); const els = document.querySelectorAll('[data-f$=".heading"]'); if (els.length) els[els.length - 1].focus(); },
-  'ed-sec-del': el => { const o = S.ov; o.draft.sections.splice(Number(el.dataset.i), 1); o.undo = null; renderOv(); },
-  'ed-sec-move': el => { const o = S.ov, i = Number(el.dataset.i), j = i + Number(el.dataset.dir), a = o.draft.sections; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; o.undo = null; renderOv(); },
-  'ed-row-add': el => {
+  'ed-sec-add': () => { if (S.ov.busy) return; S.ov.draft.sections.push({heading: '', body: ''}); renderOv(); const els = document.querySelectorAll('[data-f$=".heading"]'); if (els.length) els[els.length - 1].focus(); },
+  'ed-sec-del': el => { if (S.ov.busy) return; const o = S.ov; o.draft.sections.splice(Number(el.dataset.i), 1); o.undo = null; renderOv(); },
+  'ed-sec-move': el => { if (S.ov.busy) return; const o = S.ov, i = Number(el.dataset.i), j = i + Number(el.dataset.dir), a = o.draft.sections; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; o.undo = null; renderOv(); },
+  'ed-row-add': el => { if (S.ov.busy) return;
     const o = S.ov, list = el.dataset.list;
     o.draft[list].push(list === 'terms' ? {term: '', def: ''} : list === 'flashcards' ? {id: newCardId(), q: '', a: ''} : {q: '', options: ['', '', '', ''], answer: 0, why: ''});
     renderOv();
     const first = document.querySelector(`[data-f^="${list}.${o.draft[list].length - 1}."]`);
     if (first) first.focus();
   },
-  'ed-row-del': el => { S.ov.draft[el.dataset.list].splice(Number(el.dataset.i), 1); renderOv(); },
+  'ed-row-del': el => { if (S.ov.busy) return; S.ov.draft[el.dataset.list].splice(Number(el.dataset.i), 1); renderOv(); },
   'ed-undo': () => { const o = S.ov; if (o.undo) { o.draft.sections[o.undo.i] = o.undo.prev; o.undo = null; renderOv(); } },
   'ed-ai-section': el => aiImproveSection(Number(el.dataset.i)),
   'ed-ai-cards': () => aiCards(),
@@ -2884,8 +3342,12 @@ const A = {
 
 function bindEvents() {
   document.addEventListener('click', e => {
+    const gap = e.target.closest && e.target.closest('.note.recall .cz:not(.on)');
+    if (gap) { gap.classList.add('on'); e.preventDefault(); return; }
     const el = e.target.closest('[data-act]');
     if (!el || el.disabled) return;
+    const menu = el.closest('details.menu');
+    if (menu) menu.open = false;
     const f = A[el.dataset.act];
     if (f) { e.preventDefault(); f(el, e); }
   });
@@ -2925,9 +3387,10 @@ function bindEvents() {
     }
     else if (t.id === 'imp-sub' && o) { o.sid = t.value; o.sidChosen = true; renderOv(); }
     else if (t.id === 'mv-sub') transferNote(t.dataset.id, t.value);
+    else if (t.id === 'toc-sel' && t.value) { const sec = document.getElementById(t.value); if (sec) sec.scrollIntoView({behavior: reduced() ? 'auto' : 'smooth', block: 'start'}); t.value = ''; }
     else if (o && o.type === 'editor' && t.type === 'radio' && t.dataset.f) syncField(t);
     else if (o && o.type === 'event' && o.mode === 'edit' && (t.name === 'ev-type' || t.id === 'ev-sub')) { readEvForm(); renderOv(); }
-    else if (o && o.type === 'event' && o.mode === 'view' && t.dataset.ck !== undefined) toggleEventStep(Number(t.dataset.ck), t.checked);
+    else if (o && o.type === 'event' && o.mode === 'view' && t.dataset.ck !== undefined) toggleEventStep();
   });
   document.addEventListener('toggle', e => {
     const k = e.target && e.target.dataset && e.target.dataset.k;
@@ -2951,6 +3414,17 @@ function bindEvents() {
     if (S.phase === 'ready' && document.visibilityState === 'visible' && clockKey() !== lastClock) scheduleRender();
   }, 30000);
   const onShow = () => { if (S.phase === 'ready' && document.visibilityState === 'visible') scheduleRender(); };
+  let readRaf = 0;
+  window.addEventListener('scroll', () => {
+    if (readRaf || S.view.name !== 'note') return;
+    readRaf = requestAnimationFrame(() => {
+      readRaf = 0;
+      const art = $('.note'), bar = $('#read-i');
+      if (!art || !bar) return;
+      const r = art.getBoundingClientRect(), span = Math.max(1, r.height - innerHeight * 0.6);
+      bar.style.width = Math.max(0, Math.min(100, (-r.top + 80) / span * 100)) + '%';
+    });
+  }, {passive: true});
   document.addEventListener('visibilitychange', onShow);
   window.addEventListener('pageshow', onShow);
   document.addEventListener('keydown', e => {
@@ -2963,12 +3437,13 @@ function bindEvents() {
     const t = e.target, o = S.ov;
     if (t && t.id === 'ask-q' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askSend(t.value); return; }
     if (!o) {
-      if ((e.key === 'Enter' || e.key === ' ') && t && t.classList && t.classList.contains('veil')) { e.preventDefault(); A.reveal(t); }
+      if ((e.key === 'Enter' || e.key === ' ') && t && t.classList && t.classList.contains('cal-day')) { e.preventDefault(); A['cal-day'](t); }
       return;
     }
     const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy) || ((o.type === 'editor' || o.type === 'mynotes') && !!o.busy);
     if (e.key === 'Escape') { if (!locked) { e.preventDefault(); requestCloseOv(); } return; }
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
+    if ((e.key === 'Enter' || e.key === ' ') && t && t.tagName === 'BUTTON' && !t.matches('[data-act="flip"],[data-act="quiz-next"],[data-act="rv-mcq-next"]')) return;
     if (o.type === 'review' && o.i < o.q.length) {
       const c = o.q[o.i];
       if (c.kind === 'mcq') {
