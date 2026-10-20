@@ -167,6 +167,9 @@ button:disabled{cursor:not-allowed}
 .subj-meta{font-size:13.5px;color:var(--muted)}
 .subj-meta b{color:var(--accent);font-weight:600}
 .subj-foot{margin-top:auto;font-size:12.5px;color:var(--muted)}
+/* długie opisy nurtu w „Kto jest kim” zawijają się zamiast rozpychać stronę */
+.head-meta{overflow-wrap:anywhere}   /* długie nazwy plików bez spacji */
+.tl .pill{white-space:normal;max-width:100%;text-align:left;line-height:1.35}
 .radio{display:inline-flex;align-items:center;gap:7px;min-height:32px;font-size:14.5px;cursor:pointer}
 .radio input{accent-color:var(--accent);width:16px;height:16px;margin:0}
 @media (max-width:640px){
