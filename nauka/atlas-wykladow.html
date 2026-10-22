@@ -633,6 +633,88 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .ask-form textarea{flex:1;min-width:0;resize:none}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100% - 32px);transform:translateX(-50%);padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:var(--shadow)}
 body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+/* ---------- ruch i wygoda ---------- */
+:root{--ease-out:cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fade-out{to{opacity:0}}
+@keyframes pop-in{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes pop-out{to{opacity:0;transform:translateY(8px) scale(.985)}}
+@keyframes sheet-in{from{opacity:0;transform:translateY(32px)}to{opacity:1;transform:none}}
+@keyframes sheet-out{to{opacity:0;transform:translateY(44px)}}
+.ov.enter .ov-scrim{animation:fade .2s ease-out}
+.ov.enter .panel{animation:pop-in .26s var(--ease-out)}
+.ov-ghost{pointer-events:none;z-index:55}
+.ov-ghost .ov-scrim{animation:fade-out .18s ease-in forwards}
+.ov-ghost .panel{animation:pop-out .18s ease-in forwards}
+@media (max-width:640px){
+  .ov.enter .panel{animation:sheet-in .3s var(--ease-out)}
+  .ov-ghost .panel{animation:sheet-out .2s ease-in forwards}
+}
+/* fiszka: odwrócenie, następna karta, odlot ocenionej */
+@keyframes card-flip{from{opacity:.4;transform:perspective(1100px) rotateY(-72deg)}to{opacity:1;transform:none}}
+@keyframes card-next{from{opacity:0;transform:translateX(28px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes out-left{to{opacity:0;transform:translateX(-140px) rotate(-7deg)}}
+@keyframes out-right{to{opacity:0;transform:translateX(140px) rotate(7deg)}}
+@keyframes ans-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.a-flip .card{animation:card-flip .34s var(--ease-out)}
+.a-flip .card-a{animation:ans-in .3s .1s var(--ease-out) both}
+.a-next .card,.a-next .qz-q,.a-next .qz-opts{animation:card-next .26s var(--ease-out)}
+.card-ghost{position:fixed;z-index:56;margin:0;pointer-events:none}
+.card-ghost.out-left{animation:out-left .28s ease-in forwards}
+.card-ghost.out-right{animation:out-right .28s ease-in forwards}
+.card-ghost.out-down{animation:pop-out .24s ease-in forwards}
+.card[data-act="flip"]{cursor:pointer}
+.card.swipe{position:relative;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.swipe-tag{position:absolute;top:14px;padding:4px 10px;border-radius:999px;font:600 12px var(--f-ui);letter-spacing:.05em;text-transform:uppercase;opacity:0;pointer-events:none}
+.swipe-tag.good{left:14px;background:var(--good-soft);color:var(--good)}
+.swipe-tag.bad{right:14px;background:var(--bad-soft);color:var(--bad)}
+.panel-review{overflow-x:hidden}
+.resume{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:-10px 0 22px;padding:8px 14px;border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:14px;text-align:left;animation:rise .3s var(--ease-out)}
+.resume b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.resume:hover{border-color:var(--accent)}
+.swipe-hint{display:none;margin:0;text-align:center;font-size:12.5px;color:var(--faint)}
+@media (hover:none) and (pointer:coarse){ .swipe-hint{display:block} }
+/* test: trafienie i pudło */
+@keyframes ok-pop{40%{transform:scale(1.025)}100%{transform:none}}
+@keyframes no-shake{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}100%{transform:none}}
+.a-pick .qz-o.ok{animation:ok-pop .34s var(--ease-out)}
+.a-pick .qz-o.no{animation:no-shake .38s ease-in-out}
+.a-pick .qz-why{animation:rise .26s .08s var(--ease-out) both}
+/* ekran ukończenia */
+.a-done .done > *{animation:rise .36s var(--ease-out) both}
+.a-done .done > :nth-child(2){animation-delay:.07s}
+.a-done .done > :nth-child(3){animation-delay:.14s}
+.a-done .done > :nth-child(n+4){animation-delay:.2s}
+.done-big{font-variant-numeric:tabular-nums}
+.confetti{position:fixed;inset:0;z-index:70;width:100%;height:100%;pointer-events:none}
+/* drobne reakcje */
+@keyframes toast-in{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+.toast:not([hidden]){animation:toast-in .22s var(--ease-out)}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+.sk{background:linear-gradient(90deg,var(--sunk) 0%,color-mix(in srgb,var(--sunk) 45%,var(--surface)) 50%,var(--sunk) 100%);background-size:200% 100%;animation:shimmer 1.3s linear infinite}
+.btn,.qz-o,.tab,.nav-item{transition:transform .12s var(--ease-out),background-color .15s,border-color .15s,color .15s}
+.btn:active:not(:disabled),.qz-o:active:not(:disabled),.tab:active,.nav-item:active{transform:scale(.97)}
+@media (hover:hover) and (pointer:fine){
+  .subj-card{transition:border-color .15s,transform .2s var(--ease-out),box-shadow .2s}
+  .subj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+}
+/* wielkość tekstu notatki */
+.note[data-fs="1"]{zoom:1.1}
+.note[data-fs="2"]{zoom:1.22}
+/* dolny pasek na telefonie */
+.tabbar{display:none}
+.tab{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;padding:6px 4px;border:0;border-radius:10px;background:transparent;color:var(--muted);font:500 11.5px/1.2 var(--f-ui)}
+.tab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--accent)}
+.tab.on::before{content:"";position:absolute;top:-6px;left:28%;right:28%;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.tab-badge{position:absolute;top:3px;left:calc(50% + 5px);min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font:600 11px/18px var(--f-ui);font-variant-numeric:tabular-nums;text-align:center}
+@media (max-width:880px){
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:40;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));border-top:1px solid var(--line);background:color-mix(in srgb,var(--surface) 92%,transparent);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+  .shell{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  body.typing .tabbar{display:none}
+}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
 }
@@ -660,6 +742,7 @@ body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 </div>
 <div id="ov" class="ov" hidden></div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<nav id="tabbar" class="tabbar" aria-label="Szybkie przejścia"></nav>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
@@ -725,6 +808,79 @@ const daysUntil = s => Math.round((parseYmd(s) - parseYmd(today())) / 86400000);
 const isYmd = s => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s);
 const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
 const reduced = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- ruch ---------- */
+const motion = () => !reduced();
+function enterMain() {
+  const m = $('#main');
+  if (motion() && m.animate) m.animate([{opacity: 0, transform: 'translateY(8px)'}, {opacity: 1, transform: 'none'}], {duration: 220, easing: 'cubic-bezier(.2,.8,.2,1)'});
+}
+// kopia elementu, która odjeżdża, kiedy pod nią rysuje się już nowy stan (dołącza ją wołający, po renderOv)
+function ghostOf(el, cls) {
+  if (!el || !motion()) return null;
+  const t = el.style.transform;
+  el.style.transform = '';
+  const r = el.getBoundingClientRect();
+  el.style.transform = t;
+  const g = el.cloneNode(true);
+  g.classList.add('card-ghost', cls);
+  g.removeAttribute('data-act');
+  g.setAttribute('aria-hidden', 'true');
+  Object.assign(g.style, {left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px'});
+  const done = () => g.remove();
+  g.addEventListener('animationend', done);
+  setTimeout(done, 800);
+  return g;
+}
+function countUp(el) {
+  const to = Number(el.dataset.count), suf = el.dataset.suffix || '';
+  if (!motion() || !Number.isFinite(to) || to <= 0) return;
+  const t0 = performance.now(), dur = 700;
+  const step = now => {
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    el.textContent = Math.round(to * e) + suf;
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+// krótkie confetti w kolorach przedmiotów po skończonej powtórce albo bardzo dobrym teście
+function confetti() {
+  if (!motion()) return;
+  const cv = document.createElement('canvas');
+  cv.className = 'confetti';
+  cv.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(cv);
+  const dpr = Math.min(2, window.devicePixelRatio || 1), W = innerWidth, H = innerHeight;
+  cv.width = W * dpr; cv.height = H * dpr;
+  const ctx = cv.getContext('2d');
+  if (!ctx) { cv.remove(); return; }
+  ctx.scale(dpr, dpr);
+  const css = getComputedStyle(document.documentElement);
+  const cols = ['--s-malina', '--s-indygo', '--s-morski', '--s-miod', '--s-pomarancz', '--s-granat'].map(v => css.getPropertyValue(v).trim()).filter(Boolean);
+  const P = Array.from({length: 90}, (_, i) => ({
+    x: W / 2 + (Math.random() - .5) * W * .25, y: H * .38, vx: (Math.random() - .5) * 9, vy: -Math.random() * 9 - 4,
+    w: 5 + Math.random() * 5, h: 8 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .3, c: cols[i % cols.length] || '#888'}));
+  const t0 = performance.now();
+  const frame = now => {
+    const k = (now - t0) / 1300;
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalAlpha = Math.max(0, 1 - Math.max(0, k - .6) / .4);
+    for (const p of P) {
+      p.vy += .32; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r * 2))); ctx.restore();
+    }
+    if (k < 1) requestAnimationFrame(frame); else cv.remove();
+  };
+  requestAnimationFrame(frame);
+}
+let noteFs = (() => { try { return Math.min(2, Number(localStorage.getItem('atlas-fs')) || 0); } catch (e) { return 0; } })();
+// najdalsza część notatki, do której doszło czytanie (w tej przeglądarce)
+const readPos = id => { try { return JSON.parse(localStorage.getItem('atlas-read:' + id) || 'null'); } catch (e) { return null; } };
+function saveReadPos(id, i, sid) {
+  const cur = readPos(id);
+  if (cur && cur.i >= i) return;
+  try { localStorage.setItem('atlas-read:' + id, JSON.stringify({i, id: sid})); } catch (e) {}
+}
 
 function plural(n, one, few, many) {
   const a = Math.abs(n);
@@ -1223,6 +1379,21 @@ function renderRail() {
     h += `<button class="nav-item ${activeSid === s.id ? 'on' : ''}" data-act="go-subject" data-id="${esc(s.id)}" style="${cvar(s.stain)}"><span class="sw"></span><span class="nav-name">${esc(s.name)}</span><span class="nav-count">${notesOf(s.id).length}</span></button>`;
   }
   if (S.phase === 'ready' && canWrite()) h += `<button class="nav-item add" data-act="new-subject">+ Dodaj przedmiot</button>`;
+  const tb = $('#tabbar');
+  if (tb) {
+    const due = S.phase === 'ready' ? cardStats(S.notes).due : 0;
+    const I = {
+      home: '<path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"/>',
+      rev: '<rect x="4" y="7.5" width="12.5" height="13" rx="2"/><path d="M8 4.5h10.5a1.5 1.5 0 0 1 1.5 1.5v11"/>',
+      cal: '<rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3.5v4M15 3.5v4"/>',
+      find: '<circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/>'};
+    const tab = (act, key, label, on, extra = '') => `<button class="tab ${on ? 'on' : ''}" data-act="${act}" ${extra}${on ? ' aria-current="page"' : ''}><svg viewBox="0 0 24 24" aria-hidden="true">${I[key]}</svg>${label}</button>`;
+    tb.innerHTML = tab('go-home', 'home', 'Pulpit', v.name === 'home') +
+      tab('review', 'rev', `Powtórka${due ? `<span class="tab-badge">${due > 99 ? '99+' : due}</span>` : ''}`, false, 'data-kind="all"') +
+      tab('go-cal', 'cal', 'Kalendarz', v.name === 'calendar') +
+      tab('tab-search', 'find', 'Szukaj', v.name === 'search');
+    tb.hidden = S.phase !== 'ready';
+  }
   const nav = $('#rail-nav');
   nav.innerHTML = h;
   // na telefonie menu jest poziomym paskiem: aktywna pozycja ma być widoczna
@@ -1475,6 +1646,7 @@ function viewNote(id) {
       <div class="seg" role="group" aria-label="Jak dobrze znasz ten wykład">${['nowe', 'czytam', 'umiem'].map(k => `<button class="seg-b ${st === k ? 'on' : ''}" data-act="set-status" data-val="${k}" aria-pressed="${st === k}">${STATUS[k]}</button>`).join('')}</div>
       <div class="row wrap">
         <button class="btn sm ${rec ? 'on' : ''}" data-act="toggle-recall" aria-pressed="${rec}">${rec ? 'Odsłoń wszystko' : 'Tryb przypominania'}</button>
+        <button class="btn sm" data-act="font-size" title="Wielkość tekstu" aria-label="Zmień wielkość tekstu notatki">Aa</button>
         ${revN ? `<button class="btn sm" data-act="review" data-kind="note" data-id="${esc(id)}">Fiszki</button>` : ''}
         ${qs.length ? `<button class="btn sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Test</button>` : ''}
         ${S.sample ? `<button class="btn sm" data-act="ask-open" data-id="${esc(id)}">Zapytaj Claude'a</button>` : ''}
@@ -1483,9 +1655,10 @@ function viewNote(id) {
     </div>
     ${rec ? '<p class="recall-hint">Szare pola to luki. Najpierw spróbuj sobie przypomnieć, co tam jest, potem kliknij, żeby sprawdzić.</p>' : ''}
   </header>
+  ${(() => { const rp = readPos(id), sx = rp && rp.i >= 2 && rp.i < secs.length - 1 && secs.find(x => x.id === rp.id); return sx ? `<button class="resume" data-act="toc" data-id="${sx.id}">Czytaj dalej: <b>${esc(sx.t)}</b><span aria-hidden="true">↓</span></button>` : ''; })()}
   <div class="read-bar"><label class="sr" for="toc-sel">Przejdź do części</label><select id="toc-sel"><option value="">Przejdź do części…</option>${secs.map(x => `<option value="${x.id}">${esc(x.t)}</option>`).join('')}</select><div class="read-prog" aria-hidden="true"><i id="read-i"></i></div></div>
   <div class="note-grid">
-    <article class="note ${rec ? 'recall' : ''}">${secs.map(x => {
+    <article class="note ${rec ? 'recall' : ''}" data-fs="${noteFs}">${secs.map(x => {
       const body = x.html;
       const title = `<h2 class="nsec-t ${x.h ? 'h' : ''}">${esc(x.t)}</h2>`;
       return `<section class="nsec ${x.cls || ''}" id="${x.id}">${x.tool ? `<div class="nsec-tools">${title}${x.tool}</div>` : title}${body}</section>`;
@@ -1644,6 +1817,7 @@ function go(view) {
   render();
   window.scrollTo(0, 0);
   $('#main').focus({preventScroll: true});
+  enterMain();
 }
 function openNote(id) {
   go({name: 'note', id});
@@ -1749,23 +1923,43 @@ async function clearExamples() {
 }
 
 /* ================= nakładki ================= */
+let ovT = 0;
 function openOv() {
-  $('#ov').hidden = false;
+  const el = $('#ov');
+  el.hidden = false;
   document.body.classList.add('locked');
+  if (motion()) { el.classList.add('enter'); clearTimeout(ovT); ovT = setTimeout(() => el.classList.remove('enter'), 340); }
   renderOv();
 }
 function closeOv() {
   if (S.ov && S.ov.ctl) { try { S.ov.ctl.abort(); } catch (e) {} }
   S.ov = null;
   const el = $('#ov');
-  el.hidden = true;
-  el.innerHTML = '';
+  if (motion() && !el.hidden && el.firstChild) {
+    // stara nakładka odjeżdża jako kopia, a pod spodem od razu działa nowy, pusty #ov
+    const fresh = el.cloneNode(false);
+    el.removeAttribute('id');
+    el.classList.remove('enter');
+    el.classList.add('ov-ghost');
+    el.setAttribute('aria-hidden', 'true');
+    el.inert = true;
+    el.after(fresh);
+    fresh.classList.remove('enter');
+    clearTimeout(ovT);
+    fresh.hidden = true;
+    setTimeout(() => el.remove(), 240);
+  } else {
+    el.hidden = true;
+    el.innerHTML = '';
+  }
   document.body.classList.remove('locked');
   render();
 }
 function renderOv() {
   const o = S.ov;
   if (!o) return;
+  const anim = motion() ? o.anim || '' : '';
+  o.anim = null;
   const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy) || ((o.type === 'editor' || o.type === 'mynotes') && !!o.busy);
   const body = o.type === 'review' ? ovReview(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : o.type === 'event' ? ovEvent(o) : o.type === 'day' ? ovDay(o) : o.type === 'editor' ? ovEditor(o) : o.type === 'mynotes' ? ovMyNotes(o) : ovAsk(o);
   const el = $('#ov');
@@ -1774,12 +1968,16 @@ function renderOv() {
   const top = same ? prev.scrollTop : 0;
   const act = document.activeElement;
   const fk = same && act && prev.contains(act) ? (act.id ? '#' + act.id : act.dataset && act.dataset.ck != null ? `[data-ck="${act.dataset.ck}"]` : null) : null;
-  el.innerHTML = `<div class="ov-scrim" ${locked ? '' : 'data-act="close-ov"'}></div><div class="panel panel-${o.type}" role="dialog" aria-modal="true" tabindex="-1">${body}</div>`;
+  el.innerHTML = `<div class="ov-scrim" ${locked ? '' : 'data-act="close-ov"'}></div><div class="panel panel-${o.type}${anim ? ' a-' + anim : ''}" role="dialog" aria-modal="true" tabindex="-1">${body}</div>`;
   el.__ov = o;
   const panel = el.querySelector('.panel');
   if (top) panel.scrollTop = top;
   const af = (fk && el.querySelector(fk)) || el.querySelector('[autofocus]') || panel;
   if (af) af.focus({preventScroll: true});
+  if (anim === 'done') {
+    panel.querySelectorAll('[data-count]').forEach(countUp);
+    if (o.party) { o.party = false; confetti(); }
+  }
 }
 const ovHead = (title, closable = true, extra = '') =>
   `<div class="ov-head"><h2 class="ov-title">${esc(title)}</h2>${closable ? `<button class="x" data-act="close-ov" aria-label="Zamknij">${X_ICON}</button>` : ''}${extra ? `<div class="ov-sub">${extra}</div>` : ''}</div>`;
@@ -1844,9 +2042,17 @@ function startReview(kind, id) {
   S.ov = {type: 'review', kind, id, q, i: 0, flipped: false, mcq: null, tally: {1: 0, 2: 0, 3: 0, 4: 0}, cram, label: scopeLabel(kind, id, cram ? 'Przegląd' : 'Powtórka')};
   openOv();
 }
+function flipCard() {
+  const o = S.ov;
+  if (!o || o.type !== 'review' || o.flipped) return;
+  o.flipped = true;
+  o.anim = 'flip';
+  renderOv();
+}
 function rate(g) {
   const o = S.ov, c = o && o.q[o.i];
   if (!c) return;
+  const gh = ghostOf($('#ov .panel-review .card'), g === 1 ? 'out-left' : g === 2 ? 'out-down' : 'out-right');
   const p = clone(P(c.noteId));
   if (!p.cards) p.cards = {};
   const prev = p.cards[c.key], n = noteById(c.noteId);
@@ -1863,7 +2069,10 @@ function rate(g) {
   o.i++;
   o.flipped = false;
   o.mcq = null;
+  o.anim = o.i >= o.q.length ? 'done' : 'next';
+  if (o.i >= o.q.length && o.q.length >= 5) o.party = true;   // nagroda za skończoną sesję, nie za jedną kartę
   renderOv();
+  if (gh) $('#ov').appendChild(gh);
 }
 const whenLabel = d => d <= 0 ? 'jeszcze dziś' : d === 1 ? 'jutro' : `za ${d} dni`;
 function ovReview(o) {
@@ -1883,7 +2092,8 @@ function ovReview(o) {
   if (st && st.leech) tags.push('<span class="card-tag hard">trudna</span>');
   let h = ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${total}</span>`) +
     `<div class="prog"><i style="width:${o.i / total * 100}%"></i></div>
-    <div class="card" style="${cvar(s && s.stain)}">
+    <div class="card${o.flipped && c.kind !== 'mcq' ? ' swipe' : ''}" style="${cvar(s && s.stain)}"${!o.flipped && c.kind !== 'mcq' ? ' data-act="flip"' : ''}>
+      ${o.flipped && c.kind !== 'mcq' ? '<span class="swipe-tag bad" aria-hidden="true">Nie pamiętam</span><span class="swipe-tag good" aria-hidden="true">Dobrze</span>' : ''}
       <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')}${n ? ' · ' + esc(unitN(n.subjectId, n.nr)) : ''} ${tags.join(' ')}</p>
       <div class="card-q">${mdi(c.q)}</div>`;
   if (c.kind === 'mcq') {
@@ -1903,7 +2113,7 @@ function ovReview(o) {
   const ex = n && examDateFor(n.subjectId);
   const days = [1, 2, 3, 4].map(g => daysBetween(today(), schedule(st, g, ex).d));
   const names = ['Nie pamiętam', 'Z trudem', 'Dobrze', 'Łatwe'];
-  return h + `<div class="rate four">${[1, 2, 3, 4].map(g => `<button class="btn rate-b r${g}" data-act="rate" data-r="${g}"><b>${names[g - 1]}</b><span>${whenLabel(days[g - 1])}<span class="key"> · ${g}</span></span></button>`).join('')}</div>`;
+  return h + `<div class="rate four">${[1, 2, 3, 4].map(g => `<button class="btn rate-b r${g}" data-act="rate" data-r="${g}"><b>${names[g - 1]}</b><span>${whenLabel(days[g - 1])}<span class="key"> · ${g}</span></span></button>`).join('')}</div><p class="swipe-hint">Przesuń kartę w prawo: Dobrze, w lewo: Nie pamiętam</p>`;
 }
 
 /* ---------- test ---------- */
@@ -1944,6 +2154,7 @@ function pick(k) {
   r.t++;
   if (ok) r.c++;
   recordAnswer(q.noteId, q, ok);
+  o.anim = 'pick';
   renderOv();
 }
 function quizNext() {
@@ -1964,6 +2175,10 @@ function quizNext() {
       saveProg(nid);
     }
   }
+  if (o.i >= o.qs.length) {
+    o.anim = 'done';
+    o.party = o.qs.length >= 5 && o.correct / o.qs.length >= .85;
+  } else o.anim = 'next';
   renderOv();
 }
 async function explainMore() {
@@ -2014,7 +2229,7 @@ function ovQuiz(o) {
   if (o.i >= o.qs.length) {
     const pct = Math.round(o.correct / o.qs.length * 100);
     const verdict = pct >= 85 ? 'Bardzo dobrze. Ten materiał już siedzi.' : pct >= 60 ? 'Nieźle. Pytania z błędem wrócą w codziennej powtórce.' : 'Warto jeszcze raz przeczytać notatki. Pytania z błędem wrócą w codziennej powtórce.';
-    return ovHeadLabel(o.label) + `<div class="done"><p class="done-big">${pct}%</p><p>${o.correct} z ${o.qs.length} poprawnie.</p><p class="muted">${verdict}</p>
+    return ovHeadLabel(o.label) + `<div class="done"><p class="done-big" data-count="${pct}" data-suffix="%">${pct}%</p><p>${o.correct} z ${o.qs.length} poprawnie.</p><p class="muted">${verdict}</p>
       ${o.wrong.length ? `<div class="wrong"><p class="label">Do poprawki</p><ul>${o.wrong.map(w => `<li>${mdi(w.q)}<br><span class="muted">Poprawna odpowiedź: ${mdi(arr(w.options)[w.answer])}</span></li>`).join('')}</ul></div>` : ''}
       <div class="row wrap">${o.wrong.length ? '<button class="btn" data-act="quiz-wrong">Powtórz błędne</button>' : ''}<button class="btn" data-act="quiz-again">Jeszcze raz</button><button class="btn primary" data-act="close-ov" autofocus>Zamknij</button></div></div>`;
   }
@@ -3282,7 +3497,7 @@ const A = {
   'copy-prompt': () => copyPrompt(),
   'imp-multi': () => { S.ov.multi = !S.ov.multi; renderOv(); },
   'review': el => startReview(el.dataset.kind, el.dataset.id),
-  'flip': () => { S.ov.flipped = true; renderOv(); },
+  'flip': () => flipCard(),
   'rate': el => rate(Number(el.dataset.r)),
   'quiz': el => startQuiz(el.dataset.kind, el.dataset.id),
   'quiz-pick': el => pick(Number(el.dataset.k)),
@@ -3293,9 +3508,17 @@ const A = {
   'quiz-goto': el => { const id = el.dataset.id, sec = el.dataset.sec; closeOv(); openNote(id); setTimeout(() => { const t = document.getElementById('s-' + sec); if (t) t.scrollIntoView({block: 'start'}); }, 60); },
   'dl-add': el => addDeadline(el.dataset.id, Number(el.dataset.i)),
   'quiz-add-card': () => addErrorCard(),
-  'rv-mcq': el => { const o = S.ov; if (o.mcq === null) { o.mcq = Number(el.dataset.k); renderOv(); } },
+  'rv-mcq': el => { const o = S.ov; if (o.mcq === null) { o.mcq = Number(el.dataset.k); o.anim = 'pick'; renderOv(); } },
   'rv-mcq-next': () => { const o = S.ov, c = o.q[o.i]; if (o.mcq === null || !c) return; rate(o.mcq === Number(c.quiz.answer) ? 3 : 1); },
   'close-ov': () => requestCloseOv(),
+  'tab-search': () => { window.scrollTo({top: 0, behavior: motion() ? 'smooth' : 'auto'}); const q = $('#q'); if (q) q.focus({preventScroll: true}); },
+  'font-size': () => {
+    noteFs = (noteFs + 1) % 3;
+    try { localStorage.setItem('atlas-fs', String(noteFs)); } catch (e) {}
+    const n = $('#main .note');
+    if (n) n.dataset.fs = noteFs;
+    toast(['Tekst notatek: zwykły', 'Tekst notatek: większy', 'Tekst notatek: duży'][noteFs]);
+  },
   'ed-open': el => openEditor(el.dataset.id),
   'ed-new': el => { const sid = el.dataset.id || (S.view.name === 'subject' ? S.view.id : (subjectsSorted()[0] || {}).id); if (!sid) return; if (S.ov) closeOv(); openEditor(null, sid); },
   'ed-tab': el => { S.ov.tab = el.dataset.tab; renderOv(); const p = $('#ov .panel'); if (p) p.scrollTop = 0; },
@@ -3355,6 +3578,46 @@ const A = {
 };
 
 function bindEvents() {
+  let sw = null;
+  document.addEventListener('pointerdown', e => {
+    const card = e.pointerType !== 'mouse' && e.target.closest && e.target.closest('#ov .card.swipe');
+    if (!card || !S.ov || S.ov.type !== 'review') return;
+    sw = {card, id: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, on: false};
+  });
+  document.addEventListener('pointermove', e => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const dx = e.clientX - sw.x, dy = e.clientY - sw.y;
+    if (!sw.on) {
+      if (Math.abs(dy) > 14 && Math.abs(dy) > Math.abs(dx)) { sw = null; return; }
+      if (Math.abs(dx) < 10) return;
+      sw.on = true;
+      try { sw.card.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    sw.dx = dx;
+    sw.card.style.transform = `translateX(${dx}px) rotate(${dx / 24}deg)`;
+    const k = Math.min(1, Math.abs(dx) / 110), g = sw.card.querySelector('.swipe-tag.good'), b = sw.card.querySelector('.swipe-tag.bad');
+    if (g) g.style.opacity = dx > 0 ? k : 0;
+    if (b) b.style.opacity = dx < 0 ? k : 0;
+  });
+  const swEnd = e => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const s = sw;
+    sw = null;
+    if (!s.on) return;
+    if (Math.abs(s.dx) > Math.min(110, s.card.offsetWidth * .3)) { rate(s.dx > 0 ? 3 : 1); return; }
+    s.card.style.transition = 'transform .2s cubic-bezier(.2,.8,.2,1)';
+    s.card.style.transform = '';
+    s.card.querySelectorAll('.swipe-tag').forEach(t => { t.style.opacity = 0; });
+    setTimeout(() => { s.card.style.transition = ''; }, 240);
+  };
+  document.addEventListener('pointerup', swEnd);
+  document.addEventListener('pointercancel', swEnd);
+  const typing = () => {
+    const a = document.activeElement;
+    document.body.classList.toggle('typing', !!a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && !/^(checkbox|radio|button|submit)$/.test(a.type))));
+  };
+  document.addEventListener('focusin', typing);
+  document.addEventListener('focusout', () => setTimeout(typing, 0));
   document.addEventListener('click', e => {
     const gap = e.target.closest && e.target.closest('.note.recall .cz:not(.on)');
     if (gap) { gap.classList.add('on'); e.preventDefault(); return; }
@@ -3437,6 +3700,10 @@ function bindEvents() {
       if (!art || !bar) return;
       const r = art.getBoundingClientRect(), span = Math.max(1, r.height - innerHeight * 0.6);
       bar.style.width = Math.max(0, Math.min(100, (-r.top + 80) / span * 100)) + '%';
+      const secs = art.querySelectorAll('.nsec');
+      let cur = -1;
+      secs.forEach((x, i) => { if (x.getBoundingClientRect().top < 160) cur = i; });
+      if (cur >= 0) saveReadPos(S.view.id, cur, secs[cur].id);
     });
   }, {passive: true});
   document.addEventListener('visibilitychange', onShow);
@@ -3461,10 +3728,10 @@ function bindEvents() {
     if (o.type === 'review' && o.i < o.q.length) {
       const c = o.q[o.i];
       if (c.kind === 'mcq') {
-        if (o.mcq === null) { const j = '1234'.indexOf(e.key) >= 0 ? '1234'.indexOf(e.key) : 'abcd'.indexOf(e.key.toLowerCase()); if (j >= 0 && c.order && j < c.order.length) { e.preventDefault(); o.mcq = c.order[j]; renderOv(); } }
+        if (o.mcq === null) { const j = '1234'.indexOf(e.key) >= 0 ? '1234'.indexOf(e.key) : 'abcd'.indexOf(e.key.toLowerCase()); if (j >= 0 && c.order && j < c.order.length) { e.preventDefault(); o.mcq = c.order[j]; o.anim = 'pick'; renderOv(); } }
         else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); A['rv-mcq-next'](); }
       }
-      else if (!o.flipped && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); o.flipped = true; renderOv(); }
+      else if (!o.flipped && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flipCard(); }
       else if (o.flipped && /^[1234]$/.test(e.key)) { e.preventDefault(); rate(Number(e.key)); }
     } else if (o.type === 'quiz' && o.i < o.qs.length) {
       if (o.picked === null) {
