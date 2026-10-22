@@ -1067,11 +1067,15 @@ const vocabLabel = v => `${v.art ? v.art + ' ' : ''}${String(v.w).replace('|', '
 // podpowiedź tylko o tym, co słówko naprawdę ma (nazwy krajów zwykle nie mają rodzajnika ani liczby mnogiej)
 const vocabHint = v => { const h = [v.art ? 'rodzajnikiem' : '', v.plural ? 'l. mn.' : '', v.forms ? (v.pos === 'v' ? 'formą er/sie' : 'formą') : ''].filter(Boolean); return h.length ? ` (z ${h.join(', ').replace(/, ([^,]*)$/, ' i $1')})` : ''; };
 const vocabOf = n => arr(n.vocab).filter(v => v && v.w && v.pl).map(v => ({noteId: n.id, key: 'v:' + hash(v.w), kind: 'vocab', q: v.pl + vocabHint(v), a: vocabLabel(v)}));
-const peopleOf = n => arr(n.people).filter(x => x && x.name && x.idea).flatMap(x => [
-  {noteId: n.id, key: 'p:' + hash(x.name), kind: 'person', q: `Kto to? ${x.idea}`, a: x.name + (x.years ? ` (${x.years})` : '')},
-  {noteId: n.id, key: 'pi:' + hash(x.name), kind: 'person', q: `Z czym kojarzysz: ${x.name}?`, a: x.idea + (x.work ? ` · ${x.work}` : '')},
-]);
-const itemsOf = n => cardsOf(n).map(c => ({...c, kind: 'card'})).concat(vocabOf(n), clozeOf(n), termRevOf(n), peopleOf(n), mcqOf(n));
+const peopleOf = n => arr(n.people).filter(x => x && x.name && x.idea).map(x =>
+  ({noteId: n.id, key: 'pi:' + hash(x.name), kind: 'person', q: `Z czym kojarzysz: ${x.name}?`, a: x.idea + (x.work ? ` · ${x.work}` : '')}));
+// karty dorabiane z pogrubień, pojęć i osób tylko przy notatkach z małą liczbą fiszek, żeby powtórka nie puchła
+const AUTO_BELOW = 8;
+const itemsOf = n => {
+  const cards = cardsOf(n);
+  const auto = cards.length < AUTO_BELOW ? clozeOf(n).concat(termRevOf(n), peopleOf(n)) : [];
+  return cards.map(c => ({...c, kind: 'card'})).concat(vocabOf(n), auto, mcqOf(n));
+};
 
 function cardStats(notes) {
   const t = today();
@@ -2861,8 +2865,8 @@ async function genStudyTools(id) {
   renderMain();
   try {
     const v = await S.sample.json(`Na podstawie notatek z wykładu przygotuj materiały do nauki po polsku:
-- "flashcards": 10–20 fiszek, jedna fiszka to jeden konkretny fakt, krótka odpowiedź;
-- "quiz": 6–10 pytań jednokrotnego wyboru, dokładnie 4 odpowiedzi podobnej długości i formy, wiarygodne błędne odpowiedzi, co najmniej 1/3 na zastosowanie; zmieniaj pozycję poprawnej odpowiedzi; "explain" to 4 krótkie wyjaśnienia w kolejności odpowiedzi.
+- "flashcards": 8–12 fiszek (tylko to, co najważniejsze), jedna fiszka to jeden konkretny fakt, krótka odpowiedź;
+- "quiz": 6–8 pytań jednokrotnego wyboru, dokładnie 4 odpowiedzi podobnej długości i formy, wiarygodne błędne odpowiedzi, co najmniej 1/3 na zastosowanie; zmieniaj pozycję poprawnej odpowiedzi; "explain" to 4 krótkie wyjaśnienia w kolejności odpowiedzi.
 Odpowiedz WYŁĄCZNIE obiektem JSON: {"flashcards": [{"q": "...", "a": "..."}], "quiz": [{"q": "...", "options": ["...", "...", "...", "..."], "answer": 0, "why": "...", "explain": ["...", "...", "...", "..."]}]}
 
 NOTATKI:
@@ -3150,7 +3154,7 @@ const KIND_RULES = {
 - Rozróżnienia (np. zdolność prawna vs zdolność do czynności prawnych) podawaj jako tabele Markdown.
 - Kazusy ze slajdów wpisz do "worked": stan faktyczny w "problem", a w "steps" kolejno: przepis, przesłanki, zastosowanie do faktów, wniosek.`,
   lang: `- Notatki pisz po polsku, przykłady w języku kursu.
-- Wszystkie słówka i zwroty z lekcji (także te z dialogów, tekstów i ćwiczeń) wpisz do "vocab", a nie do tabel w "sections" ani do "flashcards" (strona sama zrobi z nich fiszki). Rzeczowniki z rodzajnikiem w "art" i liczbą mnogą w "plural" (np. "-e", "-n", "¨-e", "–" gdy brak). Czasowniki rozdzielnie złożone zapisuj z kreską (auf|stehen), a w "forms" podaj 3. os. lp. (steht auf); przy czasownikach ze zmianą samogłoski podaj ją (du siehst fern). Do każdego słowa krótki przykład z lekcji w "ex".
+- Najważniejsze słówka i zwroty z lekcji (najwyżej 20; bez poleceń z podręcznika typu hören, ankreuzen) wpisz do "vocab", a nie do tabel w "sections" ani do "flashcards" (strona sama zrobi z nich fiszki). Rzeczowniki z rodzajnikiem w "art" i liczbą mnogą w "plural" (np. "-e", "-n", "¨-e", "–" gdy brak). Czasowniki rozdzielnie złożone zapisuj z kreską (auf|stehen), a w "forms" podaj 3. os. lp. (steht auf); przy czasownikach ze zmianą samogłoski podaj ją (du siehst fern). Do każdego słowa krótki przykład z lekcji w "ex".
 - Każdy temat gramatyczny wpisz do "grammar": reguła w 1–3 zdaniach po polsku, schemat (np. "Pozycja 1 | czasownik | … | przedrostek"), 3–5 przykładów z tłumaczeniem. Części, które tworzą regułę (np. odmieniony czasownik i przedrostek), oznacz ==tak==.
 - Błędy, przed którymi ostrzega prowadzący, i typowe błędy Polaków w tym temacie wpisz do "mistakes": błędnie, poprawnie, dlaczego.
 - Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
@@ -3199,8 +3203,7 @@ ${KIND_RULES[kind]}
 FISZKI ("flashcards")
 - Jedna fiszka to jeden fakt. Nie łącz „kto i kiedy” ani „co i ile” w jednej fiszce. Odpowiedź ma najwyżej 15 słów; wyjątek to definicje do nauki dosłownie (odpowiedź = pełne brzmienie z "quote").
 - Pytanie ma jedną poprawną odpowiedź. Przy listach podaj w pytaniu liczbę elementów („Wymień 4 funkcje…”).
-- O osoby i pojęcia pytaj w obie strony („Kto…?” oraz „Co zakłada…?”).
-- Pokryj każdy punkt z "highYield" i każde pojęcie z "terms".
+- Pokryj najważniejsze punkty z "highYield" i pojęcia z "terms", bez dublowania tego samego faktu w kilku fiszkach.
 - "sec" to indeks (od 0) części w "sections", z której pochodzi fiszka.
 
 TEST ("quiz")
@@ -3228,7 +3231,7 @@ ${KIND_SHAPE[kind]}
  "flashcards": [{"q": "pytanie", "a": "odpowiedź", "sec": 0}],
  "quiz": [{"q": "pytanie", "options": ["…", "…", "…", "…"], "answer": 0, "why": "dlaczego ta", "explain": ["…", "…", "…", "…"], "sec": 0}],
  "tags": ["2–5 krótkich tagów"]}
-Liczebność: sections 4–10, highYield 5–10, terms 5–20, flashcards 15–40${kind === 'lang' ? ' (bez słówek z "vocab")' : ''}, quiz 8–15, examQuestions: wszystkie ze slajdów i 2–4 własne typowe pytania otwarte. "answer" to indeks poprawnej odpowiedzi (0–3).
+Notatka ma ułatwiać naukę, więc ma być krótka: tylko to, co trzeba umieć. Liczebność: sections 3–7, highYield 4–6, terms do 8, people do 6 (tylko kluczowe osoby), flashcards ${kind === 'lang' ? '6–10 (bez słówek z "vocab"), vocab do 20, grammar do 5, mistakes do 4, exercises do 3, texts 1' : '8–15'}, quiz 6–8, examQuestions 2–3, mnemonics i practice najwyżej po 2. "answer" to indeks poprawnej odpowiedzi (0–3).
 
 TEKST PREZENTACJI:
 """

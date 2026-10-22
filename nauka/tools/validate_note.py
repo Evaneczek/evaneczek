@@ -28,14 +28,14 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         if k not in n: E(f, f'brak pola {k}')
     if THEORY:
         tm = LIST(n.get('terms'))
-        if not (5 <= len(tm) <= 20): W(f, f'terms: {len(tm)} (zalecane 5–20)')
+        if len(tm) > 8: W(f, f'terms: {len(tm)} (zalecane do 8)')
         for i, t in enumerate(tm):
             if not t.get('term') or not t.get('def'): E(f, f'terms[{i}] bez term/def')
             if t.get('quote') and not t.get('source'): W(f, f'terms[{i}] „{t.get("term")}”: quote bez source')
         for i, x in enumerate(LIST(n.get('people'))):
             if not x.get('name') or not x.get('idea'): E(f, f'people[{i}] bez name/idea')
         eqs = LIST(n.get('examQuestions'))
-        if not (2 <= len(eqs) <= 8): W(f, f'examQuestions: {len(eqs)} (zalecane: ze slajdów + 2–4 własne)')
+        if not (2 <= len(eqs) <= 3): W(f, f'examQuestions: {len(eqs)} (zalecane 2–3)')
         if any(LIST(n.get(k)) for k in ['vocab', 'grammar', 'exercises', 'texts']): W(f, 'pola językowe (vocab/grammar/exercises/texts) w przedmiocie teoretycznym')
     secs = LIST(n.get('sections'))
     ns = len(secs)
@@ -43,11 +43,11 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         s = x.get('sec') if isinstance(x, dict) else None
         if s is None: W(f, f'{where}: brak sec'); return
         if not isinstance(s, int) or not (0 <= s < ns): E(f, f'{where}: sec={s!r} poza zakresem 0..{ns-1}')
-    if not (4 <= ns <= 10): W(f, f'sections: {ns} (zalecane 4–10)')
+    if not (3 <= ns <= 7): W(f, f'sections: {ns} (zalecane 3–7)')
     for i, s in enumerate(secs):
         if not (s.get('heading') or '').strip() or not (s.get('body') or '').strip(): E(f, f'sections[{i}] bez heading/body')
     hy = LIST(n.get('highYield'))
-    if not (5 <= len(hy) <= 10): W(f, f'highYield: {len(hy)} (zalecane 5–10)')
+    if not (4 <= len(hy) <= 6): W(f, f'highYield: {len(hy)} (zalecane 4–6)')
     if n.get('lectureDate') not in (None, '') and not ymd.match(str(n.get('lectureDate'))): E(f, 'lectureDate nie RRRR-MM-DD')
     for i, d in enumerate(LIST(n.get('deadlines'))):
         if d.get('type') not in EV: E(f, f'deadlines[{i}].type={d.get("type")!r}')
@@ -68,6 +68,9 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         if v.get('art') and not v.get('plural'): W(f, f'vocab[{i}] {w}: rzeczownik z rodzajnikiem bez plural (wpisz „–”, jeśli brak)')
         if v.get('pos') == 'v' and not v.get('forms'): W(f, f'vocab[{i}] {w}: czasownik bez forms (3. os. lp.)')
         if not v.get('ex'): W(f, f'vocab[{i}] {w}: brak przykładu ex')
+    if len(voc) > 20: W(f, f'vocab: {len(voc)} (zalecane do 20)')
+    for k2, mx in (('people', 6), ('grammar', 5), ('mistakes', 4), ('exercises', 3), ('texts', 1)):
+        if len(LIST(n.get(k2))) > mx: W(f, f'{k2}: {len(LIST(n.get(k2)))} (zalecane do {mx})')
     for w, c in seen_w.items():
         if c > 1: E(f, f'vocab: „{w}” powtórzone {c}×')
     # grammar
@@ -93,7 +96,8 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         sec_ok(q, f'examQuestions[{i}]')
     # flashcards
     fc = LIST(n.get('flashcards'))
-    if not (15 <= len(fc) <= 40): W(f, f'flashcards: {len(fc)} (zalecane 15–40)')
+    lo, hi = (8, 15) if THEORY else (6, 10)
+    if not (lo <= len(fc) <= hi): W(f, f'flashcards: {len(fc)} (zalecane {lo}–{hi})')
     ids = Counter()
     vocab_forms = {re.sub(r'\W+', ' ', (v.get('w') or '').replace('|', '')).strip().lower() for v in voc}
     for i, c in enumerate(fc):
@@ -115,7 +119,7 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         if k > 1: E(f, f'flashcards: pytanie powtórzone: {q!r}')
     # quiz
     qz = LIST(n.get('quiz'))
-    if not (8 <= len(qz) <= 15): W(f, f'quiz: {len(qz)} (zalecane 8–15)')
+    if not (6 <= len(qz) <= 8): W(f, f'quiz: {len(qz)} (zalecane 6–8)')
     pos, longest = Counter(), 0
     for i, q in enumerate(qz):
         o = LIST(q.get('options'))

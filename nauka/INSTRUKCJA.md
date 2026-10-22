@@ -47,6 +47,10 @@ Kroki przy nowej prezentacji:
 2. Odczytaj notes z tym subjectId; nr = największy nr + 1 (wykłady numerowane kolejno od 1).
 3. lectureDate: data wykładu, jeśli wynika z pliku albo z wiadomości użytkownika; inaczej null.
 4. Przeczytaj całą prezentację, także obrazy, schematy, tabele i notatki prowadzącego.
+   0) Notatka ma ułatwiać naukę, więc ma być KRÓTKA: tylko to, co trzeba umieć na zajęcia i egzamin. Nie przepisuj
+      wszystkiego ze slajdów, pomijaj opisy obrazków, odesłania do podręcznika bez treści i dodatki spoza slajdów,
+      które nie są potrzebne do zrozumienia. Liczebność: sections 3–7 (krótkie punkty), highYield 4–6, terms do 8,
+      people do 6 (kluczowe osoby), examQuestions 2–3, mnemonics i practice najwyżej po 2.
    a) Trzymaj się slajdów i ich kolejności. Uzupełnienia z podręcznika oznaczaj dopiskiem „(spoza slajdów)”. Niczego nie zmyślaj.
    b) Nie pomijaj notatek prowadzącego, slajdów „Na egzamin” i „Przykładowe pytania”, terminów kolokwiów, prac domowych ani literatury:
       trafiają do examInfo, examQuestions (z planem odpowiedzi; dodaj 2–4 własne typowe pytania otwarte), deadlines i literature.
@@ -60,15 +64,15 @@ Kroki przy nowej prezentacji:
       - finanse: każdy wzór w formulas, 2–4 przykłady liczbowe krok po kroku w worked (rachunki przelicz dwa razy);
       - prawo: podstawa prawna przy instytucjach (bez wymyślania artykułów), kazusy w worked;
       - języki: wszystkie słówka i zwroty w vocab (rzeczowniki z rodzajnikiem i liczbą mnogą, czasowniki rozdzielne z „|”
-        i formą 3. os. lp.), reguły w grammar (części reguły oznacz ==tak==), błędy w mistakes, ćwiczenia z rozwiązaniami
-        zgodnymi z regułą lekcji w exercises, tekst wzorcowy z tłumaczeniem w texts. Słówek nie dubluj we flashcards:
-        strona sama robi z nich fiszki.
-   f) Fiszki 15–40: jedna fiszka to jeden fakt (nie „kto i kiedy” razem); odpowiedź do 15 słów, poza definicjami na pamięć;
-      w pytaniu o listę podaj liczbę elementów; o osoby i pojęcia pytaj w obie strony; pokryj każdy punkt highYield i każde
-      pojęcie z terms; id = "c" + 8 losowych znaków; sec.
-   g) Test 8–15 pytań: 4 odpowiedzi podobnej długości i formy, bez „wszystkie/żadna z powyższych”; błędne odpowiedzi
+        i formą 3. os. lp.) – najwyżej 20 najważniejszych, bez poleceń z podręcznika (hören, ankreuzen…); reguły w grammar
+        (do 5; części reguły oznacz ==tak==), do 4 błędów w mistakes, do 3 ćwiczeń z rozwiązaniami zgodnymi z regułą
+        w exercises, 1 tekst wzorcowy z tłumaczeniem w texts. Słówek nie dubluj we flashcards: strona sama robi z nich fiszki.
+   f) Fiszki 8–15 (języki: 6–10 poza słówkami): jedna fiszka to jeden fakt (nie „kto i kiedy” razem); odpowiedź do 15 słów, poza definicjami na pamięć;
+      w pytaniu o listę podaj liczbę elementów; pokryj najważniejsze punkty highYield i pojęcia z terms (bez dublowania);
+      id = "c" + 8 losowych znaków; sec.
+   g) Test 6–8 pytań: 4 odpowiedzi podobnej długości i formy, bez „wszystkie/żadna z powyższych”; błędne odpowiedzi
       z pojęć, które się myli, a nie absurdy; co najmniej 1/3 pytań na zastosowanie (krótka sytuacja do rozpoznania);
-      poprawna odpowiedź na różnych pozycjach (przy 8+ pytaniach każda pozycja co najmniej 2 razy) i nie częściej najdłuższa
+      poprawna odpowiedź na różnych pozycjach (każda pozycja co najmniej raz) i nie częściej najdłuższa
       niż pozostałe; why (1 zdanie), explain (4 wyjaśnienia w kolejności options; przy błędnej: czym ona jest albo dlaczego
       nie pasuje), sec.
    h) Przed zapisem sprawdź: liczby, daty i nazwiska zgodne ze slajdami; rozwiązania ćwiczeń zgodne z regułą; sec w zakresie
