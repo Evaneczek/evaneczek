@@ -633,6 +633,38 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .ask-form textarea{flex:1;min-width:0;resize:none}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;max-width:calc(100% - 32px);transform:translateX(-50%);padding:10px 16px;border-radius:10px;background:var(--ink);color:var(--bg);font-size:14px;box-shadow:var(--shadow)}
 body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
+/* ---------- ćwiczenia interaktywne ---------- */
+.exr{gap:10px}
+.ex-hint{margin:0;font-size:13px;color:var(--muted)}
+.ex-items{display:flex;flex-direction:column;gap:12px;margin:0;padding-left:1.4em;line-height:2}
+.ex-items li::marker{color:var(--faint);font-variant-numeric:tabular-nums}
+.ex-why{display:block;margin-top:2px;font-size:13px;line-height:1.45;color:var(--muted)}
+.ex-gap{white-space:nowrap}
+.ex-in::placeholder{color:var(--faint);font-weight:500}
+.ex-in{display:inline-block;max-width:100%;height:32px;margin:0 2px;padding:2px 8px;border:0;border-bottom:2px solid var(--faint);border-radius:6px 6px 0 0;background:var(--sunk);color:var(--ink);font:inherit;font-weight:600;vertical-align:baseline;transition:border-color .15s,background-color .15s}
+.ex-in:focus{outline:none;border-bottom-color:var(--accent);background:var(--accent-soft)}
+.ex-in.ok,.ex-drop.ok{border-color:var(--good);background:var(--good-soft);color:var(--good)}
+.ex-in.no,.ex-drop.no{border-color:var(--bad);background:var(--bad-soft);color:var(--bad);animation:no-shake .38s ease-in-out}
+.ex-in.ok,.ex-drop.ok{animation:ok-pop .34s var(--ease-out)}
+.ex-in.shown,.ex-drop.shown{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ex-opts{display:inline-flex;flex-wrap:wrap;gap:4px;margin:0 2px;vertical-align:baseline;line-height:1.3}
+.ex-opt{min-height:32px;padding:3px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:inherit;font-size:.95em}
+.ex-opt:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.ex-opt:disabled{cursor:default}
+.ex-opt.ok{border-color:var(--good);background:var(--good-soft);color:var(--good);font-weight:600;animation:ok-pop .34s var(--ease-out)}
+.ex-opt.no{border-color:var(--bad);background:var(--bad-soft);color:var(--bad);text-decoration:line-through;animation:no-shake .38s ease-in-out}
+.ex-opt.shown{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.ex-bank{display:flex;flex-wrap:wrap;gap:8px;min-height:50px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--bg)}
+.ex-bank:empty::before{content:"Wszystkie słowa są w lukach";align-self:center;font-size:13px;color:var(--faint)}
+.ex-chip{min-height:34px;padding:5px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);font:inherit;font-weight:500;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;box-shadow:0 1px 0 var(--line)}
+.ex-chip.sel{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.ex-drop{display:inline-flex;align-items:center;justify-content:center;min-width:9ch;min-height:32px;margin:0 2px;padding:2px 10px;border:1.5px dashed var(--faint);border-radius:8px;background:transparent;color:var(--ink);font:inherit;font-weight:600;line-height:1.3;vertical-align:baseline}
+.ex-drop.full{border-style:solid;border-color:var(--line);background:var(--surface)}
+.ex-drop.hot,.ex-drop.pick{border-color:var(--accent);background:var(--accent-soft)}
+.ex-foot{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:4px}
+.ex-score{margin-left:auto;font-weight:600;font-variant-numeric:tabular-nums}
+.ex-score.all{color:var(--good)}
+.ex-ghost{position:fixed;z-index:80;margin:0;pointer-events:none;transform:translate(-50%,-70%) rotate(-3deg);box-shadow:var(--shadow)}
 /* ---------- ruch i wygoda ---------- */
 :root{--ease-out:cubic-bezier(.2,.8,.2,1)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -872,6 +904,92 @@ function confetti() {
     if (k < 1) requestAnimationFrame(frame); else cv.remove();
   };
   requestAnimationFrame(frame);
+}
+
+/* ---------- ćwiczenia interaktywne ---------- */
+const EX_TYPES = ['choose', 'drag', 'type'];
+let exDragJustEnded = false;   // po przeciągnięciu przeglądarka wysyła jeszcze kliknięcie w słowo
+const exState = new Map();   // wpisane, wybrane i przeciągnięte odpowiedzi; przeżywają ponowne rysowanie strony
+const exKey = (nid, i) => nid + '#' + i;
+const exNorm = v => String(v || '').toLowerCase().replace(/[’`]/g, "'").replace(/[.,!?;:„”"«»]/g, ' ').replace(/\s+/g, ' ').trim();
+// odpowiedzi kolejnych luk: dopiski w nawiasach odpadają, kilka luk rozdziela „…”
+const exAnswers = it => String(it.a || '').replace(/\([^)]*\)/g, '').split(/\s*(?:…|\.\.\.)\s*/).map(x => x.trim()).filter(Boolean);
+function exOk(val, ans, prefix) {
+  const v = exNorm(val), p = exNorm(prefix);
+  if (!v) return false;
+  const alts = String(ans).split(/\s+\|\s+|\s+\/\s+/).map(exNorm);
+  return alts.some(a => v === a || (p && (p + v === a || v === p + a)));
+}
+function exHtml(n, x, i) {
+  const st = exState.get(exKey(n.id, i)) || {vals: {}};
+  const type = EX_TYPES.includes(x.type) ? x.type : 'type';
+  let total = 0, good = 0, filled = 0;
+  const used = Object.values(st.vals);
+  const items = arr(x.items).filter(it => it && it.q).map((it, j) => {
+    const ans = exAnswers(it);
+    let g = 0;
+    const gap = prefix => {
+      const k = j + ':' + g, a = ans[Math.min(g, ans.length - 1)] || '', raw = st.vals[k] || '';
+      g++; total++;
+      const ok = exOk(raw, a, prefix);
+      if (ok) good++;
+      if (raw) filled++;
+      if (type === 'choose' && arr(it.options).length > 1) {
+        return `<span class="ex-opts" role="group" aria-label="Luka ${g}">${it.options.map(o => {
+          const cls = st.shown && exOk(o, a) ? 'shown' : raw === o ? (ok ? 'ok' : 'no') : '';
+          return `<button type="button" class="ex-opt ${cls}" data-act="ex-opt" data-k="${k}" data-o="${esc(o)}" ${ok || st.shown ? 'disabled' : ''}>${esc(o)}</button>`;
+        }).join('')}</span>`;
+      }
+      // jedna litera przed luką to podpowiedź (pokazana w polu), dłuższy początek to temat słowa (zostaje przed polem)
+      const hint = prefix.length === 1, stem = hint ? '' : prefix;
+      const shownVal = stem && a.toLowerCase().startsWith(stem.toLowerCase()) ? a.slice(stem.length) : a;
+      const v = st.shown ? shownVal : raw, cls = st.shown ? 'shown' : st.checked && raw ? (ok ? 'ok' : 'no') : '';
+      if (type === 'drag') return `<button type="button" class="ex-drop ${v ? 'full' : ''} ${st.sel && !st.shown ? 'pick' : ''} ${cls}" data-act="ex-drop" data-k="${k}" aria-label="Luka ${g}${v ? ': ' + esc(v) : ', pusta'}">${v ? esc(v) : '&nbsp;'}</button>`;
+      return `<span class="ex-gap">${esc(stem)}<input class="ex-in ${cls}" data-k="${k}" value="${esc(v)}" style="width:${Math.max(4, a.length + 2)}ch" ${hint ? `placeholder="${esc(prefix)}…" ` : ''}aria-label="Luka ${g}${hint ? ', zaczyna się na ' + esc(prefix) : ''}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" ${st.shown ? 'readonly' : ''}></span>`;
+    };
+    let html = esc(String(it.q).replace(/\*+/g, '')).replace(/([A-Za-zÀ-ÖØ-öø-žß]*)_{2,}/g, (m, p) => gap(p));
+    if (!g) html += ' ' + gap('');
+    const why = it.why && (st.checked || st.shown || type === 'choose' && st.vals[j + ':0']) ? `<span class="ex-why">${mdi(it.why)}</span>` : '';
+    return `<li>${html}${why}</li>`;
+  });
+  let bank = '';
+  if (type === 'drag') {
+    const left = used.slice();
+    const words = arr(x.bank).length ? x.bank.map(String) : arr(x.items).flatMap(exAnswers).sort((p, q) => p.localeCompare(q, 'pl'));
+    bank = `<div class="ex-bank" aria-label="Słowa do wstawienia">${words.filter(w => { const at = left.indexOf(w); if (at >= 0) { left.splice(at, 1); return false; } return !st.shown; }).map(w => `<button type="button" class="ex-chip ${st.sel === w ? 'sel' : ''}" data-act="ex-chip" data-w="${esc(w)}">${esc(w)}</button>`).join('')}</div>`;
+  }
+  const done = type === 'choose' ? filled > 0 : st.checked;
+  const hint = type === 'drag' ? 'Przeciągnij słowo w lukę albo dotknij słowa, a potem luki.' : type === 'choose' ? 'Kliknij właściwe słowo.' : 'Wpisz odpowiedzi i sprawdź (Enter).';
+  return `<div class="exr" data-n="${esc(n.id)}" data-i="${i}" data-type="${type}"><p><b>${esc(x.title || 'Ćwiczenie')}</b>${x.instr ? ' · ' + mdi(x.instr) : ''}</p>
+    <p class="ex-hint">${hint}</p>${bank}
+    <ol class="ex-items">${items.join('')}</ol>
+    <div class="ex-foot">${type !== 'choose' ? '<button type="button" class="btn sm primary" data-act="ex-check">Sprawdź</button>' : ''}<button type="button" class="btn sm" data-act="ex-show">Pokaż odpowiedzi</button><button type="button" class="btn sm ghost" data-act="ex-reset">Od nowa</button>${done && !st.shown ? `<span class="ex-score ${good === total ? 'all' : ''}" role="status">${good === total ? 'Wszystko dobrze! ' : ''}${good}/${total}</span>` : ''}</div></div>`;
+}
+function exBlock(el) { return el && el.closest('.exr'); }
+function exSt(block) {
+  const key = exKey(block.dataset.n, block.dataset.i);
+  if (!exState.has(key)) exState.set(key, {vals: {}});
+  return exState.get(key);
+}
+function exRedraw(block, party) {
+  const n = noteById(block.dataset.n), i = Number(block.dataset.i), x = n && arr(n.exercises)[i];
+  if (!x) return;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = exHtml(n, x, i);
+  const fresh = wrap.firstElementChild;
+  block.replaceWith(fresh);
+  if (party) {
+    const sc = fresh.querySelector('.ex-score.all');
+    if (sc && fresh.querySelectorAll('.ex-in,.ex-drop,.ex-opts').length >= 4) confetti();
+  }
+  return fresh;
+}
+function exPlace(block, k, w) {
+  const st = exSt(block);
+  st.vals[k] = w;
+  st.sel = null;
+  st.checked = false;
+  exRedraw(block);
 }
 let noteFs = (() => { try { return Math.min(2, Number(localStorage.getItem('atlas-fs')) || 0); } catch (e) { return 0; } })();
 // najdalsza część notatki, do której doszło czytanie (w tej przeglądarce)
@@ -1716,8 +1834,7 @@ function noteSections(n) {
     ${arr(f.vars).length ? `<ul>${f.vars.map(v => `<li><b>${esc(v.sym)}</b> – ${mdi(v.def || '')}</li>`).join('')}</ul>` : ''}${f.when ? `<p class="muted">${mdi(f.when)}</p>` : ''}</div>`).join('')});
   if (arr(n.worked).length) secs.push({id: 's-wk', t: 'Przykłady krok po kroku', html: n.worked.filter(w => w && w.problem).map(w => `<div class="worked"><p><b>${esc(w.title || 'Przykład')}</b></p><div class="md">${md(w.problem)}</div>
     <details><summary>Pokaż rozwiązanie</summary><ol>${arr(w.steps).map(x => `<li>${mdi(x)}</li>`).join('')}</ol>${w.result ? `<p><b>Wynik:</b> ${mdi(w.result)}</p>` : ''}</details></div>`).join('')});
-  if (arr(n.exercises).length) secs.push({id: 's-exr', t: 'Ćwiczenia', html: n.exercises.filter(x => x && arr(x.items).length).map(x => `<div class="exr"><p><b>${esc(x.title || 'Ćwiczenie')}</b>${x.instr ? ' · ' + mdi(x.instr) : ''}</p>
-    <ol>${x.items.map(it => `<li><span>${mdi(it.q)}</span> <details><summary>Pokaż rozwiązanie</summary>${mdi(it.a)}</details></li>`).join('')}</ol></div>`).join('')});
+  if (arr(n.exercises).some(x => x && arr(x.items).length)) secs.push({id: 's-exr', t: 'Ćwiczenia', html: n.exercises.map((x, i) => x && arr(x.items).length ? exHtml(n, x, i) : '').join('')});
   if (arr(n.texts).length) secs.push({id: 's-txt', t: 'Teksty', html: n.texts.filter(x => x && x.text).map(x => `<div class="txt">${x.title ? `<p><b>${esc(x.title)}</b></p>` : ''}<div class="md">${md(x.text)}</div>${x.pl ? `<details><summary>Tłumaczenie</summary><div class="md">${md(x.pl)}</div></details>` : ''}</div>`).join('')});
   if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
   if (arr(n.examQuestions).length) secs.push({id: 's-eq', t: 'Typowe pytania egzaminacyjne', html: `<ol class="eq">${n.examQuestions.filter(q => q && q.q).map(q => `<li><p>${mdi(q.q)}${q.fromSlides ? ' <span class="pill neutral">ze slajdów</span>' : ''}</p>
@@ -3157,7 +3274,7 @@ const KIND_RULES = {
 - Najważniejsze słówka i zwroty z lekcji (najwyżej 20; bez poleceń z podręcznika typu hören, ankreuzen) wpisz do "vocab", a nie do tabel w "sections" ani do "flashcards" (strona sama zrobi z nich fiszki). Rzeczowniki z rodzajnikiem w "art" i liczbą mnogą w "plural" (np. "-e", "-n", "¨-e", "–" gdy brak). Czasowniki rozdzielnie złożone zapisuj z kreską (auf|stehen), a w "forms" podaj 3. os. lp. (steht auf); przy czasownikach ze zmianą samogłoski podaj ją (du siehst fern). Do każdego słowa krótki przykład z lekcji w "ex".
 - Każdy temat gramatyczny wpisz do "grammar": reguła w 1–3 zdaniach po polsku, schemat (np. "Pozycja 1 | czasownik | … | przedrostek"), 3–5 przykładów z tłumaczeniem. Części, które tworzą regułę (np. odmieniony czasownik i przedrostek), oznacz ==tak==.
 - Błędy, przed którymi ostrzega prowadzący, i typowe błędy Polaków w tym temacie wpisz do "mistakes": błędnie, poprawnie, dlaczego.
-- Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
+- Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Strona robi z nich zadania interaktywne: "type": "choose" (wybór jednej z "options"), "drag" (przeciąganie słów z "bank" w luki; bank może mieć 1 słowo nadmiarowe) albo "type" (wpisywanie). Lukę oznacz ___; w "a" sama odpowiedź (kilka luk w zdaniu rozdziel „ … ”), objaśnienie w "why". Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
 - Tekst wzorcowy (np. przykładowy opis dnia) wpisz do "texts" z tłumaczeniem.
 - W "sections" zostaw krótkie wyjaśnienia i tabele, których nie da się zapisać w polach powyżej (np. tabela godzin).
 - Fiszki i test sprawdzają produkcję (polski → język kursu), formy, rodzajniki i szyk zdania, a nie terminologię gramatyczną.`,
@@ -3171,7 +3288,7 @@ const KIND_SHAPE = {
   lang: ` "vocab": [{"w": "auf|stehen", "pl": "wstawać", "pos": "v", "art": null, "plural": null, "forms": "steht auf", "ex": "Ich stehe um 7 Uhr auf."}, {"w": "Vorlesung", "pl": "wykład", "pos": "n", "art": "die", "plural": "-en", "forms": null, "ex": "Ich habe eine Vorlesung."}],
  "grammar": [{"title": "tytuł reguły", "rule": "1–3 zdania po polsku", "pattern": "Pozycja 1 | czasownik | … | przedrostek", "examples": [{"t": "Ich ==stehe== um 7 Uhr ==auf==.", "pl": "Wstaję o 7."}], "exceptions": ["…"], "sec": 0}],
  "mistakes": [{"wrong": "Ich stehe auf um 7 Uhr.", "right": "Ich stehe um 7 Uhr auf.", "why": "przedrostek idzie na koniec zdania"}],
- "exercises": [{"title": "Übung 1", "instr": "polecenie po polsku", "items": [{"q": "Ich ___ um 6:30 Uhr ___. (aufstehen)", "a": "stehe … auf"}]}],
+ "exercises": [{"title": "Übung 1", "instr": "polecenie po polsku", "type": "type", "items": [{"q": "Ich ___ um 6:30 Uhr ___. (aufstehen)", "a": "stehe … auf"}]}, {"title": "Übung 2", "instr": "…", "type": "choose", "items": [{"q": "Woher ___ du?", "options": ["kommst", "kommt", "kommen"], "a": "kommst", "why": "du → -st"}]}, {"title": "Übung 3", "instr": "…", "type": "drag", "bank": ["bin", "bist", "ist", "sind"], "items": [{"q": "Ich ___ Anna.", "a": "bin"}]}],
  "texts": [{"title": "tytuł", "text": "tekst w języku kursu", "pl": "tłumaczenie"}],`,
 };
 
@@ -3266,7 +3383,10 @@ function normNote(r) {
     vocab: objs(r.vocab, ['w', 'pl', 'pos', 'art', 'plural', 'forms', 'ex'], 'w').filter(x => x.pl),
     grammar: arr(r.grammar).map(x => ({...objs([x], ['title', 'rule', 'pattern'], 'rule')[0], examples: objs(x && x.examples, ['t', 'pl'], 't'), exceptions: strs(x && x.exceptions)})).filter(x => x.rule),
     mistakes: objs(r.mistakes, ['wrong', 'right', 'why'], 'right'),
-    exercises: arr(r.exercises).map(x => ({...objs([x], ['title', 'instr'], 'title')[0], items: objs(x && x.items, ['q', 'a'], 'q').filter(i => i.a)})).filter(x => x.items.length),
+    exercises: arr(r.exercises).map(x => {
+      const items = arr(x && x.items).map(it => it && typeof it === 'object' ? {q: str(it.q), a: str(it.a), ...(it.why ? {why: str(it.why)} : {}), ...(arr(it.options).length > 1 ? {options: strs(it.options)} : {})} : null).filter(it => it && it.q && it.a);
+      return {...objs([x], ['title', 'instr'], 'title')[0], ...(EX_TYPES.includes(x && x.type) ? {type: x.type} : {}), ...(arr(x && x.bank).length ? {bank: strs(x.bank)} : {}), items};
+    }).filter(x => x.items.length),
     texts: objs(r.texts, ['title', 'text', 'pl'], 'text'),
     examQuestions: arr(r.examQuestions).map(x => ({...objs([x], ['q', 'outline'], 'q')[0], fromSlides: !!(x && x.fromSlides)})).filter(x => x.q),
     mnemonics: strs(r.mnemonics),
@@ -3514,6 +3634,27 @@ const A = {
   'rv-mcq': el => { const o = S.ov; if (o.mcq === null) { o.mcq = Number(el.dataset.k); o.anim = 'pick'; renderOv(); } },
   'rv-mcq-next': () => { const o = S.ov, c = o.q[o.i]; if (o.mcq === null || !c) return; rate(o.mcq === Number(c.quiz.answer) ? 3 : 1); },
   'close-ov': () => requestCloseOv(),
+  'ex-check': el => {
+    const b = exBlock(el), st = exSt(b);
+    b.querySelectorAll('.ex-in').forEach(inp => { st.vals[inp.dataset.k] = inp.value; });
+    st.checked = true;
+    exRedraw(b, true);
+  },
+  'ex-show': el => { const b = exBlock(el), st = exSt(b); st.shown = true; st.sel = null; exRedraw(b); },
+  'ex-reset': el => { const b = exBlock(el); exState.delete(exKey(b.dataset.n, b.dataset.i)); exRedraw(b); },
+  'ex-opt': el => { const b = exBlock(el), st = exSt(b); st.vals[el.dataset.k] = el.dataset.o; exRedraw(b, true); },
+  'ex-chip': el => {
+    if (exDragJustEnded) return;
+    const b = exBlock(el), st = exSt(b);
+    st.sel = st.sel === el.dataset.w ? null : el.dataset.w;
+    exRedraw(b);
+  },
+  'ex-drop': el => {
+    const b = exBlock(el), st = exSt(b), k = el.dataset.k;
+    if (st.shown) return;
+    if (st.sel) exPlace(b, k, st.sel);
+    else if (st.vals[k]) { delete st.vals[k]; st.checked = false; exRedraw(b); }
+  },
   'tab-search': () => { window.scrollTo({top: 0, behavior: motion() ? 'smooth' : 'auto'}); const q = $('#q'); if (q) q.focus({preventScroll: true}); },
   'font-size': () => {
     noteFs = (noteFs + 1) % 3;
@@ -3581,6 +3722,52 @@ const A = {
 };
 
 function bindEvents() {
+  let exDrag = null;
+  document.addEventListener('pointerdown', e => {
+    const chip = e.target.closest && e.target.closest('.ex-chip');
+    if (!chip || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    exDrag = {chip, id: e.pointerId, x: e.clientX, y: e.clientY, ghost: null, hot: null};
+  });
+  document.addEventListener('pointermove', e => {
+    const d = exDrag;
+    if (!d || e.pointerId !== d.id) return;
+    if (!d.ghost) {
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) return;
+      d.ghost = d.chip.cloneNode(true);
+      d.ghost.classList.add('ex-ghost');
+      d.ghost.removeAttribute('data-act');
+      document.body.appendChild(d.ghost);
+      d.chip.style.opacity = '.35';
+      try { d.chip.setPointerCapture(e.pointerId); } catch (err) {}
+    }
+    e.preventDefault();
+    d.ghost.style.left = e.clientX + 'px';
+    d.ghost.style.top = e.clientY + 'px';
+    const under = document.elementFromPoint(e.clientX, e.clientY), drop = under && under.closest('.ex-drop');
+    const ok = drop && drop.closest('.exr') === d.chip.closest('.exr') ? drop : null;
+    if (d.hot !== ok) { if (d.hot) d.hot.classList.remove('hot'); if (ok) ok.classList.add('hot'); d.hot = ok; }
+  }, {passive: false});
+  const exDragEnd = e => {
+    const d = exDrag;
+    if (!d || e.pointerId !== d.id) return;
+    exDrag = null;
+    if (!d.ghost) return;
+    d.ghost.remove();
+    d.chip.style.opacity = '';
+    exDragJustEnded = true;
+    setTimeout(() => { exDragJustEnded = false; }, 60);
+    if (d.hot && e.type === 'pointerup') exPlace(exBlock(d.hot), d.hot.dataset.k, d.chip.dataset.w);
+    else if (d.hot) d.hot.classList.remove('hot');
+  };
+  document.addEventListener('pointerup', exDragEnd);
+  document.addEventListener('pointercancel', exDragEnd);
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (!t.classList || !t.classList.contains('ex-in')) return;
+    const b = exBlock(t), st = exSt(b);
+    st.vals[t.dataset.k] = t.value;
+    t.classList.remove('ok', 'no');
+  });
   let sw = null;
   document.addEventListener('pointerdown', e => {
     const card = e.pointerType !== 'mouse' && e.target.closest && e.target.closest('#ov .card.swipe');
@@ -3721,6 +3908,7 @@ function bindEvents() {
     const t = e.target, o = S.ov;
     if (t && t.id === 'ask-q' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); askSend(t.value); return; }
     if (!o) {
+      if (e.key === 'Enter' && t && t.classList && t.classList.contains('ex-in')) { e.preventDefault(); A['ex-check'](t); return; }
       if ((e.key === 'Enter' || e.key === ' ') && t && t.classList && t.classList.contains('cal-day')) { e.preventDefault(); A['cal-day'](t); }
       return;
     }
