@@ -56,6 +56,8 @@ Kroki przy nowej prezentacji:
       trafiają do examInfo, examQuestions (z planem odpowiedzi; dodaj 2–4 własne typowe pytania otwarte), deadlines i literature.
       Pomiń tylko slajd tytułowy, plan wykładu, podziękowania i dane kontaktowe.
    c) Definicję, którą trzeba znać dosłownie, przepisz bez skracania do terms[].quote ze źródłem; fiszka z tą definicją ma pełne brzmienie.
+   c2) Ucz rozumienia, nie wkuwania: każde pojęcie, które dla studenta 1. roku może być nowe (np. „bank banków”, „podwyżka stóp”),
+      wytłumacz prostymi słowami przy pierwszym użyciu, najlepiej z przykładem z życia i liczbami (co to zmienia dla zwykłego człowieka).
    d) Forma: po polsku, zwięźle, w punktach. Pogrubiaj tylko pojęcie albo liczbę do nauczenia (najwyżej 2 na punkt, nigdy całe zdanie
       ani cała kolumna tabeli); 3–6 najważniejszych faktów w całej notatce możesz zaznaczyć ==tak==. Porównania jako tabele Markdown
       (najwyżej 4 kolumny). Wyliczenia od 5 elementów jako lista numerowana. Podtytuły jako „### …”. Błędne formy jako ~~…~~.
