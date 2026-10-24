@@ -26,7 +26,7 @@ Kolekcje w bazie tej strony:
   formulas: [{name, expr, vars: [{sym, def}], when}], worked: [{title, problem, steps: [Markdown], result, sec}] — finanse; w prawie kazusy,
   vocab: [{w, pl, pos: n | v | adj | adv | phr, art: der | die | das | null, plural, forms, ex}],
   grammar: [{title, rule, pattern, examples: [{t, pl}], exceptions: [Markdown], sec}],
-  mistakes: [{wrong, right, why}], exercises: [{title, instr, type: "choose" | "drag" | "type", bank?: [słowa do przeciągania], items: [{q (luka = ___), a, options?: [do wyboru], why?}]}], texts: [{title, text, pl}] — języki,
+  mistakes: [{wrong, right, why}], exercises: [{title, instr, type: "choose" | "drag" | "type", bank?: [słowa do przeciągania], items: [{q (luka = ___), a, options?: [do wyboru], why, pl, explain?: {zła opcja: dlaczego nie}}]}], texts: [{title, text, pl}] — języki,
   examQuestions: [{q, outline (Markdown), fromSlides: true | false, sec}], literature: [tekst],
   mnemonics: [Markdown], practice: [Markdown — przykłady z praktyki],
   flashcards: [{id, q, a, sec}],
@@ -67,7 +67,8 @@ Kroki przy nowej prezentacji:
         i formą 3. os. lp.) – najwyżej 20 najważniejszych, bez poleceń z podręcznika (hören, ankreuzen…); reguły w grammar
         (do 5; części reguły oznacz ==tak==), do 4 błędów w mistakes, do 3 ćwiczeń z rozwiązaniami zgodnymi z regułą
         w exercises (strona robi z nich zadania interaktywne: choose = wybór z options, drag = przeciąganie słów z bank, type = wpisywanie;
-        w a sama odpowiedź, kilka luk w zdaniu rozdziel „ … ”, objaśnienie w why), 1 tekst wzorcowy z tłumaczeniem w texts. Słówek nie dubluj we flashcards: strona sama robi z nich fiszki.
+        w a sama odpowiedź, kilka luk w zdaniu rozdziel „ … ”; do każdego zadania why = dlaczego ta odpowiedź i pl = tłumaczenie
+        zdania; przy choose explain z powodem dla każdej złej opcji), 1 tekst wzorcowy z tłumaczeniem w texts. Słówek nie dubluj we flashcards: strona sama robi z nich fiszki.
    f) Fiszki 8–15 (języki: 6–10 poza słówkami): jedna fiszka to jeden fakt (nie „kto i kiedy” razem); odpowiedź do 15 słów, poza definicjami na pamięć;
       w pytaniu o listę podaj liczbę elementów; pokryj najważniejsze punkty highYield i pojęcia z terms (bez dublowania);
       id = "c" + 8 losowych znaków; sec.

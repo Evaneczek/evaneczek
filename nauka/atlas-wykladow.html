@@ -638,7 +638,10 @@ body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .ex-hint{margin:0;font-size:13px;color:var(--muted)}
 .ex-items{display:flex;flex-direction:column;gap:12px;margin:0;padding-left:1.4em;line-height:2}
 .ex-items li::marker{color:var(--faint);font-variant-numeric:tabular-nums}
-.ex-why{display:block;margin-top:2px;font-size:13px;line-height:1.45;color:var(--muted)}
+.ex-more{display:flex;flex-direction:column;gap:3px;margin-top:6px;padding:7px 11px;border-left:3px solid var(--line);border-radius:0 8px 8px 0;background:var(--bg);font-size:13.5px;line-height:1.5;color:var(--muted);animation:rise .25s var(--ease-out)}
+.ex-more b{color:var(--ink);font-weight:600}
+.ex-why.no{color:var(--bad)}
+.ex-why.no b{color:var(--bad)}
 .ex-gap{white-space:nowrap}
 .ex-in::placeholder{color:var(--faint);font-weight:500}
 .ex-in{display:inline-block;max-width:100%;height:32px;margin:0 2px;padding:2px 8px;border:0;border-bottom:2px solid var(--faint);border-radius:6px 6px 0 0;background:var(--sunk);color:var(--ink);font:inherit;font-weight:600;vertical-align:baseline;transition:border-color .15s,background-color .15s}
@@ -949,8 +952,21 @@ function exHtml(n, x, i) {
     };
     let html = esc(String(it.q).replace(/\*+/g, '')).replace(/([A-Za-zÀ-ÖØ-öø-žß]*)_{2,}/g, (m, p) => gap(p));
     if (!g) html += ' ' + gap('');
-    const why = it.why && (st.checked || st.shown || type === 'choose' && st.vals[j + ':0']) ? `<span class="ex-why">${mdi(it.why)}</span>` : '';
-    return `<li>${html}${why}</li>`;
+    // po odpowiedzi: dlaczego ta odpowiedź (przy złym wyborze: dlaczego nie ta) i tłumaczenie zdania
+    const picked = type === 'choose' ? st.vals[j + ':0'] : null;
+    const pickedOk = picked && exOk(picked, ans[0] || '');
+    let more = '';
+    if (st.shown || (type === 'choose' ? picked : st.checked)) {
+      const parts = [];
+      const ex = it.explain && typeof it.explain === 'object' ? it.explain : null;
+      if (picked && !pickedOk && !st.shown) parts.push(`<span class="ex-why no">${ex && ex[picked] ? `<b>„${esc(picked)}”:</b> ${mdi(ex[picked])}` : 'Nie ta odpowiedź, spróbuj jeszcze raz.'}</span>`);
+      else {
+        if (it.why) parts.push(`<span class="ex-why"><b>Dlaczego:</b> ${mdi(it.why)}</span>`);
+        if (it.pl) parts.push(`<span class="ex-pl"><b>Po polsku:</b> ${esc(it.pl)}</span>`);
+      }
+      if (parts.length) more = `<span class="ex-more">${parts.join('')}</span>`;
+    }
+    return `<li>${html}${more}</li>`;
   });
   let bank = '';
   if (type === 'drag') {
@@ -3274,7 +3290,7 @@ const KIND_RULES = {
 - Najważniejsze słówka i zwroty z lekcji (najwyżej 20; bez poleceń z podręcznika typu hören, ankreuzen) wpisz do "vocab", a nie do tabel w "sections" ani do "flashcards" (strona sama zrobi z nich fiszki). Rzeczowniki z rodzajnikiem w "art" i liczbą mnogą w "plural" (np. "-e", "-n", "¨-e", "–" gdy brak). Czasowniki rozdzielnie złożone zapisuj z kreską (auf|stehen), a w "forms" podaj 3. os. lp. (steht auf); przy czasownikach ze zmianą samogłoski podaj ją (du siehst fern). Do każdego słowa krótki przykład z lekcji w "ex".
 - Każdy temat gramatyczny wpisz do "grammar": reguła w 1–3 zdaniach po polsku, schemat (np. "Pozycja 1 | czasownik | … | przedrostek"), 3–5 przykładów z tłumaczeniem. Części, które tworzą regułę (np. odmieniony czasownik i przedrostek), oznacz ==tak==.
 - Błędy, przed którymi ostrzega prowadzący, i typowe błędy Polaków w tym temacie wpisz do "mistakes": błędnie, poprawnie, dlaczego.
-- Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Strona robi z nich zadania interaktywne: "type": "choose" (wybór jednej z "options"), "drag" (przeciąganie słów z "bank" w luki; bank może mieć 1 słowo nadmiarowe) albo "type" (wpisywanie). Lukę oznacz ___; w "a" sama odpowiedź (kilka luk w zdaniu rozdziel „ … ”), objaśnienie w "why". Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
+- Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Strona robi z nich zadania interaktywne: "type": "choose" (wybór jednej z "options"), "drag" (przeciąganie słów z "bank" w luki; bank może mieć 1 słowo nadmiarowe) albo "type" (wpisywanie). Lukę oznacz ___; w "a" sama odpowiedź (kilka luk w zdaniu rozdziel „ … ”). Do KAŻDEGO zadania dodaj "why" (krótko, dlaczego ta odpowiedź: reguła albo znaczenie) i "pl" (tłumaczenie całego zdania na polski); przy "choose" dodaj "explain" z krótkim powodem dla każdej złej opcji. Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
 - Tekst wzorcowy (np. przykładowy opis dnia) wpisz do "texts" z tłumaczeniem.
 - W "sections" zostaw krótkie wyjaśnienia i tabele, których nie da się zapisać w polach powyżej (np. tabela godzin).
 - Fiszki i test sprawdzają produkcję (polski → język kursu), formy, rodzajniki i szyk zdania, a nie terminologię gramatyczną.`,
@@ -3288,7 +3304,7 @@ const KIND_SHAPE = {
   lang: ` "vocab": [{"w": "auf|stehen", "pl": "wstawać", "pos": "v", "art": null, "plural": null, "forms": "steht auf", "ex": "Ich stehe um 7 Uhr auf."}, {"w": "Vorlesung", "pl": "wykład", "pos": "n", "art": "die", "plural": "-en", "forms": null, "ex": "Ich habe eine Vorlesung."}],
  "grammar": [{"title": "tytuł reguły", "rule": "1–3 zdania po polsku", "pattern": "Pozycja 1 | czasownik | … | przedrostek", "examples": [{"t": "Ich ==stehe== um 7 Uhr ==auf==.", "pl": "Wstaję o 7."}], "exceptions": ["…"], "sec": 0}],
  "mistakes": [{"wrong": "Ich stehe auf um 7 Uhr.", "right": "Ich stehe um 7 Uhr auf.", "why": "przedrostek idzie na koniec zdania"}],
- "exercises": [{"title": "Übung 1", "instr": "polecenie po polsku", "type": "type", "items": [{"q": "Ich ___ um 6:30 Uhr ___. (aufstehen)", "a": "stehe … auf"}]}, {"title": "Übung 2", "instr": "…", "type": "choose", "items": [{"q": "Woher ___ du?", "options": ["kommst", "kommt", "kommen"], "a": "kommst", "why": "du → -st"}]}, {"title": "Übung 3", "instr": "…", "type": "drag", "bank": ["bin", "bist", "ist", "sind"], "items": [{"q": "Ich ___ Anna.", "a": "bin"}]}],
+ "exercises": [{"title": "Übung 1", "instr": "polecenie po polsku", "type": "type", "items": [{"q": "Ich ___ um 6:30 Uhr ___. (aufstehen)", "a": "stehe … auf"}]}, {"title": "Übung 2", "instr": "…", "type": "choose", "items": [{"q": "Woher ___ du?", "options": ["kommst", "kommt", "kommen"], "a": "kommst", "why": "du → końcówka -st", "explain": {"kommt": "-t jest dla er/sie/es i ihr", "kommen": "-en jest dla wir, sie i Sie"}, "pl": "Skąd jesteś?"}]}, {"title": "Übung 3", "instr": "…", "type": "drag", "bank": ["bin", "bist", "ist", "sind"], "items": [{"q": "Ich ___ Anna.", "a": "bin", "why": "sein jest nieregularny: ich bin", "pl": "Jestem Anna."}]}],
  "texts": [{"title": "tytuł", "text": "tekst w języku kursu", "pl": "tłumaczenie"}],`,
 };
 
@@ -3384,7 +3400,9 @@ function normNote(r) {
     grammar: arr(r.grammar).map(x => ({...objs([x], ['title', 'rule', 'pattern'], 'rule')[0], examples: objs(x && x.examples, ['t', 'pl'], 't'), exceptions: strs(x && x.exceptions)})).filter(x => x.rule),
     mistakes: objs(r.mistakes, ['wrong', 'right', 'why'], 'right'),
     exercises: arr(r.exercises).map(x => {
-      const items = arr(x && x.items).map(it => it && typeof it === 'object' ? {q: str(it.q), a: str(it.a), ...(it.why ? {why: str(it.why)} : {}), ...(arr(it.options).length > 1 ? {options: strs(it.options)} : {})} : null).filter(it => it && it.q && it.a);
+      const items = arr(x && x.items).map(it => it && typeof it === 'object' ? {q: str(it.q), a: str(it.a), ...(it.why ? {why: str(it.why)} : {}), ...(it.pl ? {pl: str(it.pl)} : {}),
+        ...(arr(it.options).length > 1 ? {options: strs(it.options)} : {}),
+        ...(it.explain && typeof it.explain === 'object' && !Array.isArray(it.explain) ? {explain: Object.fromEntries(Object.entries(it.explain).map(([k, v]) => [str(k), str(v)]).filter(([k, v]) => k && v))} : {})} : null).filter(it => it && it.q && it.a);
       return {...objs([x], ['title', 'instr'], 'title')[0], ...(EX_TYPES.includes(x && x.type) ? {type: x.type} : {}), ...(arr(x && x.bank).length ? {bank: strs(x.bank)} : {}), items};
     }).filter(x => x.items.length),
     texts: objs(r.texts, ['title', 'text', 'pl'], 'text'),
