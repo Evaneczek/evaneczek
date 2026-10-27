@@ -642,6 +642,11 @@ body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .ex-more b{color:var(--ink);font-weight:600}
 .ex-why.no{color:var(--bad)}
 .ex-why.no b{color:var(--bad)}
+.more-box{display:flex;flex-direction:column;gap:4px;margin:16px 0 0;padding:12px 16px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface));font-size:.94em}
+.more-box .label{margin:0;color:var(--accent)}
+.more-src{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)}
+.more-box .md > :first-child{margin-top:0}
+.more-box .md > :last-child{margin-bottom:0}
 .ex-gap{white-space:nowrap}
 .ex-in::placeholder{color:var(--faint);font-weight:500}
 .ex-in{display:inline-block;max-width:100%;height:32px;margin:0 2px;padding:2px 8px;border:0;border-bottom:2px solid var(--faint);border-radius:6px 6px 0 0;background:var(--sunk);color:var(--ink);font:inherit;font-weight:600;vertical-align:baseline;transition:border-color .15s,background-color .15s}
@@ -1843,7 +1848,8 @@ function noteSections(n) {
   if (arr(n.mistakes).length) secs.push({id: 's-mis', t: 'Typowe błędy', html: `<ul class="mist">${n.mistakes.map(m => `<li>
     ${m.wrong ? `<span class="no"><span aria-hidden="true">✗</span> <s>${mdi(m.wrong)}</s></span>` : ''}<span class="ok"><span aria-hidden="true">✓</span> ${mdi(m.right)}</span>${m.why ? `<span class="muted">${mdi(m.why)}</span>` : ''}</li>`).join('')}</ul>`});
   const parts = arr(n.sections).filter(x => x && (x.heading || x.body));
-  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}</div>`}));
+  // „more” to dopowiedzenie w roli wykładowcy: kontekst, przykład, na co uważać – osobno, żeby było widać, co nie pochodzi ze slajdów
+  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}</div>${x.more ? `<aside class="more-box"><p class="label">Dopowiedzenie <span class="more-src">· spoza slajdów</span></p><div class="md">${md(x.more)}</div></aside>` : ''}`}));
   if (arr(n.people).length) secs.push({id: 's-ppl', t: 'Kto jest kim', html: `<ol class="tl">${n.people.filter(x => x && x.name).map(x => `<li><span class="tl-y">${esc(x.years || '')}</span>
     <span><b>${esc(x.name)}</b>${x.school ? ` <span class="pill neutral">${esc(x.school)}</span>` : ''}<br><span class="cz-t">${mdi(x.idea || '')}</span>${x.work ? `<br><span class="muted"><i>${esc(x.work)}</i></span>` : ''}</span></li>`).join('')}</ol>`});
   if (arr(n.formulas).length) secs.push({id: 's-fx', t: 'Wzory', html: n.formulas.filter(f => f && f.expr).map(f => `<div class="formula">${f.name ? `<p class="label">${esc(f.name)}</p>` : ''}<p class="expr">${esc(f.expr)}</p>
@@ -2629,7 +2635,7 @@ function draftFrom(n) {
   return {
     title: n.title || '', lectureDate: isYmd(n.lectureDate) ? n.lectureDate : '', summary: n.summary || '',
     highYield: strs(n.highYield), practice: strs(practiceOf(n)), mnemonics: strs(n.mnemonics),
-    sections: arr(n.sections).map((x, i) => ({heading: (x && x.heading) || '', body: (x && x.body) || '', _o: i})),
+    sections: arr(n.sections).map((x, i) => ({heading: (x && x.heading) || '', body: (x && x.body) || '', more: (x && x.more) || '', _o: i})),
     terms: arr(n.terms).filter(Boolean).map(x => ({...x, term: x.term || '', def: x.def || ''})),
     flashcards: arr(n.flashcards).filter(c => c && c.q).map(c => ({...c, id: c.id || hash(c.q), q: c.q || '', a: c.a || ''})),
     quiz: arr(n.quiz).filter(q => q && q.q).map(q => {
@@ -2657,7 +2663,7 @@ function cleanDraft(d) {
   return {
     title: String(d.title || '').trim(), lectureDate: isYmd(d.lectureDate) ? d.lectureDate : null, summary: String(d.summary || '').trim(),
     highYield: lines(d.highYield), practice: lines(d.practice), clinical: [], mnemonics: lines(d.mnemonics),
-    sections: arr(d.sections).map(x => ({heading: String(x.heading || '').trim(), body: String(x.body || '').trim()})).filter(x => x.heading || x.body),
+    sections: arr(d.sections).map(x => ({heading: String(x.heading || '').trim(), body: String(x.body || '').trim(), ...(String(x.more || '').trim() ? {more: String(x.more).trim()} : {})})).filter(x => x.heading || x.body),
     terms: arr(d.terms).map(x => ({...x, term: String(x.term || '').trim(), def: String(x.def || '').trim()})).filter(x => x.term),
     flashcards: fixSec(arr(d.flashcards).map(c => ({...c, id: c.id || newCardId(), q: String(c.q || '').trim(), a: String(c.a || '').trim()})).filter(c => c.q && c.a)),
     quiz: fixSec(arr(d.quiz).map(q => {
@@ -3326,6 +3332,7 @@ TREŚĆ
 FORMA
 - Zwięźle, w punktach, poprawną polszczyzną. Bez wstępów typu „Wykład omawia…” poza "summary".
 - Ucz rozumienia, nie wkuwania: każde pojęcie, które dla studenta 1. roku może być nowe, wytłumacz prostymi słowami przy pierwszym użyciu, najlepiej z krótkim przykładem z życia (co to zmienia dla zwykłego człowieka).
+- Wciel się w dobrego wykładowcę: do każdej części dodaj pole "more" (2–4 krótkie punkty) z tym, co wykładowca dopowiedziałby na sali poza slajdem: po co to jest i jak działa w praktyce, przykład (najlepiej znane polskie firmy lub sytuacje z życia), z czym się to myli, jak łączy się z innymi tematami przedmiotu, o co zwykle pytają na egzaminie. Tylko pewna, podręcznikowa wiedza; nie wymyślaj liczb, dat ani cytatów i nie zaprzeczaj slajdom.
 - Pogrubiaj tylko pojęcie albo liczbę, której trzeba się nauczyć: najwyżej 2 pogrubienia na punkt, nigdy całe zdanie ani cała kolumna tabeli. 3–6 faktów najważniejszych w całej notatce możesz zaznaczyć ==tak==.
 - Porównania i klasyfikacje jako tabele Markdown: najwyżej 4 kolumny, krótkie komórki. Wyliczenia od 5 elementów jako lista numerowana, nie po przecinku.
 - Podtytuły wewnątrz części zapisuj jako „### Podtytuł”, nie pogrubionym akapitem.
@@ -3355,7 +3362,7 @@ Odpowiedz WYŁĄCZNIE jednym obiektem JSON, bez komentarzy i bez bloku kodu. Pol
  "examInfo": [{"text": "co prowadzący mówi o egzaminie lub kolokwium, co znać na pamięć, typowe błędy", "src": "slajd 3"}],
  "deadlines": [{"type": "kolokwium | egzamin | sprawdzian | zaliczenie | projekt | prezentacja | inne", "date": "RRRR-MM-DD albo null", "title": "Kolokwium 1", "scope": "zakres, np. Lektion 1–4"}],
  "highYield": ["5–10 najważniejszych faktów na egzamin; każdy zrozumiały bez reszty notatek"],
- "sections": [{"heading": "tytuł części", "body": "Markdown: listy, tabele, ### podtytuły"}],
+ "sections": [{"heading": "tytuł części", "body": "Markdown ze slajdów: listy, tabele, ### podtytuły", "more": "dopowiedzenie wykładowcy (Markdown, 2–4 punkty)"}],
  "terms": [{"term": "pojęcie", "def": "definicja w 1 zdaniu", "quote": "dosłowne brzmienie ze slajdu albo pusty tekst", "source": "autor, rok, strona albo pusty tekst"}],
 ${KIND_SHAPE[kind]}
  "examQuestions": [{"q": "pytanie otwarte", "outline": "plan odpowiedzi w 3–6 punktach (Markdown)", "fromSlides": true, "sec": 0}],
@@ -3378,7 +3385,7 @@ function normNote(r) {
   const str = v => typeof v === 'string' ? v.trim() : (v == null ? '' : String(v));
   const strs = v => arr(v).map(x => typeof x === 'string' ? x : (x && (x.text || x.content)) || '').map(str).filter(Boolean);
   const idx = v => (v === '' || v == null || !Number.isInteger(Number(v)) || Number(v) < 0) ? null : Number(v);
-  const sections = arr(r.sections).map(x => ({heading: str(x && x.heading), body: str(x && x.body)})).filter(x => x.heading || x.body);
+  const sections = arr(r.sections).map(x => ({heading: str(x && x.heading), body: str(x && x.body), ...(x && x.more ? {more: str(x.more)} : {})})).filter(x => x.heading || x.body);
   const sec = v => { const i = idx(v); return i != null && i < sections.length ? {sec: i} : {}; };
   // obiekty z wybranymi polami tekstowymi; wiersz bez pola "need" odpada
   const objs = (v, keys, need) => arr(v).filter(x => x && typeof x === 'object').map(x => {
@@ -3526,7 +3533,7 @@ function noteText(n) {
   list('Słownictwo', arr(n.vocab).filter(v => v && v.w).map(v => `${vocabLabel(v)} = ${v.pl || ''}`));
   for (const g of arr(n.grammar)) if (g && g.rule) L.push(`## ${g.title || 'Gramatyka'}\n${g.rule}${g.pattern ? '\nSchemat: ' + g.pattern : ''}\n` + arr(g.examples).map(e => `- ${e.t}${e.pl ? ' = ' + e.pl : ''}`).join('\n'));
   list('Typowe błędy', arr(n.mistakes).filter(Boolean).map(m => `${m.wrong ? '✗ ' + m.wrong + ' → ' : ''}✓ ${m.right}${m.why ? ' (' + m.why + ')' : ''}`));
-  for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || ''));
+  for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || '') + (s && s.more ? '\nDopowiedzenie: ' + s.more : ''));
   if (arr(n.terms).length) L.push('## Pojęcia\n' + arr(n.terms).map(t => `- ${t && t.term}: ${t && t.def}`).join('\n'));
   if (practiceOf(n).length) L.push('## W praktyce\n' + practiceOf(n).map(x => '- ' + x).join('\n'));
   list('Kto jest kim', arr(n.people).filter(x => x && x.name).map(x => `${x.name}${x.years ? ' (' + x.years + ')' : ''}: ${x.idea || ''}`));

@@ -20,7 +20,7 @@ Kolekcje w bazie tej strony:
   summary (Markdown, 2–4 zdania),
   examInfo: [{text, src}] — wskazówki prowadzącego: notatki prowadzącego, slajdy „na egzamin”, co znać na pamięć, typowe błędy; src np. "slajd 3",
   deadlines: [{type: kolokwium | egzamin | sprawdzian | zaliczenie | projekt | prezentacja | inne, date: "RRRR-MM-DD" | null, title, scope}],
-  highYield: [Markdown], sections: [{heading, body (Markdown)}],
+  highYield: [Markdown], sections: [{heading, body (Markdown), more (Markdown) — dopowiedzenie wykładowcy, krok 4c3}],
   terms: [{term, def, quote?, source?}] — quote: dosłowne brzmienie definicji, gdy trzeba ją znać na pamięć,
   people: [{name, years, school, work, idea}] — przedmioty teoretyczne,
   formulas: [{name, expr, vars: [{sym, def}], when}], worked: [{title, problem, steps: [Markdown], result, sec}] — finanse; w prawie kazusy,
@@ -58,6 +58,12 @@ Kroki przy nowej prezentacji:
    c) Definicję, którą trzeba znać dosłownie, przepisz bez skracania do terms[].quote ze źródłem; fiszka z tą definicją ma pełne brzmienie.
    c2) Ucz rozumienia, nie wkuwania: każde pojęcie, które dla studenta 1. roku może być nowe (np. „bank banków”, „podwyżka stóp”),
       wytłumacz prostymi słowami przy pierwszym użyciu, najlepiej z przykładem z życia i liczbami (co to zmienia dla zwykłego człowieka).
+   c3) Wciel się w dobrego wykładowcę: do każdej części (przy notatkach z prezentacji) dodaj pole more – 2–4 krótkie punkty z tym,
+      co prowadzący dopowiedziałby na zajęciach, a czego nie ma na slajdach: po co to jest i jak działa w praktyce, przykład
+      (najlepiej znane polskie firmy albo sytuacje z życia), z czym się to myli, jak łączy się z innymi tematami przedmiotu,
+      o co zwykle pytają na egzaminie. Tylko pewna, podręcznikowa wiedza: bez wymyślonych liczb, dat i cytatów, bez zaprzeczania
+      slajdom. Strona pokazuje to w ramce „Dopowiedzenie · spoza slajdów”, więc w more nie dopisuj „(spoza slajdów)”.
+      Body zostaje krótkie (to, co na slajdach); more nie wlicza się do fiszek ani testu, chyba że to naprawdę ważne.
    d) Forma: po polsku, zwięźle, w punktach. Pogrubiaj tylko pojęcie albo liczbę do nauczenia (najwyżej 2 na punkt, nigdy całe zdanie
       ani cała kolumna tabeli); 3–6 najważniejszych faktów w całej notatce możesz zaznaczyć ==tak==. Porównania jako tabele Markdown
       (najwyżej 4 kolumny). Wyliczenia od 5 elementów jako lista numerowana. Podtytuły jako „### …”. Błędne formy jako ~~…~~.
