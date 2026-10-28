@@ -919,7 +919,8 @@ const EX_TYPES = ['choose', 'drag', 'type'];
 let exDragJustEnded = false;   // po przeciągnięciu przeglądarka wysyła jeszcze kliknięcie w słowo
 const exState = new Map();   // wpisane, wybrane i przeciągnięte odpowiedzi; przeżywają ponowne rysowanie strony
 const exKey = (nid, i) => nid + '#' + i;
-const exNorm = v => String(v || '').toLowerCase().replace(/[’`]/g, "'").replace(/[.,!?;:„”"«»]/g, ' ').replace(/\s+/g, ' ').trim();
+// ß = ss: na telefonie często nie ma ß na klawiaturze
+const exNorm = v => String(v || '').toLowerCase().replace(/ß/g, 'ss').replace(/[’`]/g, "'").replace(/[.,!?;:„”"«»]/g, ' ').replace(/\s+/g, ' ').trim();
 // odpowiedzi kolejnych luk: dopiski w nawiasach odpadają, kilka luk rozdziela „…”
 const exAnswers = it => String(it.a || '').replace(/\([^)]*\)/g, '').split(/\s*(?:…|\.\.\.)\s*/).map(x => x.trim()).filter(Boolean);
 function exOk(val, ans, prefix) {
@@ -935,13 +936,13 @@ function exHtml(n, x, i) {
   const used = Object.values(st.vals);
   const items = arr(x.items).filter(it => it && it.q).map((it, j) => {
     const ans = exAnswers(it);
-    let g = 0;
+    let g = 0, any = false;
     const gap = prefix => {
       const k = j + ':' + g, a = ans[Math.min(g, ans.length - 1)] || '', raw = st.vals[k] || '';
       g++; total++;
       const ok = exOk(raw, a, prefix);
       if (ok) good++;
-      if (raw) filled++;
+      if (raw) { filled++; any = true; }
       if (type === 'choose' && arr(it.options).length > 1) {
         return `<span class="ex-opts" role="group" aria-label="Luka ${g}">${it.options.map(o => {
           const cls = st.shown && exOk(o, a) ? 'shown' : raw === o ? (ok ? 'ok' : 'no') : '';
@@ -957,11 +958,12 @@ function exHtml(n, x, i) {
     };
     let html = esc(String(it.q).replace(/\*+/g, '')).replace(/([A-Za-zÀ-ÖØ-öø-žß]*)_{2,}/g, (m, p) => gap(p));
     if (!g) html += ' ' + gap('');
-    // po odpowiedzi: dlaczego ta odpowiedź (przy złym wyborze: dlaczego nie ta) i tłumaczenie zdania
+    // po odpowiedzi: dlaczego ta odpowiedź (przy złym wyborze: dlaczego nie ta) i tłumaczenie zdania;
+    // puste luki po „Sprawdź” nie zdradzają odpowiedzi
     const picked = type === 'choose' ? st.vals[j + ':0'] : null;
     const pickedOk = picked && exOk(picked, ans[0] || '');
     let more = '';
-    if (st.shown || (type === 'choose' ? picked : st.checked)) {
+    if (st.shown || (type === 'choose' ? picked : st.checked && any)) {
       const parts = [];
       const ex = it.explain && typeof it.explain === 'object' ? it.explain : null;
       if (picked && !pickedOk && !st.shown) parts.push(`<span class="ex-why no">${ex && ex[picked] ? `<b>„${esc(picked)}”:</b> ${mdi(ex[picked])}` : 'Nie ta odpowiedź, spróbuj jeszcze raz.'}</span>`);
@@ -1113,7 +1115,7 @@ const subjectById = id => S.subjects.find(s => s.id === id);
 const noteById = id => S.notes.find(n => n.id === id);
 const notesOf = sid => S.notes.filter(n => n.subjectId === sid)
   .sort((a, b) => (Number(a.nr) || 0) - (Number(b.nr) || 0) || String(a.addedAt).localeCompare(String(b.addedAt)));
-const nextNr = sid => notesOf(sid).reduce((m, n) => Math.max(m, Number(n.nr) || 0), 0) + 1;
+const nextNr = sid => notesOf(sid).filter(n => !n.label).reduce((m, n) => Math.max(m, Number(n.nr) || 0), 0) + 1;
 const canWrite = () => !!S.db && S.canWrite !== false;
 const P = id => S.prog[id] || {status: 'nowe', cards: {}};
 const statusOf = id => P(id).status || 'nowe';
@@ -1202,6 +1204,8 @@ function mcqOf(n) {
 const UNITS = {wyklad: ['Wykład', 'wykład', 'wykłady', 'wykładów'], zajecia: ['Zajęcia', 'zajęcia', 'zajęcia', 'zajęć']};
 const unitOf = sid => UNITS[(subjectById(sid) || {}).unit] || UNITS.wyklad;
 const unitN = (sid, nr) => `${unitOf(sid)[0]} ${nr}`;
+// notatka z polem label (powtórka, sprawdzian próbny) nie dostaje numeru zajęć
+const noteLabel = n => n.label || unitN(n.subjectId, n.nr);
 const vocabLabel = v => `${v.art ? v.art + ' ' : ''}${String(v.w).replace('|', '')}${v.plural ? ', ' + v.plural : ''}${v.forms ? ' (' + v.forms + ')' : ''}`;
 // podpowiedź tylko o tym, co słówko naprawdę ma (nazwy krajów zwykle nie mają rodzajnika ani liczby mnogiej)
 const vocabHint = v => { const h = [v.art ? 'rodzajnikiem' : '', v.plural ? 'l. mn.' : '', v.forms ? (v.pos === 'v' ? 'formą er/sie' : 'formą') : ''].filter(Boolean); return h.length ? ` (z ${h.join(', ').replace(/, ([^,]*)$/, ' i $1')})` : ''; };
@@ -1623,7 +1627,7 @@ function viewHome() {
   if (recent.length) {
     h += `<section class="block"><h2 class="h2">Ostatnio dodane</h2><ul class="recent">${recent.map(n => {
       const s = subjectById(n.subjectId);
-      return `<li><button class="recent-row" data-act="go-note" data-id="${esc(n.id)}" style="${cvar(s && s.stain)}"><span class="sw"></span><span class="recent-title">${esc(n.title || 'Bez tytułu')}</span><span class="muted small">${esc(s ? s.name : 'bez przedmiotu')} · ${esc(unitN(n.subjectId, n.nr))}${n.addedAt ? ' · ' + esc(fmtIso(n.addedAt)) : ''}</span></button></li>`;
+      return `<li><button class="recent-row" data-act="go-note" data-id="${esc(n.id)}" style="${cvar(s && s.stain)}"><span class="sw"></span><span class="recent-title">${esc(n.title || 'Bez tytułu')}</span><span class="muted small">${esc(s ? s.name : 'bez przedmiotu')} · ${esc(noteLabel(n))}${n.addedAt ? ' · ' + esc(fmtIso(n.addedAt)) : ''}</span></button></li>`;
     }).join('')}</ul></section>`;
   }
   return S.notes.length ? h + howTo() : h;
@@ -1742,7 +1746,7 @@ function lecRow(n) {
   if (n.own) meta.push('własna notatka');
   else if (n.myNotes) meta.push('z moimi notatkami');
   return `<li><button class="lec" data-act="go-note" data-id="${esc(n.id)}">
-    <span class="lec-nr">${pad2(Number(n.nr) || 0)}</span>
+    <span class="lec-nr">${n.label ? '★' : pad2(Number(n.nr) || 0)}</span>
     <span class="lec-main"><span class="lec-title">${esc(n.title || 'Bez tytułu')}</span><span class="lec-meta">${meta.join(' · ')}</span></span>
     ${statusChip(statusOf(n.id))}
   </button></li>`;
@@ -1782,7 +1786,7 @@ function viewNote(id) {
   if (n.source && !n.own) meta.push(`źródło: ${esc(n.source)}`);
 
   let h = `<header class="head" style="${cvar(s && s.stain)}">
-    <nav class="crumbs" aria-label="Ścieżka">${s ? `<button class="crumb" data-act="go-subject" data-id="${esc(s.id)}"><span class="sw"></span>${esc(s.name)}</button><span aria-hidden="true">/</span>` : ''}<span>${esc(unitN(n.subjectId, n.nr))}</span>${n.example ? '<span class="tag-ex">przykład</span>' : ''}${n.own ? '<span class="tag-own">własna notatka</span>' : ''}</nav>
+    <nav class="crumbs" aria-label="Ścieżka">${s ? `<button class="crumb" data-act="go-subject" data-id="${esc(s.id)}"><span class="sw"></span>${esc(s.name)}</button><span aria-hidden="true">/</span>` : ''}<span>${esc(noteLabel(n))}</span>${n.example ? '<span class="tag-ex">przykład</span>' : ''}${n.own ? '<span class="tag-own">własna notatka</span>' : ''}</nav>
     <h1>${esc(n.title || 'Bez tytułu')}</h1>
     ${meta.length ? `<p class="head-meta">${cap(meta.join(' · '))}</p>` : ''}
     <div class="note-bar">
@@ -1808,7 +1812,7 @@ function viewNote(id) {
     }).join('')}</article>
     <aside class="toc" aria-label="Spis treści"><p class="label">Spis treści</p>${secs.map(x => `<button class="toc-i" data-act="toc" data-id="${x.id}">${esc(x.t)}</button>`).join('')}</aside>
   </div>
-  ${prev || next ? `<nav class="pn" aria-label="Sąsiednie wykłady">${prev ? `<button class="pn-b" data-act="go-note" data-id="${esc(prev.id)}"><span class="label">← ${esc(unitN(n.subjectId, prev.nr))}</span><span>${esc(prev.title)}</span></button>` : '<span></span>'}${next ? `<button class="pn-b r" data-act="go-note" data-id="${esc(next.id)}"><span class="label">${esc(unitN(n.subjectId, next.nr))} →</span><span>${esc(next.title)}</span></button>` : '<span></span>'}</nav>` : ''}
+  ${prev || next ? `<nav class="pn" aria-label="Sąsiednie wykłady">${prev ? `<button class="pn-b" data-act="go-note" data-id="${esc(prev.id)}"><span class="label">← ${esc(noteLabel(prev))}</span><span>${esc(prev.title)}</span></button>` : '<span></span>'}${next ? `<button class="pn-b r" data-act="go-note" data-id="${esc(next.id)}"><span class="label">${esc(noteLabel(next))} →</span><span>${esc(next.title)}</span></button>` : '<span></span>'}</nav>` : ''}
   ${canWrite() ? manageNote(n, idx, ns) : ''}`;
   return h;
 }
@@ -1945,7 +1949,7 @@ function viewSearch() {
     const a = Math.max(0, f.i - 70), b = Math.min(f.txt.length, f.i + fq.length + 90);
     const snip = (a > 0 ? '…' : '') + esc(f.txt.slice(a, f.i)) + '<mark>' + esc(f.txt.slice(f.i, f.i + fq.length)) + '</mark>' + esc(f.txt.slice(f.i + fq.length, b)) + (b < f.txt.length ? '…' : '');
     h += `<li><button class="res" data-act="go-note" data-id="${esc(r.n.id)}" style="${cvar(s && s.stain)}">
-      <span class="res-src"><span class="sw"></span>${esc(s ? s.name : '')} · ${esc(unitN(r.n.subjectId, r.n.nr))} · ${pl(r.hits, 'trafienie', 'trafienia', 'trafień')}</span>
+      <span class="res-src"><span class="sw"></span>${esc(s ? s.name : '')} · ${esc(noteLabel(r.n))} · ${pl(r.hits, 'trafienie', 'trafienia', 'trafień')}</span>
       <span class="res-title">${esc(r.n.title)}</span><span class="res-snip">${esc(f.label || '')}: ${snip}</span></button></li>`;
   }
   return h + '</ul>';
@@ -1996,8 +2000,10 @@ function toast(msg) {
   tt = setTimeout(() => { t.hidden = true; }, 3400);
 }
 async function renumber(list) {
-  for (let k = 0; k < list.length; k++) {
-    if (Number(list[k].nr) !== k + 1) await S.db.doc('notes/' + list[k].id).update({nr: k + 1});
+  let k = 0;
+  for (const n of list) {
+    const want = n.label ? k + 0.5 : ++k;
+    if (Number(n.nr) !== want) await S.db.doc('notes/' + n.id).update({nr: want});
   }
 }
 async function moveNote(id, dir) {
@@ -2006,7 +2012,7 @@ async function moveNote(id, dir) {
   const ns = notesOf(n.subjectId), i = ns.findIndex(x => x.id === id), j = i + dir;
   if (j < 0 || j >= ns.length) return;
   [ns[i], ns[j]] = [ns[j], ns[i]];
-  try { await renumber(ns); toast(`Teraz to ${unitN(n.subjectId, j + 1)}`); } catch (e) { toast(dbErr(e)); }
+  try { await renumber(ns); toast(n.label ? 'Przesunięto.' : `Teraz to ${unitN(n.subjectId, ns.slice(0, j + 1).filter(x => !x.label).length)}`); } catch (e) { toast(dbErr(e)); }
 }
 async function transferNote(id, sid) {
   const n = noteById(id), s = subjectById(sid);
@@ -2017,7 +2023,7 @@ async function transferNote(id, sid) {
     await S.db.doc('notes/' + id).update({subjectId: sid, nr});
     await renumber(oldList);
     await unlinkLecture(id);
-    toast(`Przeniesiono do: ${s.name} (${unitN(s.id, nr)})`);
+    toast(`Przeniesiono do: ${s.name} (${n.label || unitN(s.id, nr)})`);
   } catch (e) { toast(dbErr(e)); }
 }
 async function deleteNote(id) {
@@ -2146,7 +2152,7 @@ function scopeNotes(kind, id) {
 }
 function scopeLabel(kind, id, what) {
   if (kind === 'subject') { const s = subjectById(id); return `${what} · ${s ? s.name : ''}`; }
-  if (kind === 'note') { const n = noteById(id); return `${what}${n ? ' · ' + unitN(n.subjectId, n.nr) : ''}`; }
+  if (kind === 'note') { const n = noteById(id); return `${what}${n ? ' · ' + noteLabel(n) : ''}`; }
   if (kind === 'event') { const e = eventById(id); return `${what} · ${e ? evTitle(e) : ''}`; }
   return `${what} · wszystkie przedmioty`;
 }
@@ -2237,7 +2243,7 @@ function ovReview(o) {
     `<div class="prog"><i style="width:${o.i / total * 100}%"></i></div>
     <div class="card${o.flipped && c.kind !== 'mcq' ? ' swipe' : ''}" style="${cvar(s && s.stain)}"${!o.flipped && c.kind !== 'mcq' ? ' data-act="flip"' : ''}>
       ${o.flipped && c.kind !== 'mcq' ? '<span class="swipe-tag bad" aria-hidden="true">Nie pamiętam</span><span class="swipe-tag good" aria-hidden="true">Dobrze</span>' : ''}
-      <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')}${n ? ' · ' + esc(unitN(n.subjectId, n.nr)) : ''} ${tags.join(' ')}</p>
+      <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')}${n ? ' · ' + esc(noteLabel(n)) : ''} ${tags.join(' ')}</p>
       <div class="card-q">${mdi(c.q)}</div>`;
   if (c.kind === 'mcq') {
     const q = c.quiz, ans = Number(q.answer);
@@ -2389,7 +2395,7 @@ function ovQuiz(o) {
   return ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${o.qs.length}</span>`) +
     `<div class="prog"><i style="width:${o.i / o.qs.length * 100}%"></i></div>
     <div class="qz">
-      ${o.kind !== 'note' && n ? `<p class="label">${esc(unitN(n.subjectId, n.nr))} · ${esc(n.title)}</p>` : ''}
+      ${o.kind !== 'note' && n ? `<p class="label">${esc(noteLabel(n))} · ${esc(n.title)}</p>` : ''}
       <p class="qz-q">${mdi(q.q)}</p>
       <div class="qz-opts">${q.order.map((k, j) => {
         const cls = !answered ? '' : k === ans ? 'ok' : k === o.picked ? 'no' : 'dim';
@@ -2504,7 +2510,7 @@ function ovEvent(o) {
   let h = ovHead(evTitle(e)) + `<p class="ev-when" style="${evColor(e)}"><span class="sw"></span>${bits.join('<span aria-hidden="true">·</span>')}${evPill(e)}</p>`;
   if (e.done && e.grade) h += `<p style="margin:0">Wynik: <b>${esc(e.grade)}</b></p>`;
   if (arr(e.lectureIds).length || (s && scope.length)) {
-    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="lec-link" data-act="ov-go-note" data-id="${esc(n.id)}">${esc(unitN(n.subjectId, n.nr))}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
+    h += `<div class="ev-sec"><p class="label">Zakres materiału${arr(e.lectureIds).length ? '' : ' · cały przedmiot'}</p><ul class="dot-list">${scope.map(n => `<li><button class="lec-link" data-act="ov-go-note" data-id="${esc(n.id)}">${esc(noteLabel(n))}: ${esc(n.title || 'Bez tytułu')}</button></li>`).join('')}</ul>
       ${cards || qs ? `<div class="row wrap">${cards ? `<button class="btn primary" data-act="review" data-kind="event" data-id="${esc(e.id)}">Przygotuj się: fiszki (${cards})</button>` : ''}${qs ? `<button class="btn" data-act="quiz" data-kind="event" data-id="${esc(e.id)}">Test z zakresu (${qs})</button>` : ''}</div>` : ''}</div>`;
   }
   if (e.notes) h += `<div class="ev-sec"><p class="label">Notatki</p><div class="md">${md(e.notes)}</div></div>`;
@@ -2535,7 +2541,7 @@ function ovEventEdit(o) {
     <div class="field"><label for="ev-place">Miejsce lub forma <span class="muted">(opcjonalnie)</span></label><input id="ev-place" type="text" maxlength="120" value="${esc(d.place || '')}" placeholder="np. sala A/142, online, oddanie przez Moodle"></div>`;
   if (lecs.length) {
     const sel = new Set(arr(d.lectureIds));
-    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(bez zaznaczenia: cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>${esc(unitN(n.subjectId, n.nr))}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
+    h += `<fieldset class="field"><legend>Zakres materiału <span class="muted">(bez zaznaczenia: cały przedmiot)</span></legend><div class="lec-checks">${lecs.map(n => `<label><input type="checkbox" name="ev-lec" value="${esc(n.id)}" ${sel.has(n.id) ? 'checked' : ''}><span>${esc(noteLabel(n))}: ${esc(n.title || 'Bez tytułu')}</span></label>`).join('')}</div>
       <div class="row"><button type="button" class="btn ghost sm" data-act="ev-all-lec">Zaznacz wszystkie</button></div></fieldset>`;
   }
   h += `<div class="field"><label for="ev-notes">Notatki <span class="muted">(opcjonalnie)</span></label><textarea id="ev-notes" rows="3" placeholder="np. wymagania, kryteria oceny, co przynieść">${esc(d.notes || '')}</textarea></div>`;
@@ -2738,7 +2744,7 @@ const edLines = (id, f, list, rows, ph) => `<textarea id="${id}" data-f="${f}" d
 function ovEditor(o) {
   const d = o.draft, s = subjectById(o.sid), busy = !!o.busy;
   const tabs = [['content', 'Treść'], ['cards', `Fiszki (${d.flashcards.length})`], ['quiz', `Test (${d.quiz.length})`], ['preview', 'Podgląd']];
-  const where = s ? `<span class="muted small">${esc(s.name)} · ${esc(unitN(s.id, o.id ? (noteById(o.id) || {}).nr : nextNr(o.sid)))}</span>` : '';
+  const where = s ? `<span class="muted small">${esc(s.name)} · ${esc(o.id && noteById(o.id) ? noteLabel(noteById(o.id)) : unitN(s.id, nextNr(o.sid)))}</span>` : '';
   let h = ovHead(o.id ? 'Edytuj wykład' : 'Nowa własna notatka', !busy, where);
   if (o.restorable) h += `<div class="ed-bar"><span>Masz niezapisany szkic z ${esc(new Date(o.restorable.at).toLocaleString('pl-PL', {day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'}))}.</span><button class="btn sm" data-act="ed-draft-load">Wczytaj szkic</button><button class="btn ghost sm" data-act="ed-draft-drop">Odrzuć</button></div>`;
   h += `<div class="tabs ed-tabs" role="tablist">${tabs.map(([k, n]) => `<button role="tab" class="tab ${o.tab === k ? 'on' : ''}" aria-selected="${o.tab === k}" data-act="ed-tab" data-tab="${k}" ${busy ? 'disabled' : ''}>${n}</button>`).join('')}</div><form id="ed-form" class="ed" novalidate>`;

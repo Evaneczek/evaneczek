@@ -32,6 +32,8 @@ Kolekcje w bazie tej strony:
   flashcards: [{id, q, a, sec}],
   quiz: [{q, options: [4 odpowiedzi], answer: indeks 0–3, why, explain: [4 wyjaśnienia w kolejności options], sec}],
   tags: [tekst]}
+  label: tekst — tylko notatka, która nie jest wykładem ani zajęciami (np. "Sprawdzian próbny", "Powtórka"): strona pokazuje
+  label zamiast „Zajęcia N”; nr = nr poprzednich zajęć + 0.5, więc numeracja kolejnych zajęć się nie przesuwa.
   sec = indeks (od 0) części w sections, do której odnosi się element. Pola, które nie pasują do przedmiotu, pomiń.
   Pola dopisywane przez stronę (nie ustawiaj ich sam): myNotes (notatki użytkownika), editedAt (użytkownik edytował),
   hasBackup (jest kopia wersji od Claude'a w noteBackups/{id}), own: true (notatka napisana przez użytkownika).
