@@ -24,7 +24,7 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         n = json.load(open(path, encoding='utf-8'))
     except Exception as e:
         E(f, f'nie da się wczytać JSON: {e}'); continue
-    for k in ['title', 'summary', 'sections', 'highYield', 'flashcards', 'quiz'] + (['terms', 'people', 'examQuestions'] if THEORY else ['vocab', 'grammar']):
+    for k in ['title', 'summary', 'sections', 'flashcards', 'quiz'] + (['terms', 'people', 'examQuestions'] if THEORY else ['vocab', 'grammar']):
         if k not in n: E(f, f'brak pola {k}')
     if THEORY:
         tm = LIST(n.get('terms'))
@@ -47,7 +47,10 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
     for i, s in enumerate(secs):
         if not (s.get('heading') or '').strip() or not (s.get('body') or '').strip(): E(f, f'sections[{i}] bez heading/body')
     hy = LIST(n.get('highYield'))
-    if not (4 <= len(hy) <= 6): W(f, f'highYield: {len(hy)} (zalecane 4–6)')
+    if len(hy) > 5: W(f, f'highYield: {len(hy)} (opcjonalne, najwyżej 5 – tylko fakty do nauczenia na pamięć)')
+    for i, s_ in enumerate(secs):
+        if (s_.get('more') or '').strip(): W(f, f'sections[{i}]: pole more jest wycofane – wpleć wyjaśnienie w body')
+        if 'spoza slajdów' in (s_.get('body') or ''): W(f, f'sections[{i}]: dopisek „spoza slajdów” – wplataj wyjaśnienia bez oznaczania')
     if n.get('lectureDate') not in (None, '') and not ymd.match(str(n.get('lectureDate'))): E(f, 'lectureDate nie RRRR-MM-DD')
     for i, d in enumerate(LIST(n.get('deadlines'))):
         if d.get('type') not in EV: E(f, f'deadlines[{i}].type={d.get("type")!r}')

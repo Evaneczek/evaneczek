@@ -642,11 +642,6 @@ body.locked .toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 .ex-more b{color:var(--ink);font-weight:600}
 .ex-why.no{color:var(--bad)}
 .ex-why.no b{color:var(--bad)}
-.more-box{display:flex;flex-direction:column;gap:4px;margin:16px 0 0;padding:12px 16px;border:1px solid color-mix(in srgb,var(--accent) 24%,var(--line));border-radius:12px;background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface));font-size:.94em}
-.more-box .label{margin:0;color:var(--accent)}
-.more-src{font-weight:400;letter-spacing:0;text-transform:none;color:var(--muted)}
-.more-box .md > :first-child{margin-top:0}
-.more-box .md > :last-child{margin-bottom:0}
 .ex-gap{white-space:nowrap}
 .ex-in::placeholder{color:var(--faint);font-weight:500}
 .ex-in{display:inline-block;max-width:100%;height:32px;margin:0 2px;padding:2px 8px;border:0;border-bottom:2px solid var(--faint);border-radius:6px 6px 0 0;background:var(--sunk);color:var(--ink);font:inherit;font-weight:600;vertical-align:baseline;transition:border-color .15s,background-color .15s}
@@ -1072,9 +1067,15 @@ if (window.marked) marked.setOptions({gfm: true, breaks: false, mangle: false, h
 if (window.DOMPurify) DOMPurify.addHook('afterSanitizeAttributes', n => {
   if (n.tagName === 'A') { n.setAttribute('target', '_blank'); n.setAttribute('rel', 'noopener noreferrer'); }
 });
-const preMd = v => String(v ?? '')
-  .replace(/==([^=\n]{1,160})==/g, '<mark>$1</mark>')
-  .replace(/\((spoza slajdów)\)/g, '<span class="xs">$1</span>');
+// starsze notatki mają dopiski „(spoza slajdów)”; wyjaśnienia czyta się jak zwykły tekst, więc dopiski znikają
+const unsrc = v => String(v ?? '')
+  .replace(/\s*\((?:szczegóły|przykłady) spoza slajdów\)/g, '')
+  .replace(/\s*\(spoza slajdów\)/g, '')
+  .replace(/\((?:zwrot |szczegóły |przykłady |uzupełnione )?spoza slajdów[;,:]\s*/g, '(')
+  .replace(/\s*[;,–-]\s*spoza slajdów(?=[);])/g, '')
+  .replace(/\s*–\s*rozróżnienie spoza slajdów/g, '');
+const preMd = v => unsrc(v)
+  .replace(/==([^=\n]{1,160})==/g, '<mark>$1</mark>');
 // szerokie tabele dostają ramkę z cieniem przewijania, a na telefonie zamieniają się w karty
 function tableify(html) {
   if (!html.includes('<table')) return html;
@@ -1833,29 +1834,29 @@ function examSection(n) {
   return {id: 's-exam', t: 'Prowadzący mówi', cls: 'exam', html: rows + (info.length ? `<ul class="dot-list">${info.map(x => `<li>${mdi(x.text)}${x.src ? ` <span class="src">${esc(x.src)}</span>` : ''}</li>`).join('')}</ul>` : '')};
 }
 function noteSections(n) {
+  // kolejność jak na lekcji: o co chodzi, co mówi prowadzący, wyjaśnienie, a dopiero potem reguły, słówka i powtórka
   const secs = [];
   if (n.summary) secs.push({id: 's-sum', t: 'W skrócie', html: `<div class="md lead">${md(n.summary)}</div>`});
-  if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Najważniejsze na egzamin', html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
   const ex = examSection(n);
   if (ex) secs.push(ex);
-  const quotes = arr(n.terms).filter(t => t && t.quote);
-  if (quotes.length) secs.push({id: 's-def', t: 'Definicje na pamięć', html: quotes.map(t => `<figure class="quote"><figcaption>${mdi(t.term)}</figcaption><blockquote class="md">${mdi(t.quote)}</blockquote>${t.source ? `<p class="src">${esc(t.source)}</p>` : ''}</figure>`).join('')});
+  const parts = arr(n.sections).filter(x => x && (x.heading || x.body));
+  // „more” zostaje dla starszych notatek, ale czyta się je jak dalszy ciąg wyjaśnienia, bez osobnej ramki
+  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}${x.more ? md(x.more) : ''}</div>`}));
+  arr(n.grammar).forEach((g, i) => { if (g && g.rule) secs.push({id: 's-gr' + i, t: g.title || 'Gramatyka', h: true, html:
+    `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${esc(x.trim())}</span>`).join('')}</div>` : ''}
+    <ul class="ex-list">${arr(g.examples).map(e => `<li><span>${mdi(e.t)}</span>${e.pl ? `<span class="muted">${esc(unsrc(e.pl))}</span>` : ''}</li>`).join('')}</ul>
+    ${arr(g.exceptions).length ? `<p class="label" style="margin-top:10px">Wyjątki</p><ul class="dot-list">${g.exceptions.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}`}); });
+  if (arr(n.mistakes).length) secs.push({id: 's-mis', t: 'Typowe błędy', html: `<ul class="mist">${n.mistakes.map(m => `<li>
+    ${m.wrong ? `<span class="no"><span aria-hidden="true">✗</span> <s>${mdi(m.wrong)}</s></span>` : ''}<span class="ok"><span aria-hidden="true">✓</span> ${mdi(m.right)}</span>${m.why ? `<span class="muted">${mdi(m.why)}</span>` : ''}</li>`).join('')}</ul>`});
   const vocab = arr(n.vocab).filter(v => v && v.w);
   if (vocab.length) secs.push({id: 's-voc', t: `Słownictwo (${vocab.length})`, html: `<ul class="vocab">${vocab.map(v => `<li>
     <span class="v-w">${v.art ? `<span class="art art-${esc(v.art)}">${esc(v.art)}</span> ` : ''}${esc(v.w).replace('|', '<span class="sep">|</span>')}${v.plural ? ` <span class="v-pl2">${esc(v.plural)}</span>` : ''}</span>
     <span class="v-pl cz-t">${esc(v.pl || '')}</span>
     ${v.forms || v.ex ? `<span class="v-ex">${v.forms ? esc(v.forms) + (v.ex ? ' · ' : '') : ''}${v.ex ? `<i>${esc(v.ex)}</i>` : ''}</span>` : ''}</li>`).join('')}</ul>`});
-  arr(n.grammar).forEach((g, i) => { if (g && g.rule) secs.push({id: 's-gr' + i, t: g.title || 'Gramatyka', h: true, html:
-    `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${esc(x.trim())}</span>`).join('')}</div>` : ''}
-    <ul class="ex-list">${arr(g.examples).map(e => `<li><span>${mdi(e.t)}</span>${e.pl ? `<span class="muted">${esc(e.pl)}</span>` : ''}</li>`).join('')}</ul>
-    ${arr(g.exceptions).length ? `<p class="label" style="margin-top:10px">Wyjątki</p><ul class="dot-list">${g.exceptions.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}`}); });
-  if (arr(n.mistakes).length) secs.push({id: 's-mis', t: 'Typowe błędy', html: `<ul class="mist">${n.mistakes.map(m => `<li>
-    ${m.wrong ? `<span class="no"><span aria-hidden="true">✗</span> <s>${mdi(m.wrong)}</s></span>` : ''}<span class="ok"><span aria-hidden="true">✓</span> ${mdi(m.right)}</span>${m.why ? `<span class="muted">${mdi(m.why)}</span>` : ''}</li>`).join('')}</ul>`});
-  const parts = arr(n.sections).filter(x => x && (x.heading || x.body));
-  // „more” to dopowiedzenie w roli wykładowcy: kontekst, przykład, na co uważać – osobno, żeby było widać, co nie pochodzi ze slajdów
-  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}</div>${x.more ? `<aside class="more-box"><p class="label">Dopowiedzenie <span class="more-src">· spoza slajdów</span></p><div class="md">${md(x.more)}</div></aside>` : ''}`}));
-  if (arr(n.people).length) secs.push({id: 's-ppl', t: 'Kto jest kim', html: `<ol class="tl">${n.people.filter(x => x && x.name).map(x => `<li><span class="tl-y">${esc(x.years || '')}</span>
-    <span><b>${esc(x.name)}</b>${x.school ? ` <span class="pill neutral">${esc(x.school)}</span>` : ''}<br><span class="cz-t">${mdi(x.idea || '')}</span>${x.work ? `<br><span class="muted"><i>${esc(x.work)}</i></span>` : ''}</span></li>`).join('')}</ol>`});
+  const quotes = arr(n.terms).filter(t => t && t.quote);
+  if (quotes.length) secs.push({id: 's-def', t: 'Definicje na pamięć', html: quotes.map(t => `<figure class="quote"><figcaption>${mdi(t.term)}</figcaption><blockquote class="md">${mdi(t.quote)}</blockquote>${t.source ? `<p class="src">${esc(unsrc(t.source))}</p>` : ''}</figure>`).join('')});
+  if (arr(n.people).length) secs.push({id: 's-ppl', t: 'Kto jest kim', html: `<ol class="tl">${n.people.filter(x => x && x.name).map(x => `<li><span class="tl-y">${esc(unsrc(x.years))}</span>
+    <span><b>${esc(x.name)}</b>${x.school ? ` <span class="pill neutral">${esc(unsrc(x.school))}</span>` : ''}<br><span class="cz-t">${mdi(x.idea || '')}</span>${x.work ? `<br><span class="muted"><i>${esc(unsrc(x.work))}</i></span>` : ''}</span></li>`).join('')}</ol>`});
   if (arr(n.formulas).length) secs.push({id: 's-fx', t: 'Wzory', html: n.formulas.filter(f => f && f.expr).map(f => `<div class="formula">${f.name ? `<p class="label">${esc(f.name)}</p>` : ''}<p class="expr">${esc(f.expr)}</p>
     ${arr(f.vars).length ? `<ul>${f.vars.map(v => `<li><b>${esc(v.sym)}</b> – ${mdi(v.def || '')}</li>`).join('')}</ul>` : ''}${f.when ? `<p class="muted">${mdi(f.when)}</p>` : ''}</div>`).join('')});
   if (arr(n.worked).length) secs.push({id: 's-wk', t: 'Przykłady krok po kroku', html: n.worked.filter(w => w && w.problem).map(w => `<div class="worked"><p><b>${esc(w.title || 'Przykład')}</b></p><div class="md">${md(w.problem)}</div>
@@ -1865,6 +1866,8 @@ function noteSections(n) {
   if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
   if (arr(n.examQuestions).length) secs.push({id: 's-eq', t: 'Typowe pytania egzaminacyjne', html: `<ol class="eq">${n.examQuestions.filter(q => q && q.q).map(q => `<li><p>${mdi(q.q)}${q.fromSlides ? ' <span class="pill neutral">ze slajdów</span>' : ''}</p>
     ${q.outline ? `<details><summary>Plan odpowiedzi</summary><div class="md">${md(q.outline)}</div></details>` : ''}</li>`).join('')}</ol>`});
+  // podsumowanie na koniec i tylko wtedy, gdy notatka je ma (nie każdy temat potrzebuje listy faktów)
+  if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Co zapamiętać', html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
   if (arr(n.mnemonics).length) secs.push({id: 's-mn', t: 'Mnemotechniki', html: `<ul class="dot-list">${arr(n.mnemonics).map(x => `<li>${mdi(typeof x === 'string' ? x : (x && x.text))}</li>`).join('')}</ul>`});
   const practice = practiceOf(n);
   if (practice.length) secs.push({id: 's-pr', t: 'W praktyce', html: `<ul class="dot-list">${practice.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
@@ -1920,7 +1923,7 @@ function viewSearch() {
   const res = [];
   for (const n of S.notes) {
     const fields = [['Tytuł', n.title], ['W skrócie', n.summary]]
-      .concat(arr(n.highYield).map(x => ['Najważniejsze', x]))
+      .concat(arr(n.highYield).map(x => ['Co zapamiętać', x]))
       .concat(arr(n.sections).map(x => [(x && x.heading) || 'Notatki', ((x && x.heading) || '') + ' — ' + ((x && x.body) || '')]))
       .concat(arr(n.terms).map(x => ['Pojęcia', `${x && x.term} — ${x && x.def}`]))
       .concat(practiceOf(n).map(x => ['W praktyce', x]))
@@ -2758,7 +2761,7 @@ function ovEditor(o) {
       ${ai ? `<div class="row wrap"><button type="button" class="tool ai" data-act="ed-ai-check">Sprawdź notatki pod kątem błędów</button></div>` : ''}</div>`;
     if (!o.own) h += `<div class="ed-block"><div class="ed-block-head"><label class="label grow" for="ed-my">Moje notatki</label>${mdTools('ed-my')}</div>${edTextarea('ed-my', 'myNotes', d.myNotes, 4, 'Twoje uwagi do tego wykładu. Pokazują się w notatce jako osobna część.')}</div>`;
     h += `<div class="ed-block"><div class="ed-block-head"><label class="label grow" for="ed-sum">W skrócie</label></div>${edTextarea('ed-sum', 'summary', d.summary, 3, '2–4 zdania: o czym jest ten wykład')}</div>
-      <div class="ed-block"><div class="ed-block-head"><label class="label grow" for="ed-hy">Najważniejsze na egzamin</label></div>${edLines('ed-hy', 'highYield', d.highYield, 4, 'Jeden fakt w linii')}<p class="hint">Jeden punkt w linii. **Pogrubienie** działa.</p></div>`;
+      <div class="ed-block"><div class="ed-block-head"><label class="label grow" for="ed-hy">Co zapamiętać (opcjonalnie)</label></div>${edLines('ed-hy', 'highYield', d.highYield, 3, 'Jeden fakt w linii')}<p class="hint">Tylko fakty do nauczenia na pamięć, jeden w linii. Można zostawić puste. **Pogrubienie** działa.</p></div>`;
     d.sections.forEach((x, i) => {
       const undo = o.undo && o.undo.i === i;
       h += `<div class="ed-block"><div class="ed-block-head"><input type="text" class="grow" aria-label="Nagłówek części ${i + 1}" data-f="sections.${i}.heading" value="${esc(x.heading)}" placeholder="Nagłówek części ${i + 1}">
@@ -3291,7 +3294,7 @@ function subjKind(s) {
 const KIND_RULES = {
   theory: `- Każdą osobę z prezentacji wpisz do "people": imię i nazwisko, lata życia albo rok dzieła, szkoła lub nurt, dzieło, główna idea w jednym zdaniu. Osoby wymieniaj też w "sections" tam, gdzie są omawiane.
 - Klasyfikacje i porównania (szkoły, teorie, typy, modele, „X vs Y”) podawaj jako tabele Markdown: w wierszach porównywane obiekty, w kolumnach te same cechy.
-- Jeśli wykład ma studium przypadku, opisz je w "practice" i odpowiedz na pytanie postawione na slajdzie.`,
+- Studium przypadku opisz w części, której dotyczy (albo w "practice"), i odpowiedz na pytanie postawione na slajdzie: czego ten przypadek uczy.`,
   calc: `- Każdy wzór wpisz do "formulas": nazwa, wzór zwykłym tekstem z symbolami Unicode (np. FV = PV · (1 + r)ⁿ), objaśnienie każdej zmiennej, kiedy wzór stosować.
 - Do "worked" wpisz 2–4 przykłady liczbowe krok po kroku: najpierw te ze slajdów; jeśli slajdy ich nie mają, ułóż proste własne i dopisz w tytule „(przykład własny)”. Każdy krok: co liczymy, podstawienie liczb, wynik z jednostką. Przelicz każdy wynik dwa razy.
 - W teście co najmniej 1/3 pytań to krótkie zadania obliczeniowe; błędne odpowiedzi to wyniki typowych pomyłek (zła stopa, pominięty okres, odwrócony znak, procent zamiast punktów procentowych).`,
@@ -3304,7 +3307,7 @@ const KIND_RULES = {
 - Błędy, przed którymi ostrzega prowadzący, i typowe błędy Polaków w tym temacie wpisz do "mistakes": błędnie, poprawnie, dlaczego.
 - Ćwiczenia ze slajdów przepisz do "exercises" z rozwiązaniami. Strona robi z nich zadania interaktywne: "type": "choose" (wybór jednej z "options"), "drag" (przeciąganie słów z "bank" w luki; bank może mieć 1 słowo nadmiarowe) albo "type" (wpisywanie). Lukę oznacz ___; w "a" sama odpowiedź (kilka luk w zdaniu rozdziel „ … ”). Do KAŻDEGO zadania dodaj "why" (krótko, dlaczego ta odpowiedź: reguła albo znaczenie) i "pl" (tłumaczenie całego zdania na polski); przy "choose" dodaj "explain" z krótkim powodem dla każdej złej opcji. Każde rozwiązanie sprawdź z regułami z tej lekcji; jeśli w mowie potocznej działa też inna wersja, podaj w "a" wersję zgodną z regułą, a potoczną dopisz w nawiasie. Rozwiązań nie wpisuj do "sections".
 - Tekst wzorcowy (np. przykładowy opis dnia) wpisz do "texts" z tłumaczeniem.
-- W "sections" zostaw krótkie wyjaśnienia i tabele, których nie da się zapisać w polach powyżej (np. tabela godzin).
+- W "sections" tłumacz jak nauczyciel: w jakich sytuacjach czego używać, jak brzmi naturalna rozmowa, czym to się różni od polskiego i na czym Polacy się mylą. Reguł, słówek i rozwiązań nie powtarzaj – są w "grammar", "vocab" i "exercises"; tabela w "sections" tylko wtedy, gdy porządkuje coś, czego nie ma w tych polach (np. godziny).
 - Fiszki i test sprawdzają produkcję (polski → język kursu), formy, rodzajniki i szyk zdania, a nie terminologię gramatyczną.`,
 };
 
@@ -3330,15 +3333,15 @@ Dzisiejsza data: ${today()}
 
 TREŚĆ
 - Trzymaj się prezentacji i zachowaj kolejność tematów. Każdy fakt, liczba, nazwisko i data ze slajdów ma trafić do notatek, chyba że jest naprawdę nieistotny.
-- Oczywiste luki możesz uzupełnić wiedzą podręcznikową (np. brakujący element znanej listy), ale każde takie uzupełnienie oznacz dopiskiem „(spoza slajdów)”. Niczego nie zmyślaj; jeśli nie masz pewności, pomiń.
+- Slajdy to szkielet, a notatka ma być wyjaśnieniem od nauczyciela: dopowiadaj sens, przykłady i powiązania z wiedzy podręcznikowej, wplatając je w tekst (bez osobnych ramek i bez dopisków „spoza slajdów”). To, czego trzeba się nauczyć (definicje, listy, liczby, nazwiska, daty), podawaj dokładnie tak jak na slajdach. Niczego nie zmyślaj: żadnych wymyślonych liczb, dat ani cytatów i nic, co przeczy slajdom; jeśli nie masz pewności, pomiń.
 - Najcenniejsze są notatki prowadzącego (np. „[Notatki prowadzącego]”) i slajdy typu „Na egzamin”, „Przykładowe pytania”, „Hausaufgabe”, „Literatura”, terminy kolokwiów i prac. Nie pomijaj ich: wskazówki prowadzącego wpisz do "examInfo", pytania do "examQuestions", terminy do "deadlines", lektury do "literature". Pomiń tylko slajd tytułowy, plan wykładu, podziękowania i dane kontaktowe.
 - Gdy prowadzący każe znać definicję dosłownie albo slajd cytuje definicję ze źródłem, przepisz ją bez skracania w "quote" przy tym pojęciu w "terms" i podaj "source".
 - Liczby, daty i nazwy własne przepisuj dokładnie. Daty bez roku przypisz do najbliższego przyszłego terminu względem dzisiejszej daty.
 
 FORMA
-- Zwięźle, w punktach, poprawną polszczyzną. Bez wstępów typu „Wykład omawia…” poza "summary".
-- Ucz rozumienia, nie wkuwania: każde pojęcie, które dla studenta 1. roku może być nowe, wytłumacz prostymi słowami przy pierwszym użyciu, najlepiej z krótkim przykładem z życia (co to zmienia dla zwykłego człowieka).
-- Wciel się w dobrego wykładowcę: do każdej części dodaj pole "more" (2–4 krótkie punkty) z tym, co wykładowca dopowiedziałby na sali poza slajdem: po co to jest i jak działa w praktyce, przykład (najlepiej znane polskie firmy lub sytuacje z życia), z czym się to myli, jak łączy się z innymi tematami przedmiotu, o co zwykle pytają na egzaminie. Tylko pewna, podręcznikowa wiedza; nie wymyślaj liczb, dat ani cytatów i nie zaprzeczaj slajdom.
+- Pisz jak dobry nauczyciel, który tłumaczy temat studentowi 1. roku, zwracając się do niego per „ty”: najpierw o co chodzi i po co to jest, potem fakty ze slajdów, przykład z życia albo z polskiej firmy, z czym to się myli i co z tego wynika w praktyce. Krótkie akapity przeplatane punktami, poprawną polszczyzną, bez lania wody i bez wstępów typu „Wykład omawia…”.
+- Ucz rozumienia, nie wkuwania: każde nowe pojęcie wytłumacz prostymi słowami przy pierwszym użyciu.
+- Każda część ma formę dopasowaną do treści (wyjaśnienie z przykładem, porównanie w tabeli, krok po kroku, historia firmy). Nie powtarzaj w każdej części tego samego schematu i nie streszczaj slajdu po slajdzie; pomiń logistykę slajdów (numery ćwiczeń z podręcznika, brak nagrań).
 - Pogrubiaj tylko pojęcie albo liczbę, której trzeba się nauczyć: najwyżej 2 pogrubienia na punkt, nigdy całe zdanie ani cała kolumna tabeli. 3–6 faktów najważniejszych w całej notatce możesz zaznaczyć ==tak==.
 - Porównania i klasyfikacje jako tabele Markdown: najwyżej 4 kolumny, krótkie komórki. Wyliczenia od 5 elementów jako lista numerowana, nie po przecinku.
 - Podtytuły wewnątrz części zapisuj jako „### Podtytuł”, nie pogrubionym akapitem.
@@ -3350,7 +3353,7 @@ ${KIND_RULES[kind]}
 FISZKI ("flashcards")
 - Jedna fiszka to jeden fakt. Nie łącz „kto i kiedy” ani „co i ile” w jednej fiszce. Odpowiedź ma najwyżej 15 słów; wyjątek to definicje do nauki dosłownie (odpowiedź = pełne brzmienie z "quote").
 - Pytanie ma jedną poprawną odpowiedź. Przy listach podaj w pytaniu liczbę elementów („Wymień 4 funkcje…”).
-- Pokryj najważniejsze punkty z "highYield" i pojęcia z "terms", bez dublowania tego samego faktu w kilku fiszkach.
+- Pokryj najważniejsze myśli z "sections" i pojęcia z "terms", bez dublowania tego samego faktu w kilku fiszkach.
 - "sec" to indeks (od 0) części w "sections", z której pochodzi fiszka.
 
 TEST ("quiz")
@@ -3367,8 +3370,8 @@ Odpowiedz WYŁĄCZNIE jednym obiektem JSON, bez komentarzy i bez bloku kodu. Pol
  "summary": "2–4 zdania: o czym jest wykład i co z niego trzeba umieć",
  "examInfo": [{"text": "co prowadzący mówi o egzaminie lub kolokwium, co znać na pamięć, typowe błędy", "src": "slajd 3"}],
  "deadlines": [{"type": "kolokwium | egzamin | sprawdzian | zaliczenie | projekt | prezentacja | inne", "date": "RRRR-MM-DD albo null", "title": "Kolokwium 1", "scope": "zakres, np. Lektion 1–4"}],
- "highYield": ["5–10 najważniejszych faktów na egzamin; każdy zrozumiały bez reszty notatek"],
- "sections": [{"heading": "tytuł części", "body": "Markdown ze slajdów: listy, tabele, ### podtytuły", "more": "dopowiedzenie wykładowcy (Markdown, 2–4 punkty)"}],
+ "highYield": ["opcjonalnie: fakty do nauczenia na pamięć albo wskazane przez prowadzącego; zostaw pustą listę, jeśli temat tego nie wymaga"],
+ "sections": [{"heading": "tytuł części (najlepiej mówiący, o co chodzi)", "body": "Markdown: wyjaśnienie jak od nauczyciela – sens, fakty ze slajdów, przykład, pułapka; tabele i ### podtytuły, gdy pomagają"}],
  "terms": [{"term": "pojęcie", "def": "definicja w 1 zdaniu", "quote": "dosłowne brzmienie ze slajdu albo pusty tekst", "source": "autor, rok, strona albo pusty tekst"}],
 ${KIND_SHAPE[kind]}
  "examQuestions": [{"q": "pytanie otwarte", "outline": "plan odpowiedzi w 3–6 punktach (Markdown)", "fromSlides": true, "sec": 0}],
@@ -3378,7 +3381,7 @@ ${KIND_SHAPE[kind]}
  "flashcards": [{"q": "pytanie", "a": "odpowiedź", "sec": 0}],
  "quiz": [{"q": "pytanie", "options": ["…", "…", "…", "…"], "answer": 0, "why": "dlaczego ta", "explain": ["…", "…", "…", "…"], "sec": 0}],
  "tags": ["2–5 krótkich tagów"]}
-Notatka ma ułatwiać naukę, więc ma być krótka: tylko to, co trzeba umieć. Liczebność: sections 3–7, highYield 4–6, terms do 8, people do 6 (tylko kluczowe osoby), flashcards ${kind === 'lang' ? '6–10 (bez słówek z "vocab"), vocab do 20, grammar do 5, mistakes do 4, exercises do 3, texts 1' : '8–15'}, quiz 6–8, examQuestions 2–3, mnemonics i practice najwyżej po 2. "answer" to indeks poprawnej odpowiedzi (0–3).
+Notatka ma ułatwiać naukę: ma tłumaczyć, a nie przepisywać slajdy, i nie może być przegadana. Liczebność: sections 3–7, highYield 0–5, terms do 8, people do 6 (tylko kluczowe osoby), flashcards ${kind === 'lang' ? '6–10 (bez słówek z "vocab"), vocab do 20, grammar do 5, mistakes do 4, exercises do 3, texts 1' : '8–15'}, quiz 6–8, examQuestions 2–3, mnemonics i practice najwyżej po 2. "answer" to indeks poprawnej odpowiedzi (0–3).
 
 TEKST PREZENTACJI:
 """
@@ -3533,13 +3536,13 @@ function noteText(n) {
   const L = ['# ' + (n.title || '')];
   const list = (title, xs) => { if (xs.length) L.push(`## ${title}\n` + xs.map(x => '- ' + x).join('\n')); };
   if (n.summary) L.push(n.summary);
-  if (arr(n.highYield).length) L.push('## Najważniejsze\n' + arr(n.highYield).map(x => '- ' + x).join('\n'));
+  if (arr(n.highYield).length) L.push('## Co zapamiętać\n' + arr(n.highYield).map(x => '- ' + x).join('\n'));
   list('Prowadzący mówi', arr(n.examInfo).map(x => typeof x === 'string' ? x : (x && x.text) || '').filter(Boolean).concat(arr(n.deadlines).filter(d => d && d.title).map(d => `${EV_TYPES[d.type] || 'Termin'}: ${d.title}${d.date ? ' (' + d.date + ')' : ''}${d.scope ? ', zakres: ' + d.scope : ''}`)));
   list('Definicje na pamięć', arr(n.terms).filter(t => t && t.quote).map(t => `${t.term}: „${t.quote}”${t.source ? ' (' + t.source + ')' : ''}`));
   list('Słownictwo', arr(n.vocab).filter(v => v && v.w).map(v => `${vocabLabel(v)} = ${v.pl || ''}`));
   for (const g of arr(n.grammar)) if (g && g.rule) L.push(`## ${g.title || 'Gramatyka'}\n${g.rule}${g.pattern ? '\nSchemat: ' + g.pattern : ''}\n` + arr(g.examples).map(e => `- ${e.t}${e.pl ? ' = ' + e.pl : ''}`).join('\n'));
   list('Typowe błędy', arr(n.mistakes).filter(Boolean).map(m => `${m.wrong ? '✗ ' + m.wrong + ' → ' : ''}✓ ${m.right}${m.why ? ' (' + m.why + ')' : ''}`));
-  for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || '') + (s && s.more ? '\nDopowiedzenie: ' + s.more : ''));
+  for (const s of arr(n.sections)) L.push('## ' + ((s && s.heading) || '') + '\n' + ((s && s.body) || '') + (s && s.more ? '\n' + s.more : ''));
   if (arr(n.terms).length) L.push('## Pojęcia\n' + arr(n.terms).map(t => `- ${t && t.term}: ${t && t.def}`).join('\n'));
   if (practiceOf(n).length) L.push('## W praktyce\n' + practiceOf(n).map(x => '- ' + x).join('\n'));
   list('Kto jest kim', arr(n.people).filter(x => x && x.name).map(x => `${x.name}${x.years ? ' (' + x.years + ')' : ''}: ${x.idea || ''}`));
