@@ -14,7 +14,8 @@ Kolekcje w bazie tej strony:
   unit: jak strona nazywa kolejne notatki („Wykład 3” albo „Zajęcia 3”); "zajecia" dla ćwiczeń i lektoratów.
   Obecne przedmioty (id): podstawy-zarzadzania (Podstawy zarządzania – wykład, dr Anna Królikowska-Tomczak),
   podstawy-zarzadzania-cw (Podstawy zarządzania – ćwiczenia, dr Paweł Zawiślak; pliki „Zajęcia N. …”),
-  podstawy-finansow, podstawy-prawa, podstawy-psychologii, podstawy-filozofii, generatywna-ai, profesjonalna-komunikacja,
+  podstawy-finansow (Podstawy finansów – wykład, dr hab. Błażej Podgórski),
+  podstawy-finansow-cw (Podstawy finansów – ćwiczenia, mgr Piotr Pawliczak; unit "zajecia"; prezentacje „Podstawy finansów N”, arkusze Excel z zadaniami), podstawy-prawa, podstawy-psychologii, podstawy-filozofii, generatywna-ai, profesjonalna-komunikacja,
   jezyk-angielski, jezyk-niemiecki (unit "zajecia"; pliki „ALK … Termin N”).
 - notes/{id}: {subjectId, nr, title, source (nazwa pliku), lectureDate: "RRRR-MM-DD" | null, addedAt: ISO, addedBy: "claude",
   summary (Markdown, 2–4 zdania),
