@@ -1843,7 +1843,7 @@ function noteSections(n) {
   // „more” zostaje dla starszych notatek, ale czyta się je jak dalszy ciąg wyjaśnienia, bez osobnej ramki
   parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}${x.more ? md(x.more) : ''}</div>`}));
   arr(n.grammar).forEach((g, i) => { if (g && g.rule) secs.push({id: 's-gr' + i, t: g.title || 'Gramatyka', h: true, html:
-    `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${esc(x.trim())}</span>`).join('')}</div>` : ''}
+    `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${mdi(x.trim())}</span>`).join('')}</div>` : ''}
     <ul class="ex-list">${arr(g.examples).map(e => `<li><span>${mdi(e.t)}</span>${e.pl ? `<span class="muted">${esc(unsrc(e.pl))}</span>` : ''}</li>`).join('')}</ul>
     ${arr(g.exceptions).length ? `<p class="label" style="margin-top:10px">Wyjątki</p><ul class="dot-list">${g.exceptions.map(x => `<li>${mdi(x)}</li>`).join('')}</ul>` : ''}`}); });
   if (arr(n.mistakes).length) secs.push({id: 's-mis', t: 'Typowe błędy', html: `<ul class="mist">${n.mistakes.map(m => `<li>
