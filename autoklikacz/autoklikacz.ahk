@@ -7,7 +7,7 @@
 ;
 ; Po starcie:
 ;   - co 30 s: klik w zapisane miejsce
-;   - co 5 min: Enter -> Ctrl+V -> Enter
+;   - co 5 min: Enter -> Ctrl+V -> Enter -> Enter
 
 #Requires AutoHotkey v2.0
 #SingleInstance Force
@@ -59,6 +59,8 @@ Wklej() {
     Send "{Enter}"
     Sleep 300
     Send "^v"
+    Sleep 300
+    Send "{Enter}"
     Sleep 300
     Send "{Enter}"
 }

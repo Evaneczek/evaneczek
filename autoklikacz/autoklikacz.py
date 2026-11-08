@@ -3,7 +3,7 @@ Autoklikacz + automatyczne wklejanie (Windows / macOS / Linux z X11).
 
 Co robi:
   - co 30 sekund: klika lewym przyciskiem w wybrane miejsce na ekranie
-  - co 5 minut:   Enter -> Ctrl+V -> Enter
+  - co 5 minut:   Enter -> Ctrl+V -> Enter -> Enter
 
 Uruchomienie:
   pip install pyautogui
@@ -23,7 +23,7 @@ import pyautogui
 
 # --- USTAWIENIA (możesz zmienić) ---
 CLICK_INTERVAL = 30        # co ile sekund klikać
-PASTE_INTERVAL = 5 * 60    # co ile sekund robić Enter, Ctrl+V, Enter
+PASTE_INTERVAL = 5 * 60    # co ile sekund robić Enter, Ctrl+V, Enter, Enter
 COUNTDOWN = 5              # ile sekund na ustawienie myszy przed startem
 # Jeśli chcesz wpisać współrzędne na sztywno, podaj je tu, np. CLICK_POS = (800, 450)
 CLICK_POS = None
@@ -52,6 +52,8 @@ def wklej():
     pyautogui.hotkey(PASTE_KEY, "v")
     time.sleep(0.3)
     pyautogui.press("enter")
+    time.sleep(0.3)
+    pyautogui.press("enter")
 
 
 def teraz_txt():
@@ -61,7 +63,7 @@ def teraz_txt():
 def main():
     x, y = CLICK_POS if CLICK_POS else wybierz_miejsce()
 
-    print(f"START. Klik co {CLICK_INTERVAL} s, Enter+Ctrl+V+Enter co {PASTE_INTERVAL} s.")
+    print(f"START. Klik co {CLICK_INTERVAL} s, Enter+Ctrl+V+Enter+Enter co {PASTE_INTERVAL} s.")
     print("Stop: Ctrl+C albo mysz w lewy górny róg ekranu.\n")
 
     start = time.monotonic()
@@ -79,7 +81,7 @@ def main():
 
             if teraz >= nastepne_wklejenie:
                 wklej()
-                print(f"{teraz_txt()}  Enter + Ctrl+V + Enter")
+                print(f"{teraz_txt()}  Enter + Ctrl+V + Enter + Enter")
                 nastepne_wklejenie = teraz + PASTE_INTERVAL
 
             time.sleep(0.2)

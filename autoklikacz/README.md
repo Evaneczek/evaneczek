@@ -3,7 +3,7 @@
 Dwa skrypty robiące to samo:
 
 - **co 30 sekund** – klik w wybrane miejsce na ekranie,
-- **co 5 minut** – `Enter` → `Ctrl+V` → `Enter`.
+- **co 5 minut** – `Enter` → `Ctrl+V` → `Enter` → `Enter`.
 
 Klawisze trafiają do aktywnego okna (zwykle tego, w które właśnie kliknął autoklikacz).
 
