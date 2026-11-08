@@ -7,14 +7,14 @@
 ;
 ; Po starcie:
 ;   - co 30 s: klik w zapisane miejsce
-;   - co 5 min: Enter -> Ctrl+V -> Enter -> Enter
+;   - co 8 min: Enter -> Ctrl+V -> Enter -> Enter
 
 #Requires AutoHotkey v2.0
 #SingleInstance Force
 CoordMode "Mouse", "Screen"
 
 CLICK_MS := 30 * 1000       ; co ile ms klikać (30 s)
-PASTE_MS := 5 * 60 * 1000   ; co ile ms wklejać (5 min)
+PASTE_MS := 8 * 60 * 1000   ; co ile ms wklejać (8 min)
 
 global clickX := "", clickY := "", running := false
 

@@ -3,7 +3,7 @@ Autoklikacz + automatyczne wklejanie (Windows / macOS / Linux z X11).
 
 Co robi:
   - co 30 sekund: klika lewym przyciskiem w wybrane miejsce na ekranie
-  - co 5 minut:   Enter -> Ctrl+V -> Enter -> Enter
+  - co 8 minut:   Enter -> Ctrl+V -> Enter -> Enter
 
 Uruchomienie:
   pip install pyautogui
@@ -23,7 +23,7 @@ import pyautogui
 
 # --- USTAWIENIA (możesz zmienić) ---
 CLICK_INTERVAL = 30        # co ile sekund klikać
-PASTE_INTERVAL = 5 * 60    # co ile sekund robić Enter, Ctrl+V, Enter, Enter
+PASTE_INTERVAL = 8 * 60    # co ile sekund robić Enter, Ctrl+V, Enter, Enter
 COUNTDOWN = 5              # ile sekund na ustawienie myszy przed startem
 # Jeśli chcesz wpisać współrzędne na sztywno, podaj je tu, np. CLICK_POS = (800, 450)
 CLICK_POS = None
