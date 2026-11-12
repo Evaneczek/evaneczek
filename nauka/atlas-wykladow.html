@@ -1831,7 +1831,7 @@ function examSection(n) {
     const label = d.title.toLowerCase().startsWith(type.toLowerCase()) ? d.title : `${type}: ${d.title}`;
     return `<p class="dl"><b>${esc(label)}</b>${d.date ? `<span>${esc(fmtDay(d.date, {day: 'numeric', month: 'long'}))}</span>` : ''}${d.scope ? `<span class="muted">${esc(d.scope)}</span>` : ''}${btn}</p>`;
   }).join('');
-  return {id: 's-exam', t: 'Prowadzący mówi', cls: 'exam', html: rows + (info.length ? `<ul class="dot-list">${info.map(x => `<li>${mdi(x.text)}${x.src ? ` <span class="src">${esc(x.src)}</span>` : ''}</li>`).join('')}</ul>` : '')};
+  return {id: 's-exam', t: 'Terminy i zadania', cls: 'exam', html: rows + (info.length ? `<ul class="dot-list">${info.map(x => `<li>${mdi(x.text)}${x.src ? ` <span class="src">${esc(x.src)}</span>` : ''}</li>`).join('')}</ul>` : '')};
 }
 function noteSections(n) {
   // kolejność jak na lekcji: o co chodzi, co mówi prowadzący, wyjaśnienie, a dopiero potem reguły, słówka i powtórka
@@ -1930,7 +1930,7 @@ function viewSearch() {
       .concat(arr(n.flashcards).map(x => ['Fiszka', `${x && x.q} — ${x && x.a}`]))
       .concat(n.myNotes ? [['Moje notatki', n.myNotes]] : [])
       .concat(arr(n.mnemonics).map(x => ['Mnemotechniki', x]))
-      .concat(arr(n.examInfo).map(x => ['Prowadzący mówi', typeof x === 'string' ? x : x && x.text]))
+      .concat(arr(n.examInfo).map(x => ['Terminy i zadania', typeof x === 'string' ? x : x && x.text]))
       .concat(arr(n.vocab).map(v => ['Słownictwo', v && `${v.w} — ${v.pl}`]))
       .concat(arr(n.people).map(x => ['Kto jest kim', x && `${x.name} — ${x.idea || ''}`]))
       .concat(arr(n.examQuestions).map(q => ['Pytania egzaminacyjne', q && q.q]))
@@ -3537,7 +3537,7 @@ function noteText(n) {
   const list = (title, xs) => { if (xs.length) L.push(`## ${title}\n` + xs.map(x => '- ' + x).join('\n')); };
   if (n.summary) L.push(n.summary);
   if (arr(n.highYield).length) L.push('## Co zapamiętać\n' + arr(n.highYield).map(x => '- ' + x).join('\n'));
-  list('Prowadzący mówi', arr(n.examInfo).map(x => typeof x === 'string' ? x : (x && x.text) || '').filter(Boolean).concat(arr(n.deadlines).filter(d => d && d.title).map(d => `${EV_TYPES[d.type] || 'Termin'}: ${d.title}${d.date ? ' (' + d.date + ')' : ''}${d.scope ? ', zakres: ' + d.scope : ''}`)));
+  list('Terminy i zadania', arr(n.examInfo).map(x => typeof x === 'string' ? x : (x && x.text) || '').filter(Boolean).concat(arr(n.deadlines).filter(d => d && d.title).map(d => `${EV_TYPES[d.type] || 'Termin'}: ${d.title}${d.date ? ' (' + d.date + ')' : ''}${d.scope ? ', zakres: ' + d.scope : ''}`)));
   list('Definicje na pamięć', arr(n.terms).filter(t => t && t.quote).map(t => `${t.term}: „${t.quote}”${t.source ? ' (' + t.source + ')' : ''}`));
   list('Słownictwo', arr(n.vocab).filter(v => v && v.w).map(v => `${vocabLabel(v)} = ${v.pl || ''}`));
   for (const g of arr(n.grammar)) if (g && g.rule) L.push(`## ${g.title || 'Gramatyka'}\n${g.rule}${g.pattern ? '\nSchemat: ' + g.pattern : ''}\n` + arr(g.examples).map(e => `- ${e.t}${e.pl ? ' = ' + e.pl : ''}`).join('\n'));

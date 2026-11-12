@@ -13,3 +13,5 @@ Oszczędzaj limit użycia (prośba użytkownika, 20.10.2026): prezentacje przera
 przebiegu, bez Workflow i bez dodatkowych agentów. Obrazy slajdów oglądaj tylko wtedy, gdy tekst
 z pliku ich nie oddaje (diagramy, tabele, osie czasu). Przed zapisem sprawdź notatkę skryptem
 `nauka/tools/validate_note.py` (z `--theory` dla przedmiotów teoretycznych).
+Materiały od użytkownika są tylko punktem wyjścia: notatka ma uczyć jak nauczyciel, bez sekcji typu „prowadzący mówi”
+(prośba z 12.11.2026). W zadaniach z wariantami wybierz jeden wariant i przelicz go krok po kroku.

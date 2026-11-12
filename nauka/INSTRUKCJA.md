@@ -19,7 +19,8 @@ Kolekcje w bazie tej strony:
   jezyk-angielski, jezyk-niemiecki (unit "zajecia"; pliki „ALK … Termin N”).
 - notes/{id}: {subjectId, nr, title, source (nazwa pliku), lectureDate: "RRRR-MM-DD" | null, addedAt: ISO, addedBy: "claude",
   summary (Markdown, 2–4 zdania),
-  examInfo: [{text, src}] — wskazówki prowadzącego: notatki prowadzącego, slajdy „na egzamin”, co znać na pamięć, typowe błędy; src np. "slajd 3",
+  examInfo: [{text, src}] — tylko twarde fakty z materiałów: terminy, zakres sprawdzianu, polecenia zadań (strona pokazuje je jako „Terminy i zadania”).
+    Nie cytuj „co mówi prowadzący” – użytkownik chce, żeby to notatka tłumaczyła (11.2026); rady do nauki wplataj w tekst części. src np. "slajd 3",
   deadlines: [{type: kolokwium | egzamin | sprawdzian | zaliczenie | projekt | prezentacja | inne, date: "RRRR-MM-DD" | null, title, scope}],
   highYield: [Markdown] — opcjonalnie (krok 4d2), sections: [{heading, body (Markdown)}] — pole more jest wycofane (stare notatki: strona dokleja je do body),
   terms: [{term, def, quote?, source?}] — quote: dosłowne brzmienie definicji, gdy trzeba ją znać na pamięć,
