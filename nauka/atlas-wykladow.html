@@ -2562,7 +2562,8 @@ function ovEventEdit(o) {
 }
 async function submitEvent() {
   const o = S.ov;
-  if (!o || o.type !== 'event') return;
+  // zapis w toku: kolejne kliknięcia „Zapisz” nie tworzą kopii terminu
+  if (!o || o.type !== 'event' || o.saving) return;
   readEvForm();
   const d = o.draft, err = $('#ev-err');
   if (!isYmd(d.date)) { err.textContent = 'Wybierz datę.'; err.hidden = false; return; }
@@ -2577,6 +2578,7 @@ async function submitEvent() {
     done: !!d.done, grade: String(d.grade || '').trim(),
     createdAt: d.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString(),
   };
+  o.saving = true;
   try {
     if (o.id) {
       await S.db.doc('events/' + o.id).set(data);
@@ -2591,6 +2593,7 @@ async function submitEvent() {
       render();
     }
   } catch (e) { err.textContent = dbErr(e); err.hidden = false; }
+  finally { o.saving = false; }
 }
 let stepChain = Promise.resolve();
 function toggleEventStep() {
@@ -2607,9 +2610,10 @@ async function toggleEventDone() {
   if (!e) return;
   try { await S.db.doc('events/' + e.id).update({done: !e.done, updatedAt: new Date().toISOString()}); toast(e.done ? 'Termin znowu aktywny.' : 'Oznaczono jako zrobione.'); } catch (err) { toast(dbErr(err)); }
 }
+let addingDeadline = false;
 async function addDeadline(noteId, i) {
   const n = noteById(noteId), d = n && arr(n.deadlines).filter(x => x && x.title)[i];
-  if (!d || deadlineEvent(n, d)) return;
+  if (!d || deadlineEvent(n, d) || addingDeadline) return;
   if (!d.date) {
     // bez daty: otwieramy wypełniony formularz, datę wpisuje użytkownik
     newEvent('', n.subjectId);
@@ -2620,10 +2624,12 @@ async function addDeadline(noteId, i) {
     if (f) f.focus();
     return;
   }
+  addingDeadline = true;
   try {
     await S.db.collection('events').doc().set({type: EV_TYPES[d.type] ? d.type : 'inne', subjectId: n.subjectId, title: d.title, date: d.date, time: null, place: '', notes: d.scope || '', lectureIds: [], checklist: [], done: false, grade: '', createdAt: nowIso(), updatedAt: nowIso()});
     toast(`Dodano do kalendarza: ${d.title}`);
   } catch (e) { toast(dbErr(e)); }
+  finally { addingDeadline = false; }
 }
 async function deleteEvent() {
   const o = S.ov;
