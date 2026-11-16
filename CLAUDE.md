@@ -15,3 +15,5 @@ z pliku ich nie oddaje (diagramy, tabele, osie czasu). Przed zapisem sprawdź no
 `nauka/tools/validate_note.py` (z `--theory` dla przedmiotów teoretycznych).
 Materiały od użytkownika są tylko punktem wyjścia: notatka ma uczyć jak nauczyciel, bez sekcji typu „prowadzący mówi”
 (prośba z 12.11.2026). W zadaniach z wariantami wybierz jeden wariant i przelicz go krok po kroku.
+Prace domowe (prośba z 16.11.2026): na górze krótki opis tematu (o czym jest tekst/zagadnienie), a niżej same zadania
+w formie online z rozwiązaniami. Bez poradników „jak zrobić ćwiczenie” i bez oczywistych wskazówek typu „patrz na słowa wokół luki”.
