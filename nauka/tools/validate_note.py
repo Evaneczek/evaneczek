@@ -36,7 +36,7 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
             if not x.get('name') or not x.get('idea'): E(f, f'people[{i}] bez name/idea')
         eqs = LIST(n.get('examQuestions'))
         if not (2 <= len(eqs) <= 3): W(f, f'examQuestions: {len(eqs)} (zalecane 2–3)')
-        if any(LIST(n.get(k)) for k in ['vocab', 'grammar', 'exercises', 'texts']): W(f, 'pola językowe (vocab/grammar/exercises/texts) w przedmiocie teoretycznym')
+        if any(LIST(n.get(k)) for k in ['vocab', 'grammar', 'texts']): W(f, 'pola językowe (vocab/grammar/texts) w przedmiocie teoretycznym')
     secs = LIST(n.get('sections'))
     ns = len(secs)
     def sec_ok(x, where):
