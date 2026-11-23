@@ -1502,7 +1502,10 @@ async function boot() {
   db.doc('meta/plan').onSnapshot(d => { S.plan = d.exists ? {...d.data()} : {}; scheduleRender(); }, () => {});
   if (S.uid) db.collection('data/users/' + S.uid).onSnapshot(onUserSnap, e => console.warn('postęp', e));
 }
-function ready() { if (S.got.subjects && S.got.notes) S.phase = 'ready'; scheduleRender(); }
+function ready() {
+  if (S.got.subjects && S.got.notes) { S.phase = 'ready'; if (!viewRestored && restoreView()) return; }
+  scheduleRender();
+}
 
 /* ================= render ================= */
 let rq = 0;
@@ -1972,13 +1975,40 @@ function viewSearch() {
 }
 
 /* ================= nawigacja i akcje ================= */
+// gdzie skończono: widok i przewinięcie zapamiętane w tej przeglądarce, żeby odświeżenie wracało w to samo miejsce
+const LS_VIEW = 'atlas-view';
+let viewRestored = false, viewSaveT = 0;
+function saveView() {
+  if (!viewRestored || !S.view || S.view.name === 'search') return;
+  try { localStorage.setItem(LS_VIEW, JSON.stringify({v: S.view, y: Math.round(window.scrollY || 0)})); } catch (e) {}
+}
+function restoreView() {
+  if (viewRestored) return;
+  viewRestored = true;
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(LS_VIEW) || 'null'); } catch (e) {}
+  const v = s && s.v;
+  // tylko gdy nic jeszcze nie kliknięto i zapamiętany widok nadal istnieje
+  if (!v || !S.view || S.view.name !== 'home' || v.name === 'home') return false;
+  const ok = (v.name === 'note' && noteById(v.id)) || (v.name === 'subject' && subjectById(v.id)) || ['calendar', 'plan'].includes(v.name);
+  if (!ok) return false;
+  S.view = v;
+  render();
+  const y = Number(s.y) || 0;
+  if (y > 0) [60, 250, 700].forEach(t => setTimeout(() => window.scrollTo(0, y), t));
+  return true;
+}
+window.addEventListener('scroll', () => { clearTimeout(viewSaveT); viewSaveT = setTimeout(saveView, 250); }, {passive: true});
+window.addEventListener('pagehide', saveView);
 function go(view) {
   S.view = view;
+  viewRestored = true;
   S.revealed.clear();
   S.confirmDel = null;
   if (view.name !== 'search' && S.q) { S.q = ''; $('#q').value = ''; }
   render();
   window.scrollTo(0, 0);
+  saveView();
   $('#main').focus({preventScroll: true});
   enterMain();
 }
