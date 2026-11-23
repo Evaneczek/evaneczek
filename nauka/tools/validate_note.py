@@ -72,7 +72,7 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
         if v.get('pos') == 'v' and not v.get('forms'): W(f, f'vocab[{i}] {w}: czasownik bez forms (3. os. lp.)')
         if not v.get('ex'): W(f, f'vocab[{i}] {w}: brak przykładu ex')
     if len(voc) > 20: W(f, f'vocab: {len(voc)} (zalecane do 20)')
-    for k2, mx in (('people', 6), ('grammar', 5), ('mistakes', 4), ('exercises', 3), ('texts', 1)):
+    for k2, mx in (('people', 6), ('grammar', 5), ('mistakes', 4), ('exercises', max(3, ns)), ('texts', 1)):
         if len(LIST(n.get(k2))) > mx: W(f, f'{k2}: {len(LIST(n.get(k2)))} (zalecane do {mx})')
     for w, c in seen_w.items():
         if c > 1: E(f, f'vocab: „{w}” powtórzone {c}×')
@@ -90,6 +90,7 @@ for path in [a for a in sys.argv[1:] if not a.startswith('--')]:
     for i, x in enumerate(LIST(n.get('exercises'))):
         items = LIST(x.get('items'))
         if not items: E(f, f'exercises[{i}] bez items')
+        if x.get('sec') is not None and (not isinstance(x.get('sec'), int) or not (0 <= x['sec'] < ns)): E(f, f'exercises[{i}]: sec={x.get("sec")!r} poza zakresem 0..{ns-1}')
         for j, it in enumerate(items):
             if not it.get('q') or not it.get('a'): E(f, f'exercises[{i}].items[{j}] bez q/a')
     for i, t in enumerate(LIST(n.get('texts'))):

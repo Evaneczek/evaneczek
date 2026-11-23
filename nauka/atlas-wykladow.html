@@ -65,6 +65,8 @@ button:disabled{cursor:not-allowed}
 .small{font-size:13px}
 .tnum{font-variant-numeric:tabular-nums}
 .label{margin:0;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.sec-ex{margin-top:22px;padding-top:16px;border-top:1px dashed var(--line,rgba(127,127,127,.35))}
+.sec-ex > .label{margin-bottom:10px}
 
 /* ---------- shell ---------- */
 .shell{display:grid;grid-template-columns:244px minmax(0,1fr);gap:48px;max-width:1280px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 72px}
@@ -1840,8 +1842,18 @@ function noteSections(n) {
   const ex = examSection(n);
   if (ex) secs.push(ex);
   const parts = arr(n.sections).filter(x => x && (x.heading || x.body));
+  // ćwiczenie z polem sec stoi zaraz pod swoją częścią (teoria → zadania → teoria → zadania); bez sec trafia na koniec
+  const exs = arr(n.exercises), hasEx = x => x && arr(x.items).length;
+  const exUnder = new Map();
+  exs.forEach((x, i) => { if (hasEx(x) && Number.isInteger(x.sec) && arr(n.sections)[x.sec]) exUnder.set(x.sec, (exUnder.get(x.sec) || []).concat(i)); });
   // „more” zostaje dla starszych notatek, ale czyta się je jak dalszy ciąg wyjaśnienia, bez osobnej ramki
-  parts.forEach((x, i) => secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}${x.more ? md(x.more) : ''}</div>`}));
+  let pi = 0;
+  arr(n.sections).forEach((x, o) => {
+    if (!x || !(x.heading || x.body)) return;
+    const i = pi++, mine = exUnder.get(o) || [];
+    secs.push({id: 's-' + i, t: x.heading || (parts.length === 1 ? 'Notatki' : `Część ${i + 1}`), h: true, html: `<div class="md">${md(x.body)}${x.more ? md(x.more) : ''}</div>`
+      + (mine.length ? `<div class="sec-ex"><p class="label">Sprawdź się</p>${mine.map(j => exHtml(n, exs[j], j)).join('')}</div>` : '')});
+  });
   arr(n.grammar).forEach((g, i) => { if (g && g.rule) secs.push({id: 's-gr' + i, t: g.title || 'Gramatyka', h: true, html:
     `<div class="rule">${mdi(g.rule)}</div>${g.pattern ? `<div class="slots">${String(g.pattern).split('|').map(x => `<span>${mdi(x.trim())}</span>`).join('')}</div>` : ''}
     <ul class="ex-list">${arr(g.examples).map(e => `<li><span>${mdi(e.t)}</span>${e.pl ? `<span class="muted">${esc(unsrc(e.pl))}</span>` : ''}</li>`).join('')}</ul>
@@ -1861,7 +1873,8 @@ function noteSections(n) {
     ${arr(f.vars).length ? `<ul>${f.vars.map(v => `<li><b>${esc(v.sym)}</b> – ${mdi(v.def || '')}</li>`).join('')}</ul>` : ''}${f.when ? `<p class="muted">${mdi(f.when)}</p>` : ''}</div>`).join('')});
   if (arr(n.worked).length) secs.push({id: 's-wk', t: 'Przykłady krok po kroku', html: n.worked.filter(w => w && w.problem).map(w => `<div class="worked"><p><b>${esc(w.title || 'Przykład')}</b></p><div class="md">${md(w.problem)}</div>
     <details><summary>Pokaż rozwiązanie</summary><ol>${arr(w.steps).map(x => `<li>${mdi(x)}</li>`).join('')}</ol>${w.result ? `<p><b>Wynik:</b> ${mdi(w.result)}</p>` : ''}</details></div>`).join('')});
-  if (arr(n.exercises).some(x => x && arr(x.items).length)) secs.push({id: 's-exr', t: 'Ćwiczenia', html: n.exercises.map((x, i) => x && arr(x.items).length ? exHtml(n, x, i) : '').join('')});
+  const placed = new Set([...exUnder.values()].flat());
+  if (exs.some((x, i) => hasEx(x) && !placed.has(i))) secs.push({id: 's-exr', t: 'Ćwiczenia', html: exs.map((x, i) => hasEx(x) && !placed.has(i) ? exHtml(n, x, i) : '').join('')});
   if (arr(n.texts).length) secs.push({id: 's-txt', t: 'Teksty', html: n.texts.filter(x => x && x.text).map(x => `<div class="txt">${x.title ? `<p><b>${esc(x.title)}</b></p>` : ''}<div class="md">${md(x.text)}</div>${x.pl ? `<details><summary>Tłumaczenie</summary><div class="md">${md(x.pl)}</div></details>` : ''}</div>`).join('')});
   if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
   if (arr(n.examQuestions).length) secs.push({id: 's-eq', t: 'Typowe pytania egzaminacyjne', html: `<ol class="eq">${n.examQuestions.filter(q => q && q.q).map(q => `<li><p>${mdi(q.q)}${q.fromSlides ? ' <span class="pill neutral">ze slajdów</span>' : ''}</p>
@@ -2858,7 +2871,7 @@ async function saveEditor(force) {
     if (cur) {
       const {id: _id, ...rest} = cur, fixSec = secRemap(o.draft);
       if (!cur.own && !cur.hasBackup) { await S.db.doc('noteBackups/' + o.id).set({...rest, savedAt: nowIso()}); rest.hasBackup = true; }
-      for (const k of ['grammar', 'worked', 'examQuestions']) if (Array.isArray(rest[k])) rest[k] = fixSec(rest[k]);
+      for (const k of ['grammar', 'worked', 'examQuestions', 'exercises']) if (Array.isArray(rest[k])) rest[k] = fixSec(rest[k]);
       await S.db.doc('notes/' + o.id).set({...rest, ...c, editedAt: nowIso()});
     } else {
       const ref = S.db.collection('notes').doc();
@@ -3426,7 +3439,7 @@ function normNote(r) {
       const items = arr(x && x.items).map(it => it && typeof it === 'object' ? {q: str(it.q), a: str(it.a), ...(it.why ? {why: str(it.why)} : {}), ...(it.pl ? {pl: str(it.pl)} : {}),
         ...(arr(it.options).length > 1 ? {options: strs(it.options)} : {}),
         ...(it.explain && typeof it.explain === 'object' && !Array.isArray(it.explain) ? {explain: Object.fromEntries(Object.entries(it.explain).map(([k, v]) => [str(k), str(v)]).filter(([k, v]) => k && v))} : {})} : null).filter(it => it && it.q && it.a);
-      return {...objs([x], ['title', 'instr'], 'title')[0], ...(EX_TYPES.includes(x && x.type) ? {type: x.type} : {}), ...(arr(x && x.bank).length ? {bank: strs(x.bank)} : {}), items};
+      return {...objs([x], ['title', 'instr'], 'title')[0], ...(EX_TYPES.includes(x && x.type) ? {type: x.type} : {}), ...(arr(x && x.bank).length ? {bank: strs(x.bank)} : {}), ...(Number.isInteger(x && x.sec) ? {sec: x.sec} : {}), items};
     }).filter(x => x.items.length),
     texts: objs(r.texts, ['title', 'text', 'pl'], 'text'),
     examQuestions: arr(r.examQuestions).map(x => ({...objs([x], ['q', 'outline'], 'q')[0], fromSlides: !!(x && x.fromSlides)})).filter(x => x.q),
