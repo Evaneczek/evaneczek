@@ -17,3 +17,5 @@ Materiały od użytkownika są tylko punktem wyjścia: notatka ma uczyć jak nau
 (prośba z 12.11.2026). W zadaniach z wariantami wybierz jeden wariant i przelicz go krok po kroku.
 Prace domowe (prośba z 16.11.2026): na górze krótki opis tematu (o czym jest tekst/zagadnienie), a niżej same zadania
 w formie online z rozwiązaniami. Bez poradników „jak zrobić ćwiczenie” i bez oczywistych wskazówek typu „patrz na słowa wokół luki”.
+Lekcje uczą tematu, nie streszczają podręcznika (prośba z 23.11.2026): w treści części żadnych numerów stron,
+numerów ćwiczeń ani „mapy podręcznika”. Każdy temat: wyjaśnienie, przykłady, pułapki, krótki sposób na zapamiętanie.
