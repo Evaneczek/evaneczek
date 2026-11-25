@@ -1881,7 +1881,7 @@ function noteSections(n) {
   if (arr(n.texts).length) secs.push({id: 's-txt', t: 'Teksty', html: n.texts.filter(x => x && x.text).map(x => `<div class="txt">${x.title ? `<p><b>${esc(x.title)}</b></p>` : ''}<div class="md">${md(x.text)}</div>${x.pl ? `<details><summary>Tłumaczenie</summary><div class="md">${md(x.pl)}</div></details>` : ''}</div>`).join('')});
   if (arr(n.terms).length) secs.push({id: 's-terms', t: 'Pojęcia', html: `<dl class="terms">${arr(n.terms).map(x => `<div><dt>${mdi(x && x.term)}</dt><dd>${mdi(x && x.def)}</dd></div>`).join('')}</dl>`});
   if (arr(n.examQuestions).length) secs.push({id: 's-eq', t: 'Typowe pytania egzaminacyjne', html: `<ol class="eq">${n.examQuestions.filter(q => q && q.q).map(q => `<li><p>${mdi(q.q)}${q.fromSlides ? ' <span class="pill neutral">ze slajdów</span>' : ''}</p>
-    ${q.outline ? `<details><summary>Plan odpowiedzi</summary><div class="md">${md(q.outline)}</div></details>` : ''}</li>`).join('')}</ol>`});
+    ${q.outline ? `<details><summary>${/^\s*[-*\d]/.test(q.outline) ? 'Plan odpowiedzi' : 'Przykładowa odpowiedź'}</summary><div class="md">${md(q.outline)}</div></details>` : ''}</li>`).join('')}</ol>`});
   // podsumowanie na koniec i tylko wtedy, gdy notatka je ma (nie każdy temat potrzebuje listy faktów)
   if (arr(n.highYield).length) secs.push({id: 's-hy', t: 'Co zapamiętać', html: `<ul class="hy-list">${arr(n.highYield).map(x => `<li>${mdi(x)}</li>`).join('')}</ul>`});
   if (arr(n.mnemonics).length) secs.push({id: 's-mn', t: 'Mnemotechniki', html: `<ul class="dot-list">${arr(n.mnemonics).map(x => `<li>${mdi(typeof x === 'string' ? x : (x && x.text))}</li>`).join('')}</ul>`});

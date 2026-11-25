@@ -19,3 +19,5 @@ Prace domowe (prośba z 16.11.2026): na górze krótki opis tematu (o czym jest 
 w formie online z rozwiązaniami. Bez poradników „jak zrobić ćwiczenie” i bez oczywistych wskazówek typu „patrz na słowa wokół luki”.
 Lekcje uczą tematu, nie streszczają podręcznika (prośba z 23.11.2026): w treści części żadnych numerów stron,
 numerów ćwiczeń ani „mapy podręcznika”. Każdy temat: wyjaśnienie, przykłady, pułapki, krótki sposób na zapamiętanie.
+Pytania otwarte (prośba z 25.11.2026): w outline wzorcowa odpowiedź pełnymi zdaniami (ok. 100–130 słów), taka, jaką da się
+napisać na sprawdzianie, a nie lista punktów. Przed sprawdzianem: notatka „Podsumowanie” (część na każde zajęcia + „Sprawdź się”).
