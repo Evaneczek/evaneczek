@@ -2232,8 +2232,19 @@ function lev(a, b) {
   for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
   return d[m][n];
 }
-function learnLoad(id) { try { return JSON.parse(localStorage.getItem(learnKey(id)) || '{}') || {}; } catch (e) { return {}; } }
-function learnSave(o) { try { localStorage.setItem(learnKey(o.id), JSON.stringify(o.lv)); } catch (e) {} }
+// postęp zapisuje się na koncie (S.prog → data/users/<uid>), więc działa na każdym urządzeniu; localStorage to tylko kopia zapasowa
+function learnLoad(id) {
+  const p = S.prog[id];
+  if (p && p.learn && typeof p.learn === 'object') return {...p.learn};
+  try { return JSON.parse(localStorage.getItem(learnKey(id)) || '{}') || {}; } catch (e) { return {}; }
+}
+function learnSave(o) {
+  const p = clone(P(o.id));
+  p.learn = {...o.lv};
+  S.prog[o.id] = p;
+  saveProg(o.id);
+  try { localStorage.setItem(learnKey(o.id), JSON.stringify(o.lv)); } catch (e) {}
+}
 function startLearn(id, fresh) {
   const n = noteById(id);
   const items = n ? learnItems(n) : [];
@@ -2339,14 +2350,22 @@ function ovLearn(o) {
 const KIND_TAG = {cloze: 'luka', term: 'pojęcie od tyłu', mcq: 'błąd z testu', vocab: 'słówko', person: 'osoba'};
 // fiszki jednej notatki: stała kolejność i zapamiętane miejsce, na którym skończono (w tej przeglądarce)
 const fcPosKey = id => 'atlas-fc-pos:' + id;
-function saveFcPos(id, i) { try { localStorage.setItem(fcPosKey(id), String(i)); } catch (e) {} }
+function saveFcPos(id, i) {
+  const p = clone(P(id));
+  p.fcPos = i;
+  S.prog[id] = p;
+  saveProg(id);
+  try { localStorage.setItem(fcPosKey(id), String(i)); } catch (e) {}
+}
 function startReview(kind, id) {
   const notes = scopeNotes(kind, id), t = today();
   if (kind === 'note') {
     const q = notes.flatMap(itemsOf).filter(c => c.kind !== 'mcq');
     if (!q.length) { toast('Ta notatka nie ma fiszek.'); return; }
     let at = 0;
-    try { at = Number(localStorage.getItem(fcPosKey(id))) || 0; } catch (e) {}
+    const pp = S.prog[id];
+    if (pp && Number.isInteger(pp.fcPos)) at = pp.fcPos;
+    else try { at = Number(localStorage.getItem(fcPosKey(id))) || 0; } catch (e) {}
     if (at >= q.length) at = 0;
     S.ov = {type: 'review', kind, id, q, i: at, flipped: false, mcq: null, tally: {1: 0, 2: 0, 3: 0, 4: 0}, cram: true, label: scopeLabel(kind, id, 'Fiszki')};
     openOv();
