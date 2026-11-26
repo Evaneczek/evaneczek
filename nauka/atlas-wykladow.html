@@ -2265,9 +2265,9 @@ function learnPrep(o) {
     o.opts = shuffle([c.a].concat(others.slice(0, 3).map(x => x.a)));
   }
 }
-function learnAnswer(o, ok, near) {
+function learnAnswer(o, ok, near, shown) {
   const c = o.cur, k = c.key;
-  o.res = {ok, near};
+  o.res = {ok, near, shown};
   if (ok) {
     o.lv[k] = Math.min(2, (o.lv[k] || 0) + 1);
     o.queue.shift();
@@ -2283,7 +2283,7 @@ function learnAnswer(o, ok, near) {
   o.phase = 'fb';
   o.anim = 'pick';
   renderOv();
-  if (ok && !near) { const at = o; setTimeout(() => { if (S.ov === at && at.phase === 'fb') learnNext(at); }, 700); }
+  if (ok && !near && !shown) { const at = o; setTimeout(() => { if (S.ov === at && at.phase === 'fb') learnNext(at); }, 700); }
 }
 function learnNext(o) {
   if (!o.queue.length) { o.phase = o.items.every(c => (o.lv[c.key] || 0) >= 2) ? 'finished' : 'roundEnd'; if (o.phase === 'finished') o.party = true; o.anim = 'done'; renderOv(); return; }
@@ -2319,12 +2319,12 @@ function ovLearn(o) {
     }).join('')}</div>`;
   } else {
     h += `<div class="learn-type"><input id="ln-in" type="text" class="inp${fb ? (r.ok ? ' ok' : ' no') : ''}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(o.typed || '')}" ${fb ? 'disabled' : 'autofocus'} placeholder="Twoja odpowiedź">
-      ${fb ? '' : `<div class="row wrap"><button class="btn primary" data-act="learn-check">Sprawdź <span class="kbd">Enter</span></button><button class="btn ghost" data-act="learn-idk">Nie wiem</button></div>`}</div>`;
+      ${fb ? '' : `<div class="row wrap"><button class="btn primary" data-act="learn-check">Sprawdź <span class="kbd">Enter</span></button><button class="btn" data-act="learn-know">Wiem, ale nie mogę pisać</button><button class="btn ghost" data-act="learn-idk">Nie wiem</button></div>`}</div>`;
   }
   if (fb) {
-    const msg = r.ok ? (r.near ? `<b>Prawie dobrze.</b> Uważaj na pisownię: <b>${mdi(c.a)}</b>` : '<b>Dobrze!</b>') : `<b>Jeszcze nie.</b> Poprawnie: <b>${mdi(c.a)}</b>. To pytanie wróci za chwilę.`;
+    const msg = r.shown ? `<b>Zaliczone.</b> Odpowiedź: <b>${mdi(c.a)}</b>` : r.ok ? (r.near ? `<b>Prawie dobrze.</b> Uważaj na pisownię: <b>${mdi(c.a)}</b>` : '<b>Dobrze!</b>') : `<b>Jeszcze nie.</b> Poprawnie: <b>${mdi(c.a)}</b>. To pytanie wróci za chwilę.`;
     h += `<div class="qz-why ${r.ok ? 'good' : 'bad'}"><p>${msg}</p></div>`;
-    if (!r.ok || r.near) h += `<div class="rate"><button class="btn primary wide" data-act="learn-next" autofocus>Dalej <span class="kbd">Enter</span></button></div>`;
+    if (!r.ok || r.near || r.shown) h += `<div class="rate"><button class="btn primary wide" data-act="learn-next" autofocus>Dalej <span class="kbd">Enter</span></button></div>`;
   }
   return h + '</div>';
 }
@@ -3859,6 +3859,7 @@ const A = {
   'learn': el => startLearn(el.dataset.id),
   'learn-pick': el => { const o = S.ov; if (!o || o.phase !== 'ask') return; o.picked = o.opts[Number(el.dataset.j)]; learnAnswer(o, o.picked === o.cur.a, false); },
   'learn-check': () => { const o = S.ov, i = $('#ln-in'); if (o && o.phase === 'ask' && i) learnSubmitTyped(o, i.value); },
+  'learn-know': () => { const o = S.ov; if (o && o.phase === 'ask') { o.typed = ''; learnAnswer(o, true, false, true); } },
   'learn-idk': () => { const o = S.ov; if (o && o.phase === 'ask') { o.typed = ''; learnAnswer(o, false, false); } },
   'learn-next': () => { const o = S.ov; if (o && o.phase === 'fb') learnNext(o); },
   'learn-round': () => { const o = S.ov; if (o && o.phase === 'roundEnd') { learnNewRound(o); o.anim = 'next'; renderOv(); } },
