@@ -2289,14 +2289,19 @@ function learnNext(o) {
   if (!o.queue.length) { o.phase = o.items.every(c => (o.lv[c.key] || 0) >= 2) ? 'finished' : 'roundEnd'; if (o.phase === 'finished') o.party = true; o.anim = 'done'; renderOv(); return; }
   o.phase = 'ask'; learnPrep(o); o.anim = 'next'; renderOv();
 }
+// odpowiedź „słowo, l. mn.” albo z wariantami po przecinku: zalicza każdą z form i całość
+const learnAlts = a => [...new Set([a].concat(String(a).split(/\s*[,|;]\s*/)).map(learnNorm).filter(Boolean))];
+const learnShow = a => [...new Set(String(a).split(/\s*,\s*/))].join(', ');
 function learnSubmitTyped(o, val) {
-  const c = o.cur, want = learnNorm(c.a), got = learnNorm(val);
+  const c = o.cur, alts = learnAlts(c.a), got = learnNorm(val);
   if (!got) return;
   o.typed = val;
-  if (got === want) return learnAnswer(o, true, false);
-  const near = want.length >= 5 && lev(got, want) <= 1;
+  if (alts.includes(got)) return learnAnswer(o, true, false);
+  const near = alts.some(w => w.length >= 5 && lev(got, w) <= 1);
   learnAnswer(o, near, near);
 }
+// podpowiedź „(z rodzajnikiem, l. mn.)” ma sens tylko w niemieckim; w innych językach ją chowamy
+const learnQ = (o, c) => { const n = noteById(o.id); return n && n.subjectId === 'jezyk-niemiecki' ? c.q : String(c.q).replace(/ \(z [^()]*\)$/, ''); };
 function ovLearn(o) {
   const total = o.items.length, mastered = o.items.filter(c => (o.lv[c.key] || 0) >= 2).length, started = o.items.filter(c => o.lv[c.key] === 1).length;
   const bar = `<div class="prog learn-prog"><i style="width:${mastered / total * 100}%"></i><i class="mid" style="width:${started / total * 100}%"></i></div>
@@ -2311,18 +2316,19 @@ function ovLearn(o) {
   const c = o.cur, fb = o.phase === 'fb', r = o.res || {};
   let h = ovHeadLabel(o.label, `<span class="muted small tnum">runda ${o.round}</span>`) + bar + `<div class="qz learn">
     <p class="label">${o.mode === 'type' ? 'Wpisz odpowiedź' : 'Wybierz odpowiedź'}</p>
-    <p class="qz-q">${mdi(c.q)}</p>`;
+    <p class="qz-q">${mdi(learnQ(o, c))}</p>`;
   if (o.mode === 'mc') {
     h += `<div class="qz-opts">${o.opts.map((a, j) => {
       const isOk = a === c.a, cls = !fb ? '' : isOk ? 'ok' : o.picked === a ? 'no' : 'dim';
-      return `<button class="qz-o ${cls}" data-act="learn-pick" data-j="${j}" ${fb ? 'disabled' : ''}><span class="qz-l">${j + 1}</span><span>${mdi(a)}</span></button>`;
+      return `<button class="qz-o ${cls}" data-act="learn-pick" data-j="${j}" ${fb ? 'disabled' : ''}><span class="qz-l">${j + 1}</span><span>${mdi(learnShow(a))}</span></button>`;
     }).join('')}</div>`;
   } else {
     h += `<div class="learn-type"><input id="ln-in" type="text" class="inp${fb ? (r.ok ? ' ok' : ' no') : ''}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(o.typed || '')}" ${fb ? 'disabled' : 'autofocus'} placeholder="Twoja odpowiedź">
       ${fb ? '' : `<div class="row wrap"><button class="btn primary" data-act="learn-check">Sprawdź <span class="kbd">Enter</span></button><button class="btn" data-act="learn-know">Wiem, ale nie mogę pisać</button><button class="btn ghost" data-act="learn-idk">Nie wiem</button></div>`}</div>`;
   }
   if (fb) {
-    const msg = r.shown ? `<b>Zaliczone.</b> Odpowiedź: <b>${mdi(c.a)}</b>` : r.ok ? (r.near ? `<b>Prawie dobrze.</b> Uważaj na pisownię: <b>${mdi(c.a)}</b>` : '<b>Dobrze!</b>') : `<b>Jeszcze nie.</b> Poprawnie: <b>${mdi(c.a)}</b>. To pytanie wróci za chwilę.`;
+    const A = mdi(learnShow(c.a));
+    const msg = r.shown ? `<b>Zaliczone.</b> Odpowiedź: <b>${A}</b>` : r.ok ? (r.near ? `<b>Prawie dobrze.</b> Uważaj na pisownię: <b>${A}</b>` : '<b>Dobrze!</b>') : `<b>Jeszcze nie.</b> Poprawnie: <b>${A}</b>. To pytanie wróci za chwilę.`;
     h += `<div class="qz-why ${r.ok ? 'good' : 'bad'}"><p>${msg}</p></div>`;
     if (!r.ok || r.near || r.shown) h += `<div class="rate"><button class="btn primary wide" data-act="learn-next" autofocus>Dalej <span class="kbd">Enter</span></button></div>`;
   }
