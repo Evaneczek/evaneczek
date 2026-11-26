@@ -553,6 +553,15 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 }
 .prog{height:4px;border-radius:999px;background:var(--sunk);overflow:hidden}
 .prog i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.learn-prog{display:flex;height:8px;margin-top:4px}
+.learn-prog i{flex:none}
+.learn-prog i.mid{background:var(--accent);opacity:.35}
+.learn-stat{margin:6px 0 14px}
+.learn-type input{width:100%;font-size:18px;padding:12px 14px;margin:6px 0 12px}
+.learn-type input.ok{border-color:var(--good);background:var(--good-soft)}
+.learn-type input.no{border-color:var(--bad);background:var(--bad-soft)}
+.qz-why.good{background:var(--good-soft)}
+.qz-why.bad{background:var(--bad-soft)}
 .card{display:flex;flex-direction:column;gap:16px;min-height:220px;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .card-src{display:flex;align-items:center;gap:8px;margin:0;font-size:12.5px;color:var(--muted)}
 .card-q{font-family:var(--f-read);font-size:22px;line-height:1.4;font-weight:500}
@@ -1801,6 +1810,7 @@ function viewNote(id) {
       <div class="row wrap">
         <button class="btn sm ${rec ? 'on' : ''}" data-act="toggle-recall" aria-pressed="${rec}">${rec ? 'Odsłoń wszystko' : 'Tryb przypominania'}</button>
         <button class="btn sm" data-act="font-size" title="Wielkość tekstu" aria-label="Zmień wielkość tekstu notatki">Aa</button>
+        ${learnItems(n).length >= 4 ? `<button class="btn sm primary" data-act="learn" data-id="${esc(id)}">Ucz się</button>` : ''}
         ${revN ? `<button class="btn sm" data-act="review" data-kind="note" data-id="${esc(id)}">Fiszki</button>` : ''}
         ${qs.length ? `<button class="btn sm" data-act="quiz" data-kind="note" data-id="${esc(id)}">Test</button>` : ''}
         ${S.sample ? `<button class="btn sm" data-act="ask-open" data-id="${esc(id)}">Zapytaj Claude'a</button>` : ''}
@@ -2157,7 +2167,7 @@ function renderOv() {
   const anim = motion() ? o.anim || '' : '';
   o.anim = null;
   const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy) || ((o.type === 'editor' || o.type === 'mynotes') && !!o.busy);
-  const body = o.type === 'review' ? ovReview(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : o.type === 'event' ? ovEvent(o) : o.type === 'day' ? ovDay(o) : o.type === 'editor' ? ovEditor(o) : o.type === 'mynotes' ? ovMyNotes(o) : ovAsk(o);
+  const body = o.type === 'review' ? ovReview(o) : o.type === 'learn' ? ovLearn(o) : o.type === 'quiz' ? ovQuiz(o) : o.type === 'import' ? ovImport(o) : o.type === 'subject' ? ovSubject(o) : o.type === 'event' ? ovEvent(o) : o.type === 'day' ? ovDay(o) : o.type === 'editor' ? ovEditor(o) : o.type === 'mynotes' ? ovMyNotes(o) : ovAsk(o);
   const el = $('#ov');
   // przy ponownym rysowaniu tej samej nakładki zostajemy w tym samym miejscu i przy tym samym polu
   const prev = el.querySelector('.panel'), same = el.__ov === o && prev;
@@ -2202,6 +2212,121 @@ function scopeLabel(kind, id, what) {
   if (kind === 'note') { const n = noteById(id); return `${what}${n ? ' · ' + noteLabel(n) : ''}`; }
   if (kind === 'event') { const e = eventById(id); return `${what} · ${e ? evTitle(e) : ''}`; }
   return `${what} · wszystkie przedmioty`;
+}
+
+/* ---------- tryb „Ucz się”: aktywne przypominanie z powtarzaniem błędów ----------
+   Każda pozycja przechodzi dwa poziomy: najpierw rozpoznanie (wybór z 4), potem przypomnienie (wpisanie;
+   długie odpowiedzi drugi raz z wyboru). Błąd cofa pozycję na początek i wraca ona w tej samej rundzie
+   po 3 innych pytaniach. Rundy po 7 pozycji. Postęp zapisuje się w tej przeglądarce. */
+const LEARN_ROUND = 7, LEARN_GAP = 3;
+const learnKey = id => 'atlas-learn:' + id;
+const learnItems = n => itemsOf(n).filter(c => c.kind !== 'mcq' && c.q && c.a);
+function learnNorm(s) {
+  return String(s || '').toLowerCase().replace(/[’‘`´]/g, "'").replace(/[*_=]/g, '').replace(/\s*\(.*?\)\s*/g, ' ')
+    .replace(/[.,!?;:"„”]/g, '').replace(/^(to|a|an|the) /, '').replace(/\s+/g, ' ').trim();
+}
+const learnTypable = a => { const s = String(a); return s.length <= 40 && s.split(/\s+/).length <= 5 && !/[\/|;]/.test(s); };
+function lev(a, b) {
+  const m = a.length, n = b.length, d = Array.from({length: m + 1}, (_, i) => [i]);
+  for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[m][n];
+}
+function learnLoad(id) { try { return JSON.parse(localStorage.getItem(learnKey(id)) || '{}') || {}; } catch (e) { return {}; } }
+function learnSave(o) { try { localStorage.setItem(learnKey(o.id), JSON.stringify(o.lv)); } catch (e) {} }
+function startLearn(id, fresh) {
+  const n = noteById(id);
+  const items = n ? learnItems(n) : [];
+  if (items.length < 4) { toast('Za mało fiszek do nauki.'); return; }
+  const lv = fresh ? {} : learnLoad(id);
+  S.ov = {type: 'learn', id, items, lv, round: 0, label: scopeLabel('note', id, 'Ucz się')};
+  learnNewRound(S.ov);
+  openOv();
+}
+function learnNewRound(o) {
+  const todo = o.items.filter(c => (o.lv[c.key] || 0) < 2);
+  // najpierw te, które już zaczęte (poziom 1), potem nowe – w kolejności z lekcji
+  const pick = todo.filter(c => o.lv[c.key] === 1).concat(todo.filter(c => !o.lv[c.key])).slice(0, LEARN_ROUND);
+  o.queue = pick.map(c => c.key);
+  o.round++;
+  o.roundDone = 0; o.roundTotal = pick.length;
+  o.phase = pick.length ? 'ask' : 'finished';
+  learnPrep(o);
+}
+function learnPrep(o) {
+  o.res = null; o.typed = '';
+  const c = o.items.find(x => x.key === o.queue[0]);
+  o.cur = c || null;
+  if (!c) return;
+  const lvl = o.lv[c.key] || 0;
+  o.mode = lvl >= 1 && learnTypable(c.a) ? 'type' : 'mc';
+  if (o.mode === 'mc') {
+    const others = shuffle(o.items.filter(x => x.key !== c.key && learnNorm(x.a) !== learnNorm(c.a))).sort((x, y) => Math.abs(String(x.a).length - String(c.a).length) - Math.abs(String(y.a).length - String(c.a).length));
+    o.opts = shuffle([c.a].concat(others.slice(0, 3).map(x => x.a)));
+  }
+}
+function learnAnswer(o, ok, near) {
+  const c = o.cur, k = c.key;
+  o.res = {ok, near};
+  if (ok) {
+    o.lv[k] = Math.min(2, (o.lv[k] || 0) + 1);
+    o.queue.shift();
+    // po pierwszym trafieniu pozycja wraca jeszcze w tej rundzie na poziomie „wpisz”
+    if (o.lv[k] < 2) o.queue.splice(Math.min(LEARN_GAP, o.queue.length), 0, k); else o.roundDone++;
+  } else {
+    o.lv[k] = 0;
+    o.queue.shift();
+    o.queue.splice(Math.min(LEARN_GAP, o.queue.length), 0, k);
+    o.wrongs = (o.wrongs || 0) + 1;
+  }
+  learnSave(o);
+  o.phase = 'fb';
+  o.anim = 'pick';
+  renderOv();
+  if (ok && !near) { const at = o; setTimeout(() => { if (S.ov === at && at.phase === 'fb') learnNext(at); }, 700); }
+}
+function learnNext(o) {
+  if (!o.queue.length) { o.phase = o.items.every(c => (o.lv[c.key] || 0) >= 2) ? 'finished' : 'roundEnd'; if (o.phase === 'finished') o.party = true; o.anim = 'done'; renderOv(); return; }
+  o.phase = 'ask'; learnPrep(o); o.anim = 'next'; renderOv();
+}
+function learnSubmitTyped(o, val) {
+  const c = o.cur, want = learnNorm(c.a), got = learnNorm(val);
+  if (!got) return;
+  o.typed = val;
+  if (got === want) return learnAnswer(o, true, false);
+  const near = want.length >= 5 && lev(got, want) <= 1;
+  learnAnswer(o, near, near);
+}
+function ovLearn(o) {
+  const total = o.items.length, mastered = o.items.filter(c => (o.lv[c.key] || 0) >= 2).length, started = o.items.filter(c => o.lv[c.key] === 1).length;
+  const bar = `<div class="prog learn-prog"><i style="width:${mastered / total * 100}%"></i><i class="mid" style="width:${started / total * 100}%"></i></div>
+    <p class="muted small tnum learn-stat">Opanowane ${mastered} / ${total}${started ? ` · w trakcie ${started}` : ''}</p>`;
+  if (o.phase === 'finished') return ovHeadLabel(o.label) + `<div class="done"><p class="done-big">Wszystko opanowane</p>
+    <p>${total} z ${total}. Każdą odpowiedź udało Ci się najpierw rozpoznać, a potem przypomnieć sobie samodzielnie.</p>
+    <p class="muted">Najlepiej utrwalisz to, wracając jutro: zrób wtedy „Od nowa” albo przejrzyj fiszki.</p>
+    <div class="row wrap"><button class="btn" data-act="learn-reset">Od nowa</button><button class="btn primary" data-act="close-ov" autofocus>Zamknij</button></div></div>`;
+  if (o.phase === 'roundEnd') return ovHeadLabel(o.label) + bar + `<div class="done"><p class="done-big">Runda ${o.round} zrobiona</p>
+    <p>W tej rundzie opanowane: ${o.roundDone} z ${o.roundTotal}. Zostało ${total - mastered}.</p>
+    <div class="row wrap"><button class="btn primary" data-act="learn-round" autofocus>Następna runda <span class="kbd">Enter</span></button><button class="btn ghost" data-act="close-ov">Przerwa</button></div></div>`;
+  const c = o.cur, fb = o.phase === 'fb', r = o.res || {};
+  let h = ovHeadLabel(o.label, `<span class="muted small tnum">runda ${o.round}</span>`) + bar + `<div class="qz learn">
+    <p class="label">${o.mode === 'type' ? 'Wpisz odpowiedź' : 'Wybierz odpowiedź'}</p>
+    <p class="qz-q">${mdi(c.q)}</p>`;
+  if (o.mode === 'mc') {
+    h += `<div class="qz-opts">${o.opts.map((a, j) => {
+      const isOk = a === c.a, cls = !fb ? '' : isOk ? 'ok' : o.picked === a ? 'no' : 'dim';
+      return `<button class="qz-o ${cls}" data-act="learn-pick" data-j="${j}" ${fb ? 'disabled' : ''}><span class="qz-l">${j + 1}</span><span>${mdi(a)}</span></button>`;
+    }).join('')}</div>`;
+  } else {
+    h += `<div class="learn-type"><input id="ln-in" type="text" class="inp${fb ? (r.ok ? ' ok' : ' no') : ''}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(o.typed || '')}" ${fb ? 'disabled' : 'autofocus'} placeholder="Twoja odpowiedź">
+      ${fb ? '' : `<div class="row wrap"><button class="btn primary" data-act="learn-check">Sprawdź <span class="kbd">Enter</span></button><button class="btn ghost" data-act="learn-idk">Nie wiem</button></div>`}</div>`;
+  }
+  if (fb) {
+    const msg = r.ok ? (r.near ? `<b>Prawie dobrze.</b> Uważaj na pisownię: <b>${mdi(c.a)}</b>` : '<b>Dobrze!</b>') : `<b>Jeszcze nie.</b> Poprawnie: <b>${mdi(c.a)}</b>. To pytanie wróci za chwilę.`;
+    h += `<div class="qz-why ${r.ok ? 'good' : 'bad'}"><p>${msg}</p></div>`;
+    if (!r.ok || r.near) h += `<div class="rate"><button class="btn primary wide" data-act="learn-next" autofocus>Dalej <span class="kbd">Enter</span></button></div>`;
+  }
+  return h + '</div>';
 }
 
 /* ---------- powtórka: fiszki, luki, pojęcia, błędy z testów ---------- */
@@ -3731,6 +3856,13 @@ const A = {
   'imp-multi': () => { S.ov.multi = !S.ov.multi; renderOv(); },
   'review': el => startReview(el.dataset.kind, el.dataset.id),
   'flip': () => flipCard(),
+  'learn': el => startLearn(el.dataset.id),
+  'learn-pick': el => { const o = S.ov; if (!o || o.phase !== 'ask') return; o.picked = o.opts[Number(el.dataset.j)]; learnAnswer(o, o.picked === o.cur.a, false); },
+  'learn-check': () => { const o = S.ov, i = $('#ln-in'); if (o && o.phase === 'ask' && i) learnSubmitTyped(o, i.value); },
+  'learn-idk': () => { const o = S.ov; if (o && o.phase === 'ask') { o.typed = ''; learnAnswer(o, false, false); } },
+  'learn-next': () => { const o = S.ov; if (o && o.phase === 'fb') learnNext(o); },
+  'learn-round': () => { const o = S.ov; if (o && o.phase === 'roundEnd') { learnNewRound(o); o.anim = 'next'; renderOv(); } },
+  'learn-reset': () => { const o = S.ov; if (o) startLearn(o.id, true); },
   'rv-next': () => nextCard(),
   'rate': el => rate(Number(el.dataset.r)),
   'quiz': el => startQuiz(el.dataset.kind, el.dataset.id),
@@ -4025,8 +4157,16 @@ function bindEvents() {
     }
     const locked = (o.type === 'import' && (o.stage === 'gen' || o.stage === 'extract')) || (o.type === 'ask' && o.busy) || ((o.type === 'editor' || o.type === 'mynotes') && !!o.busy);
     if (e.key === 'Escape') { if (!locked) { e.preventDefault(); requestCloseOv(); } return; }
+    if (o.type === 'learn' && t && t.id === 'ln-in' && e.key === 'Enter') { e.preventDefault(); if (o.phase === 'ask') learnSubmitTyped(o, t.value); return; }
     if (t && /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName)) return;
     if ((e.key === 'Enter' || e.key === ' ') && t && t.tagName === 'BUTTON' && !t.matches('[data-act="flip"],[data-act="quiz-next"],[data-act="rv-mcq-next"]')) return;
+    if (o.type === 'learn') {
+      if (o.phase === 'ask' && o.mode === 'mc' && /^[1-4]$/.test(e.key)) { e.preventDefault(); const j = Number(e.key) - 1; if (j < o.opts.length) { o.picked = o.opts[j]; learnAnswer(o, o.picked === o.cur.a, false); } }
+      else if (o.phase === 'ask' && o.mode === 'type' && e.key === 'Enter' && t && t.id === 'ln-in') { e.preventDefault(); learnSubmitTyped(o, t.value); }
+      else if (o.phase === 'fb' && e.key === 'Enter') { e.preventDefault(); learnNext(o); }
+      else if (o.phase === 'roundEnd' && e.key === 'Enter') { e.preventDefault(); A['learn-round'](); }
+      return;
+    }
     if (o.type === 'review' && o.i < o.q.length) {
       const c = o.q[o.i];
       if (c.kind === 'mcq') {
