@@ -566,6 +566,7 @@ mark{background:var(--mark);color:var(--mark-ink);border-radius:2px;padding:0 1p
 .rate-b.r3 b{color:var(--good)}
 .rate-b.r4 b{color:var(--accent)}
 .rate.four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.rate.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media (max-width:480px){ .rate.four{grid-template-columns:repeat(2,minmax(0,1fr))} .rate.four .rate-b .key{display:none} }
 .card-tag{display:inline-block;padding:1px 7px;border-radius:4px;background:var(--sunk);color:var(--muted);font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
 .card-tag.hard{background:var(--bad-soft);color:var(--bad)}
@@ -2205,8 +2206,21 @@ function scopeLabel(kind, id, what) {
 
 /* ---------- powtórka: fiszki, luki, pojęcia, błędy z testów ---------- */
 const KIND_TAG = {cloze: 'luka', term: 'pojęcie od tyłu', mcq: 'błąd z testu', vocab: 'słówko', person: 'osoba'};
+// fiszki jednej notatki: stała kolejność i zapamiętane miejsce, na którym skończono (w tej przeglądarce)
+const fcPosKey = id => 'atlas-fc-pos:' + id;
+function saveFcPos(id, i) { try { localStorage.setItem(fcPosKey(id), String(i)); } catch (e) {} }
 function startReview(kind, id) {
   const notes = scopeNotes(kind, id), t = today();
+  if (kind === 'note') {
+    const q = notes.flatMap(itemsOf).filter(c => c.kind !== 'mcq');
+    if (!q.length) { toast('Ta notatka nie ma fiszek.'); return; }
+    let at = 0;
+    try { at = Number(localStorage.getItem(fcPosKey(id))) || 0; } catch (e) {}
+    if (at >= q.length) at = 0;
+    S.ov = {type: 'review', kind, id, q, i: at, flipped: false, mcq: null, tally: {1: 0, 2: 0, 3: 0, 4: 0}, cram: true, label: scopeLabel(kind, id, 'Fiszki')};
+    openOv();
+    return;
+  }
   const due = [], fresh = [];
   for (const n of notes) {
     const opened = kind === 'note' || kind === 'event' || statusOf(n.id) !== 'nowe';
@@ -2244,6 +2258,21 @@ function flipCard() {
   o.anim = 'flip';
   renderOv();
 }
+function nextCard() {
+  const o = S.ov;
+  if (!o || !o.q[o.i]) return;
+  const gh = ghostOf($('#ov .panel-review .card'), 'out-right');
+  o.seen = (o.seen || 0) + 1;
+  o.i++;
+  // po ostatniej fiszce następny start zaczyna od początku
+  if (o.kind === 'note') saveFcPos(o.id, o.i >= o.q.length ? 0 : o.i);
+  o.flipped = false;
+  o.mcq = null;
+  o.anim = o.i >= o.q.length ? 'done' : 'next';
+  if (o.i >= o.q.length && o.q.length >= 5) o.party = true;
+  renderOv();
+  if (gh) $('#ov').appendChild(gh);
+}
 function rate(g) {
   const o = S.ov, c = o && o.q[o.i];
   if (!c) return;
@@ -2273,10 +2302,8 @@ const whenLabel = d => d <= 0 ? 'jeszcze dziś' : d === 1 ? 'jutro' : `za ${d} d
 function ovReview(o) {
   const total = o.q.length;
   if (o.i >= total) {
-    const T = o.tally, n = T[1] + T[2] + T[3] + T[4];
     return ovHeadLabel(o.label) + `<div class="done"><p class="done-big">Gotowe</p>
-      <p>${pl(n, 'odpowiedź', 'odpowiedzi', 'odpowiedzi')}: łatwe ${T[4]}, dobrze ${T[3]}, z trudem ${T[2]}, nie pamiętam ${T[1]}.</p>
-      <p class="muted">Każda fiszka wróci wtedy, gdy zaczniesz ją zapominać. Trudne szybciej, łatwe rzadziej, a wszystkie przed najbliższym sprawdzianem z kalendarza.</p>
+      <p>Przejrzane fiszki: ${o.seen || total}.</p>
       <div class="row"><button class="btn primary" data-act="close-ov" autofocus>Zamknij</button></div></div>`;
   }
   const c = o.q[o.i], n = noteById(c.noteId), s = n && subjectById(n.subjectId);
@@ -2288,7 +2315,7 @@ function ovReview(o) {
   let h = ovHeadLabel(o.label, `<span class="muted small tnum">${o.i + 1} / ${total}</span>`) +
     `<div class="prog"><i style="width:${o.i / total * 100}%"></i></div>
     <div class="card${o.flipped && c.kind !== 'mcq' ? ' swipe' : ''}" style="${cvar(s && s.stain)}"${!o.flipped && c.kind !== 'mcq' ? ' data-act="flip"' : ''}>
-      ${o.flipped && c.kind !== 'mcq' ? '<span class="swipe-tag bad" aria-hidden="true">Nie pamiętam</span><span class="swipe-tag good" aria-hidden="true">Dobrze</span>' : ''}
+      ${o.flipped && c.kind !== 'mcq' ? '' : ''}
       <p class="card-src"><span class="sw"></span>${esc(s ? s.name : '')}${n ? ' · ' + esc(noteLabel(n)) : ''} ${tags.join(' ')}</p>
       <div class="card-q">${mdi(c.q)}</div>`;
   if (c.kind === 'mcq') {
@@ -2306,9 +2333,8 @@ function ovReview(o) {
   h += `${o.flipped ? `<div class="card-a">${mdi(c.a)}</div>` : ''}</div>`;
   if (!o.flipped) return h + `<div class="rate"><button class="btn primary wide" data-act="flip" autofocus>Pokaż odpowiedź <span class="kbd">spacja</span></button></div>`;
   const ex = n && examDateFor(n.subjectId);
-  const days = [1, 2, 3, 4].map(g => daysBetween(today(), schedule(st, g, ex).d));
-  const names = ['Nie pamiętam', 'Z trudem', 'Dobrze', 'Łatwe'];
-  return h + `<div class="rate four">${[1, 2, 3, 4].map(g => `<button class="btn rate-b r${g}" data-act="rate" data-r="${g}"><b>${names[g - 1]}</b><span>${whenLabel(days[g - 1])}<span class="key"> · ${g}</span></span></button>`).join('')}</div><p class="swipe-hint">Przesuń kartę w prawo: Dobrze, w lewo: Nie pamiętam</p>`;
+  // bez oceniania (prośba użytkownika): po odwróceniu tylko „Dalej”
+  return h + `<div class="rate"><button class="btn primary wide" data-act="rv-next" autofocus>Dalej <span class="kbd">spacja</span></button></div>`;
 }
 
 /* ---------- test ---------- */
@@ -3705,6 +3731,7 @@ const A = {
   'imp-multi': () => { S.ov.multi = !S.ov.multi; renderOv(); },
   'review': el => startReview(el.dataset.kind, el.dataset.id),
   'flip': () => flipCard(),
+  'rv-next': () => nextCard(),
   'rate': el => rate(Number(el.dataset.r)),
   'quiz': el => startQuiz(el.dataset.kind, el.dataset.id),
   'quiz-pick': el => pick(Number(el.dataset.k)),
@@ -3878,7 +3905,7 @@ function bindEvents() {
     const s = sw;
     sw = null;
     if (!s.on) return;
-    if (Math.abs(s.dx) > Math.min(110, s.card.offsetWidth * .3)) { rate(s.dx > 0 ? 3 : 1); return; }
+    if (Math.abs(s.dx) > Math.min(110, s.card.offsetWidth * .3)) { nextCard(); return; }
     s.card.style.transition = 'transform .2s cubic-bezier(.2,.8,.2,1)';
     s.card.style.transform = '';
     s.card.querySelectorAll('.swipe-tag').forEach(t => { t.style.opacity = 0; });
@@ -4007,7 +4034,7 @@ function bindEvents() {
         else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); A['rv-mcq-next'](); }
       }
       else if (!o.flipped && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); flipCard(); }
-      else if (o.flipped && /^[1234]$/.test(e.key)) { e.preventDefault(); rate(Number(e.key)); }
+      else if (o.flipped && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); nextCard(); }
     } else if (o.type === 'quiz' && o.i < o.qs.length) {
       if (o.picked === null) {
         let j = '1234'.indexOf(e.key);
