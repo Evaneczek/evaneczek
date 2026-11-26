@@ -2250,7 +2250,9 @@ function startLearn(id, fresh) {
   const items = n ? learnItems(n) : [];
   if (items.length < 4) { toast('Za mało fiszek do nauki.'); return; }
   const lv = fresh ? {} : learnLoad(id);
-  S.ov = {type: 'learn', id, items, lv, round: 0, label: scopeLabel('note', id, 'Ucz się')};
+  // numer rundy liczony z postępu, żeby po powrocie (też na innym urządzeniu) była ta sama runda
+  const doneN = items.filter(c => (lv[c.key] || 0) >= 2).length;
+  S.ov = {type: 'learn', id, items, lv, round: Math.floor(doneN / LEARN_ROUND), label: scopeLabel('note', id, 'Ucz się')};
   learnNewRound(S.ov);
   openOv();
 }
