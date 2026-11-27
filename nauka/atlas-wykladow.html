@@ -942,17 +942,20 @@ function exHtml(n, x, i) {
   let total = 0, good = 0, filled = 0;
   const used = Object.values(st.vals);
   const items = arr(x.items).filter(it => it && it.q).map((it, j) => {
-    const ans = exAnswers(it);
+    // wybór z opcji: odpowiedź porównujemy w całości (bez ucinania nawiasów i dzielenia po „/”)
+    const exact = type === 'choose' && arr(it.options).includes(it.a);
+    const same = (v, a) => exact ? v === a : exOk(v, a);
+    const ans = exact ? [String(it.a)] : exAnswers(it);
     let g = 0, any = false;
     const gap = prefix => {
       const k = j + ':' + g, a = ans[Math.min(g, ans.length - 1)] || '', raw = st.vals[k] || '';
       g++; total++;
-      const ok = exOk(raw, a, prefix);
+      const ok = exact ? raw === a : exOk(raw, a, prefix);
       if (ok) good++;
       if (raw) { filled++; any = true; }
       if (type === 'choose' && arr(it.options).length > 1) {
         return `<span class="ex-opts" role="group" aria-label="Luka ${g}">${it.options.map(o => {
-          const cls = st.shown && exOk(o, a) ? 'shown' : raw === o ? (ok ? 'ok' : 'no') : '';
+          const cls = st.shown && same(o, a) ? 'shown' : raw === o ? (ok ? 'ok' : 'no') : '';
           return `<button type="button" class="ex-opt ${cls}" data-act="ex-opt" data-k="${k}" data-o="${esc(o)}" ${ok || st.shown ? 'disabled' : ''}>${esc(o)}</button>`;
         }).join('')}</span>`;
       }
@@ -968,7 +971,7 @@ function exHtml(n, x, i) {
     // po odpowiedzi: dlaczego ta odpowiedź (przy złym wyborze: dlaczego nie ta) i tłumaczenie zdania;
     // puste luki po „Sprawdź” nie zdradzają odpowiedzi
     const picked = type === 'choose' ? st.vals[j + ':0'] : null;
-    const pickedOk = picked && exOk(picked, ans[0] || '');
+    const pickedOk = picked && same(picked, ans[0] || '');
     let more = '';
     if (st.shown || (type === 'choose' ? picked : st.checked && any)) {
       const parts = [];
